@@ -1,7 +1,9 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
 import android.app.DatePickerDialog
+import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -48,7 +50,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
+
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,15 +70,16 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
-import kotlin.time.Duration.Companion.hours
 
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: () -> Unit,GraphHeading: String) {
 
@@ -84,14 +87,20 @@ fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: ()
     val viewModel: MachineViewModel = viewModel()
     val todayTemps by viewModel.todayTemperatureList.observeAsState(emptyList())
     val weeklyTemps by viewModel.weeklyTemperatureList.observeAsState(emptyList())
-    val selectedDateRangeData by viewModel.selectedDateRangeData.observeAsState(emptyList())
-    val options =listOf("Today","Weekly","Set Range")
+
+    val options =listOf("Today","Weekly")
     var expanded by remember{ mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Weekly") }
 
-    // State for start and end dates
-    var startDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
+    val displayText = when(selectedOption){
+        "Today" -> {
+            val today=LocalDate.now()
+            today.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+        }
+        "Weekly" -> "Weekly"
+        else -> "Weekly"
+    }
+
 
     val (xAxisLabels, yAxisData) = when (selectedOption) {
         "Today" -> {
@@ -108,51 +117,11 @@ fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: ()
             days to weeklyTemps
         }
 
-        "Set Range" -> {
-            val filteredTemperatureData = selectedDateRangeData.map { it.avg_temperature }
-            val xLabels = selectedDateRangeData.map { it.date } // Use the dates as X labels
-            xLabels to filteredTemperatureData
-        }
-
-
         else -> {
             val days = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
             days to weeklyTemps
         }
     }
-
-    val context = LocalContext.current
-    val activity = context as? ComponentActivity
-
-// Material Date Range Picker
-    val dateRangePicker = remember {
-        MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText("Select Date Range")
-            .build()
-    }
-
-    LaunchedEffect(dateRangePicker) {
-        dateRangePicker.addOnPositiveButtonClickListener { selection ->
-            val startDateMillis = selection.first
-            val endDateMillis = selection.second
-
-            if (startDateMillis != null && endDateMillis != null) {
-                val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val startDateFormatted = formatter.format(Date(startDateMillis))
-                val endDateFormatted = formatter.format(Date(endDateMillis))
-
-                // Update startDate and endDate states
-                startDate = startDateFormatted
-                endDate = endDateFormatted
-
-                // Fetch new data
-                viewModel.fetchDailySummary(startDateFormatted, endDateFormatted)
-            }
-        }
-    }
-
-
-
 
     var startAnimation by remember { mutableStateOf(false) }
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
@@ -163,11 +132,8 @@ fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: ()
     )
     LaunchedEffect(Unit) {
         startAnimation = true
-//        viewModel.fetch7DayTemperatureTrend()
+
     }
-
-
-
 
     Column(
         modifier = Modifier
@@ -213,7 +179,7 @@ fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: ()
 
                 Column(horizontalAlignment = Alignment.End) {
                     Row {
-                        Text(text = selectedOption ?: "", color = Color.Black,
+                        Text(text = displayText, color = Color.Black,
                         modifier=modifier.padding(top=12.dp),
                         fontFamily = dmRegular, fontWeight = FontWeight.Bold
                     )
@@ -248,13 +214,7 @@ fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: ()
                                 onClick = {
                                     selectedOption = option
                                     expanded = false
-                                    // Handle the selection (e.g., update UI or perform an action)
-//                                    if (option == "Set Range") {
-//                                        expanded = false
-//                                        activity?.let {
-//                                            dateRangePicker.show(it.supportFragmentManager, "DATE_RANGE_PICKER")
-//                                        }
-//                                    }
+
                                 }
                             )
                         }
@@ -399,12 +359,7 @@ fun ShowLineChart(
                 )
             )
 
-
             chart.data = LineData(dataSet)
-
-
-
-
 
             // Chart styling
             chart.description.isEnabled = false
@@ -484,41 +439,7 @@ fun ShimmerEffect(modifier: Modifier = Modifier) {
     )
 }
 
-@Composable
-fun DateRangePickerDialog(
-    onDateSelected: (String, String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
-    var startDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
-
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            calendar.set(year, month, dayOfMonth)
-            startDate = dateFormatter.format(calendar.time)
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    )
-
-    // Show start date picker
-    Dialog(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Select Start Date")
-            Button(onClick = { datePickerDialog.show() }) {
-                Text(text = "Pick Start Date")
-            }
-            // Add logic to select end date here
-            // On selection, call onDateSelected with startDate and endDate
-        }
-    }
-}
 
 
 
