@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
@@ -22,44 +24,66 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     val latestOilLevelValue:LiveData<Int?> = dao.getLatestOilLevelData()
 
 
-//    //hourly data
-//    val todayHourlyRuntime: LiveData<List<HourlyData>> = dao.getHourlyDataToday()
-//
-//    //weekly data
-//    val weeklyData: LiveData<List<WeeklyData>> = dao.getWeeklyData()
-//
-//    //selected date range  data
-//    private val _selectedDateRangeData = MutableLiveData<List<DailySummary>>()
-//    val selectedDateRangeData: LiveData<List<DailySummary>> = _selectedDateRangeData
-//
-//    // Function to fetch daily summary for a given date range
-//    fun fetchDailySummary(startDate: String, endDate: String) {
-//        dao.getDailySummary(startDate, endDate).observeForever { summaries ->
-//            _selectedDateRangeData.postValue(summaries)
-//        }
-//    }
+    //hourly data
+    val todayHourlyData: LiveData<List<HourlyData>> = dao.getHourlyDataToday()
 
+    //weekly data
+    val weeklyData: LiveData<List<WeeklyData>> = dao.getWeeklyData()
 
+    //selected date range  data
+    private val _selectedDateRangeData = MutableLiveData<List<DailySummary>>()
+    val selectedDateRangeData: LiveData<List<DailySummary>> = _selectedDateRangeData
 
-
-    val temperatureTrend = MutableLiveData<List<Double>>() // Change type to List<Double>
-
-    fun fetch7DayTemperatureTrend() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val rawTrend = dao.get7DayTemperatureTrend()
-
-            println("📊 Raw trend from DB: $rawTrend")
-
-            // Fill missing days with 0.0
-            val fullTrend = (0..6).map { dayOfWeek ->
-                rawTrend.find { it.dayOfWeek == dayOfWeek }?.averageTemperature ?: 0.0
-            }
-
-            println("✅ Full 7-day trend: $fullTrend")
-
-            temperatureTrend.postValue(fullTrend)
+    // Function to fetch daily summary for a given date range
+    fun fetchDailySummary(startDate: String, endDate: String) {
+        dao.getDailySummary(startDate, endDate).observeForever { summaries ->
+            _selectedDateRangeData.postValue(summaries)
         }
     }
+
+
+
+    val todayTemperatureList: LiveData<List<Double>> = todayHourlyData.map { list ->
+        val temperatures = MutableList(24) { 0.0 } // 24 entries
+        list.forEach { data ->
+            val hour = data.hour.toIntOrNull() ?: 0
+            if (hour in 0..23) {
+                temperatures[hour] = data.avg_temperature
+            }
+        }
+        temperatures
+    }
+
+    val weeklyTemperatureList: LiveData<List<Double>> = weeklyData.map { list ->
+        val temperatures = MutableList(7) { 0.0 } // 7 days
+        list.forEachIndexed { index, data ->
+            temperatures[index] = data.avg_temperature
+        }
+        temperatures
+    }
+
+
+
+
+
+//    val temperatureTrend = MutableLiveData<List<Double>>() // Change type to List<Double>
+//
+//    fun fetch7DayTemperatureTrend() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val rawTrend = dao.get7DayTemperatureTrend()
+//
+//            println("📊 Raw trend from DB: $rawTrend")
+//
+//            // Fill missing days with 0.0
+//            val fullTrend = (0..6).map { dayOfWeek ->
+//                rawTrend.find { it.dayOfWeek == dayOfWeek }?.averageTemperature ?: 0.0
+//            }
+//
+//            println("✅ Full 7-day trend: $fullTrend")
+//
+//            temperatureTrend.postValue(fullTrend)
+//        }
+//    }
 
 
 

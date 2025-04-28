@@ -72,7 +72,7 @@ fun GraphScreenShowing(navController: NavController,
 ) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
     val viewModel: MachineViewModel = viewModel()
-    val trend by viewModel.temperatureTrend.observeAsState()
+//    val trend by viewModel.temperatureTrend.observeAsState()
 
     // Animation trigger state
     var startAnimation by remember { mutableStateOf(false) }
@@ -183,17 +183,17 @@ fun GraphScreenShowing(navController: NavController,
 
 
                 var x_axis_values=listOf("sun","Mon","Tues","Wed","Thurs","Fri","Sat")
-                trend?.let {
-                    ShowLineChart(
-                        xData = x_axis_values,
-                        yData = it,
-                        dataLabel = "Temperature Graph",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-
-                    )
-                }
+//                trend?.let {
+//                    ShowLineChart(
+//                        xData = x_axis_values,
+//                        yData = it,
+//                        dataLabel = "Temperature Graph",
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .fillMaxHeight()
+//
+//                    )
+//                }
 
             }
         }

@@ -43,84 +43,83 @@ public interface MachineDataDao {
 
 
 
+    @Query("""
+    SELECT
+        strftime('%H', dateTime) AS hour,
+        SUM(runtime) AS total_runtime,
+        SUM(idleTime) AS total_idle_time,
+        AVG(temperature) AS avg_temperature,
+        AVG(vibration) AS avg_vibration,
+        AVG(oilLevel) AS avg_oilLevel
+    FROM machine_data
+    WHERE date(dateTime) = date('now')
+    GROUP BY hour
+    ORDER BY hour ASC
+""")
+     fun getHourlyDataToday(): LiveData<List<HourlyData>>
 
-//    @Query("""
-//    SELECT
-//        strftime('%H', dateTime) AS hour,
-//        SUM(runtime) AS total_runtime,
-//        SUM(idleTime) AS total_idle_time,
-//        AVG(temperature) AS avg_temperature,
-//        AVG(vibration) AS avg_vibration,
-//        AVG(oilLevel) AS avg_oilLevel
-//    FROM machine_data
-//    WHERE date(dateTime) = date('now')
-//    GROUP BY hour
-//    ORDER BY hour ASC
-//""")
-//    fun getHourlyDataToday(): LiveData<List<HourlyData>>
-//
-//    //hourly data ends
-//
+
+
 //    //showing weekly data starts
-//
-//
-//    @Query("""
-//    SELECT
-//        CASE strftime('%w', dateTime)
-//            WHEN '0' THEN 'Sunday'
-//            WHEN '1' THEN 'Monday'
-//            WHEN '2' THEN 'Tuesday'
-//            WHEN '3' THEN 'Wednesday'
-//            WHEN '4' THEN 'Thursday'
-//            WHEN '5' THEN 'Friday'
-//            WHEN '6' THEN 'Saturday'
-//        END AS day_of_week,
-//        SUM(runtime) AS total_runtime,
-//        SUM(idleTime) AS total_idle_time,
-//        AVG(temperature) AS avg_temperature
-//    FROM machine_data
-//    WHERE strftime('%W', dateTime) = strftime('%W', 'now')  -- current week
-//    GROUP BY strftime('%w', dateTime)
-//    ORDER BY strftime('%w', dateTime) ASC
-//""")
-//    fun getWeeklyData(): LiveData<List<WeeklyData>>
-//
-//
-//    //showing weekly data ends
-//
-//    //showing selected date range
-//
-//    @Query("""
-//    SELECT
-//        date(dateTime) AS date,
-//        SUM(runtime) AS total_runtime,
-//        SUM(idleTime) AS total_idle_time,
-//        AVG(temperature) AS avg_temperature
-//    FROM machine_data
-//    WHERE date(dateTime) BETWEEN date(:startDate) AND date(:endDate)
-//    GROUP BY date(dateTime)
-//    ORDER BY date(dateTime)
-//""")
-//    fun getDailySummary(startDate: String, endDate: String): LiveData<List<DailySummary>>
-//
-//
-//
-//
-
-
-
 
 
     @Query("""
-    SELECT 
-        CAST (strftime('%w', dateTime) AS INTEGER) AS dayOfWeek,
-        AVG(temperature) AS averageTemperature
+    SELECT
+        CASE strftime('%w', dateTime)
+            WHEN '0' THEN 'Sunday'
+            WHEN '1' THEN 'Monday'
+            WHEN '2' THEN 'Tuesday'
+            WHEN '3' THEN 'Wednesday'
+            WHEN '4' THEN 'Thursday'
+            WHEN '5' THEN 'Friday'
+            WHEN '6' THEN 'Saturday'
+        END AS day_of_week,
+        SUM(runtime) AS total_runtime,
+        SUM(idleTime) AS total_idle_time,
+        AVG(temperature) AS avg_temperature,
+          AVG(vibration) AS avg_vibration,      -- <-- ADD THIS
+        AVG(oilLevel) AS avg_oilLevel          -- <-- ADD THIS
     FROM machine_data
-    WHERE dateTime >= datetime('now', '-7 days')
-    GROUP BY dayOfWeek
-    ORDER BY dayOfWeek ASC
+    WHERE strftime('%W', dateTime) = strftime('%W', 'now')  -- current week
+    GROUP BY strftime('%w', dateTime)
+    ORDER BY strftime('%w', dateTime) ASC
 """)
-     fun get7DayTemperatureTrend(): List<DayTemperature>
+    fun getWeeklyData(): LiveData<List<WeeklyData>>
+
+
+
+//    //showing selected date range
+
+    @Query("""
+    SELECT
+        date(dateTime) AS date,
+        SUM(runtime) AS total_runtime,
+        SUM(idleTime) AS total_idle_time,
+        AVG(temperature) AS avg_temperature,
+          AVG(vibration) AS avg_vibration,      -- <-- ADD THIS
+        AVG(oilLevel) AS avg_oilLevel          -- <-- ADD THIS
+    FROM machine_data
+    WHERE date(dateTime) BETWEEN date(:startDate) AND date(:endDate)
+    GROUP BY date(dateTime)
+    ORDER BY date(dateTime)
+""")
+    fun getDailySummary(startDate: String, endDate: String): LiveData<List<DailySummary>>
+
+
+
+
+
+//
+//    @Query("""
+//    SELECT
+//        CAST (strftime('%w', dateTime)) AS dayOfWeek,
+//        AVG(temperature) AS averageTemperature
+//    FROM machine_data
+//    WHERE dateTime >= datetime('now', '-7 days')
+//    GROUP BY dayOfWeek
+//    ORDER BY dayOfWeek ASC
+//""")
+//     fun get7DayTemperatureTrend(): List<DayTemperature>
 
 
 

@@ -5,7 +5,8 @@ data class WeeklyData(
     val total_runtime: Int,
     val total_idle_time: Int,
     val avg_temperature: Double,
-    val avg_vibration:Double,
-    val avg_oilLevel:Int
+    val avg_vibration: Double,   // <-- MISSING in query!
+    val avg_oilLevel: Int        // <-- MISSING in query!
+
 )
 
