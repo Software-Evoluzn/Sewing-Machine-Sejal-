@@ -59,6 +59,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.TemperatureMarkerView
 import com.github.mikephil.charting.animation.Easing
@@ -81,12 +83,17 @@ import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: () -> Unit,GraphHeading: String) {
+fun TemperatureGraph(navController: NavController,
+                     modifier: Modifier,
+                     onBack: () -> Unit,
+                     GraphHeading: String,
+                     dataLabel:String,
+                     todayTemps: List<Double>,
+                     weeklyTemps: List<Double>,
+                     valueColor: Color) {
 
 
-    val viewModel: MachineViewModel = viewModel()
-    val todayTemps by viewModel.todayTemperatureList.observeAsState(emptyList())
-    val weeklyTemps by viewModel.weeklyTemperatureList.observeAsState(emptyList())
+
 
     val options =listOf("Today","Weekly")
     var expanded by remember{ mutableStateOf(false) }
@@ -98,6 +105,12 @@ fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: ()
             today.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
         }
         "Weekly" -> "Weekly"
+        else -> "Weekly"
+    }
+
+    val displayBtnText=when(selectedOption){
+         "Today" -> { "Today"}
+        "Weekly" -> {"Weekly"}
         else -> "Weekly"
     }
 
@@ -198,7 +211,7 @@ fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: ()
 
                     ) {
                         Text(
-                            text = "Set Date",
+                            text = displayBtnText,
                             color = Color.White
                         )
                     }
@@ -263,10 +276,11 @@ fun TemperatureGraph(navController: NavController,modifier: Modifier, onBack: ()
                             ShowLineChart(
                                 xData = xAxisLabels,
                                 yData = yAxisData,
-                                dataLabel = "Temperature Graph",
+                                dataLabel = dataLabel,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(35.dp)
+                                    .padding(35.dp),
+                                valueColor = valueColor
                             )
                         }
                     }
@@ -307,7 +321,9 @@ fun ShowLineChart(
     xData: List<String>,
     yData: List<Double>,
     dataLabel: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    valueColor: Color
+
 ) {
     AndroidView(
         modifier = modifier,
@@ -331,7 +347,7 @@ fun ShowLineChart(
 
             // One dataset for smooth line
             val dataSet = LineDataSet(entries, dataLabel).apply {
-                color = Color(0xFFEE5D50).toArgb() // Line color (blue or any base)
+                color = valueColor.toArgb() // Line color (blue or any base)
                 lineWidth = 2.5f
                 circleRadius = 6f
                 valueTextSize = 0f

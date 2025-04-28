@@ -1,10 +1,12 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +15,10 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,6 +38,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.ui.theme.JetpackComposeEvo
 class MainActivity : ComponentActivity() {
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -54,9 +60,24 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(){
     val navController= rememberNavController()
+
+    val viewModel: MachineViewModel = viewModel()
+    val todayTemps by viewModel.todayTemperatureList.observeAsState(emptyList())
+    val todayVibration by viewModel.todayVibrationList.observeAsState(emptyList())
+    val todayOilLevelList by viewModel.todayOilLevelList.observeAsState(emptyList())
+    val todayRuntimeList by viewModel.todayRuntimeList.observeAsState(emptyList())
+    val todayIdleTimeList by viewModel.todayIdleTimeList.observeAsState(emptyList())
+
+    val weeklyTemps by viewModel.weeklyTemperatureList.observeAsState(emptyList())
+    val weeklyVibrationList by viewModel.weeklyVibrationList.observeAsState(emptyList())
+    val weeklyOilLevelList by viewModel.weeklyOilLevelList.observeAsState(emptyList())
+    val weeklyRunTimeList by viewModel.weeklyRunTimeList.observeAsState(emptyList())
+    val weeklyIdleTimeList by viewModel.weeklyIdleTimeList.observeAsState(emptyList())
+
     NavHost(navController = navController, startDestination = "mainMenu"){
         composable("mainMenu"){ MainMenu(navController) }
         composable("machineRuntimeScreen"){ MachineRuntime(navController) }
@@ -67,16 +88,60 @@ fun AppNavigation(){
                 navController = navController,
                 modifier = Modifier,
                 onBack = { navController.popBackStack() },
-                "Temperature Graph"
+                GraphHeading = "Temperature Graph",
+                dataLabel = "Temperature Graph in \u00B0C",
+                todayTemps = todayTemps,
+                weeklyTemps = weeklyTemps,
+                valueColor = Color(0xFFF44336)
             )
         }
 
-        composable("GraphScreenShowing"){ GraphScreenShowing(navController,
-            modifier = Modifier, onBackClick = {navController.popBackStack()},"Temperature Graph") }
-        composable("vibrationGraphScreen"){ VibrationGraph(navController) }
-        composable("oilLevelGraphScreen"){ OilLevelGraph(navController) }
-        composable("runTimeAnalysisGraphScreen"){ RunTimeAnalysisGraph(navController) }
-        composable("idleTimeAnalysisGraphScreen"){ IdleTimeAnalysisGraph(navController) }
+        composable("vibrationGraphScreen"){
+
+            VibrationGraph(
+                navController= navController,
+                modifier=Modifier,
+                onBack={navController.popBackStack()},
+                GraphHeading = "Vibration Graph",
+                dataLabel = "Vibration Graph in mm/s",
+                todayTemps = todayVibration,
+                weeklyTemps = weeklyVibrationList,
+                valueColor = Color(0xFFFF7B00)
+        ) }
+        composable("oilLevelGraphScreen"){
+            OilLevelGraph(
+                navController= navController,
+                modifier=Modifier,
+                onBack={navController.popBackStack()},
+                GraphHeading = "Oil Level  Graph",
+                dataLabel = "OilLevel Graph in mm/s",
+                todayTemps = todayOilLevelList,
+                weeklyTemps = weeklyOilLevelList,
+                valueColor = Color(0xFF0BA911)
+            )
+        }
+        composable("runTimeAnalysisGraphScreen"){
+            RunTimeAnalysisGraph(
+                navController= navController,
+                modifier=Modifier,
+                onBack={navController.popBackStack()},
+                GraphHeading = "RunTime Analysis  Graph",
+                dataLabel = "RunTime Analysis Graph in hrs",
+                todayTemps = todayRuntimeList,
+                weeklyTemps = weeklyRunTimeList,
+                valueColor = Color(0xFF3386FF)
+        ) }
+        composable("idleTimeAnalysisGraphScreen"){
+            IdleTimeAnalysisGraph(
+                navController= navController,
+                modifier=Modifier,
+                onBack={navController.popBackStack()},
+                GraphHeading = "IdleTime Analysis Graph",
+                dataLabel = "IdleTime Analysis Graph in mm/s",
+                todayTemps = todayIdleTimeList,
+                weeklyTemps = weeklyIdleTimeList,
+                valueColor = Color(0xFF8569D8)
+            ) }
 
 
     }

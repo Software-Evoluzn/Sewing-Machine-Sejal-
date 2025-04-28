@@ -18,6 +18,9 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class UsbSerialService : Service() {
@@ -129,9 +132,14 @@ class UsbSerialService : Service() {
                                 val vibration = parts[2].toDoubleOrNull() ?: 0.0
                                 val oilLevel = parts[3].toIntOrNull() ?: 0
 
-                                val idleTime = calculateIdleTime(runtime)
+                                val idleTime = if(runtime==1) 0 else 1
+
+                                val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                                    Date()
+                                )
 
                                 val data = MachineData(
+                                    dateTime = currentTime,
                                     runtime = runtime,
                                     idleTime = idleTime,
                                     temperature = temp,
@@ -188,26 +196,8 @@ class UsbSerialService : Service() {
         const val ACTION_USB_PERMISSION = "com.example.USB_PERMISSION"
     }
 
-    private var lastRuntime = 0
-    private var lastTimeStamp: Long = System.currentTimeMillis()
 
-    private fun calculateIdleTime(currentRuntime: Int): Int {
-        val now = System.currentTimeMillis()
-        val elapsedSeconds = ((now - lastTimeStamp) / 1000).toInt()   // Milliseconds to seconds
 
-        val activeTime = currentRuntime - lastRuntime
-
-        val idleTime = if (elapsedSeconds > activeTime) {
-            elapsedSeconds - activeTime  // Actual idle time
-        } else {
-            0  // Machine was active
-        }
-
-        lastRuntime = currentRuntime
-        lastTimeStamp = now
-
-        return idleTime
-    }
 
 
 

@@ -39,8 +39,8 @@ fun MachineRuntime(navController: NavController) {
 
     val viewModel: MachineViewModel = viewModel()
 
-    val latestRunTimeData by viewModel.latestRunTime.observeAsState()
-    val latestIdleTime by viewModel.todayIdleTime.observeAsState()
+    val latestRunTimeData by viewModel.latestRunTime.observeAsState(0f)
+    val latestIdleTime by viewModel.latestIdleTime.observeAsState(0f)
 
     val windowInfo = rememberWindowInfo()
     Column(
@@ -74,7 +74,7 @@ fun MachineRuntime(navController: NavController) {
                 ) {
                     ParameterBox(
                         title = "RUN TIME ",
-                        value="${latestRunTimeData ?: 0}",
+                        value="${String.format("%.2f",latestRunTimeData)}",
                         unit="hrs",
                         icon = painterResource(R.drawable.run_time),
                         arrowIcon = painterResource(R.drawable.btn_image),
@@ -85,7 +85,7 @@ fun MachineRuntime(navController: NavController) {
 
                     ParameterBox(
                         title = "IDLE TIME ",
-                        value="${latestIdleTime ?: 0}",
+                        value="${String.format("%.2f",latestIdleTime)}",
                         unit="hrs",
                         icon = painterResource(R.drawable.idle_time),
                         arrowIcon = painterResource(R.drawable.btn_image),
@@ -104,7 +104,7 @@ fun MachineRuntime(navController: NavController) {
                 ) {
                     ParameterBox(
                         title = "RUN TIME ",
-                        value="${latestRunTimeData ?: 0}",
+                        value="${String.format("%.2f",latestRunTimeData)}",
                         unit="hrs",
                         icon = painterResource(R.drawable.run_time),
                         arrowIcon = painterResource(R.drawable.btn_image),
@@ -115,7 +115,7 @@ fun MachineRuntime(navController: NavController) {
                     Spacer(modifier = Modifier.width(32.dp))  // Space between the two cards
                     ParameterBox(
                         title = "IDLE TIME ",
-                        value="${latestIdleTime ?: 0}",
+                        value="${String.format("%.2f",latestIdleTime)}",
                         unit="hrs",
                         icon = painterResource(R.drawable.idle_time),
                         arrowIcon = painterResource(R.drawable.btn_image),

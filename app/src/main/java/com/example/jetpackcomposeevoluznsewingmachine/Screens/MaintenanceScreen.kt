@@ -111,7 +111,7 @@ fun MaintenanceScreen(navController: NavController) {
                         icon = painterResource(R.drawable.vib),
                         arrowIcon = painterResource(R.drawable.btn_image),
                         onClick = { navController.navigate("vibrationGraphScreen") },
-                        valueColor = Color(0xFF29B6F6)
+                        valueColor = Color(0xFFFF7B00)
                     )
 
 
@@ -122,7 +122,7 @@ fun MaintenanceScreen(navController: NavController) {
                         icon = painterResource(R.drawable.oil_level),
                         arrowIcon = painterResource(R.drawable.btn_image),
                         onClick = { navController.navigate("oilLevelGraphScreen") },
-                        valueColor = Color(0xFF29B6F6)
+                        valueColor = Color(0xFF0BA911)
                     )
                 }
             } else {
