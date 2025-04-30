@@ -1,6 +1,7 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -41,62 +42,52 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
     // temperature list
     val todayTemperatureList: LiveData<List<Double>> = todayHourlyData.map { list ->
-        MutableList(24) { 0.0 }.apply {
-            list.forEach { data ->
-                val hour = data.hour.toIntOrNull() ?: 0
-                if (hour in 0..23) {
-                    this[hour] = data.avg_temperature.toDouble() ?: 0.0
-                }
-            }
+        val hourToTemp = list.associateBy { it.hour.toIntOrNull() ?: -1 }
+//        Log.d("TodayTempList", "Hourly Temps: $list")
+
+        List(24) { hour ->
+            hourToTemp[hour]?.avg_temperature ?: 0.0
         }
     }
 
     // vibration list
     val todayVibrationList: LiveData<List<Double>> = todayHourlyData.map { list ->
-        MutableList(24) { 0.0 }.apply {
-            list.forEach { data ->
-                val hour = data.hour.toIntOrNull() ?: 0
-                if (hour in 0..23) {
-                    this[hour] = data.avg_vibration.toDouble() ?: 0.0
-                }
-            }
+      val hourToVib = list.associateBy {  it.hour.toIntOrNull() ?: -1 }
+
+        List(24){ hour ->
+            hourToVib[hour]?.avg_vibration ?: 0.0
+
         }
+
     }
 
     // oil level list
     val todayOilLevelList: LiveData<List<Double>> = todayHourlyData.map { list ->
-        MutableList(24) { 0.0 }.apply {
-            list.forEach { data ->
-                val hour = data.hour.toIntOrNull() ?: 0
-                if (hour in 0..23) {
-                    this[hour] = data.avg_oilLevel.toDouble() ?: 0.0
-                }
-            }
+       val hourToOilLevel=list.associateBy { it.hour.toIntOrNull() ?: -1 }
+
+        List(24){ hour ->
+            hourToOilLevel[hour]?.avg_oilLevel?.toDouble() ?: 0.0
         }
+
     }
 
     // Convert runtime from seconds to hours
     val todayRuntimeList: LiveData<List<Double>> = todayHourlyData.map { list ->
-        MutableList(24) { 0.0 }.apply {
-            list.forEach { data ->
-                val hour = data.hour.toIntOrNull() ?: 0
-                if (hour in 0..23) {
-                    this[hour] = (data.total_runtime.toDouble() / 3600) // Convert seconds to hours
-                }
-            }
+        val hourToRunTime = list.associateBy { it.hour.toIntOrNull() ?: -1 }
+        List(24){ hour ->
+            (hourToRunTime[hour]?.total_runtime?.toDouble() ?: 0.0)/3600
+
         }
     }
 
     // Convert idle time from seconds to hours
     val todayIdleTimeList: LiveData<List<Double>> = todayHourlyData.map { list ->
-        MutableList(24) { 0.0 }.apply {
-            list.forEach { data ->
-                val hour = data.hour.toIntOrNull() ?: 0
-                if (hour in 0..23) {
-                    this[hour] = (data.total_idle_time.toDouble() / 3600) // Convert seconds to hours
-                }
-            }
+       val hourToIdleTime = list.associateBy { it.hour.toIntOrNull() ?: -1 }
+        List(24){ hour ->
+            (hourToIdleTime[hour]?.total_idle_time?.toDouble() ?:0.0)/3600
+
         }
+
     }
 
 
@@ -104,49 +95,67 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     val weeklyData: LiveData<List<WeeklyData>> = dao.getWeeklyData()
 
 
-    //weekly temperature
+
+
+
+    private val dayToIndex = mapOf(
+        "Sunday" to 0,
+        "Monday" to 1,
+        "Tuesday" to 2,
+        "Wednesday" to 3,
+        "Thursday" to 4,
+        "Friday" to 5,
+        "Saturday" to 6
+    )
+
     val weeklyTemperatureList: LiveData<List<Double>> = weeklyData.map { list ->
-        val temperatures = MutableList(7) { 0.0 } // 7 days
-        list.forEachIndexed { index, data ->
-            temperatures[index] = data.avg_temperature
+        MutableList(7) { 0.0 }.apply {
+            list.forEach { data ->
+                val index = dayToIndex[data.day_of_week] ?: return@forEach
+                this[index] = data.avg_temperature
+            }
         }
-        temperatures
     }
+
 
     //weekly vibration
     val weeklyVibrationList: LiveData<List<Double>> = weeklyData.map { list ->
-        val vibration = MutableList(7) { 0.0 } // 7 days
-        list.forEachIndexed { index, data ->
-            vibration[index] = data.avg_vibration
+        MutableList(7) { 0.0 }.apply {
+            list.forEach { data ->
+                val index = dayToIndex[data.day_of_week] ?: return@forEach
+                this[index] = data.avg_vibration
+            }
         }
-        vibration
     }
 
     //weekly oilLevel
     val weeklyOilLevelList: LiveData<List<Double>> = weeklyData.map { list ->
-        val oilLevel = MutableList(7) { 0.0 } // 7 days
-        list.forEachIndexed { index, data ->
-            oilLevel[index] = data.avg_oilLevel.toDouble()
+        MutableList(7) { 0.0 }.apply {
+            list.forEach { data ->
+                val index = dayToIndex[data.day_of_week] ?: return@forEach
+                this[index] = data.avg_oilLevel.toDouble()
+            }
         }
-        oilLevel
     }
 
     //weekly runtime
     val weeklyRunTimeList: LiveData<List<Double>> = weeklyData.map { list ->
-        val runtime = MutableList(7) { 0.0 } // 7 days
-        list.forEachIndexed { index, data ->
-            runtime[index] = (data.total_runtime.toDouble()/3600)
+        MutableList(7) { 0.0 }.apply {
+            list.forEach { data ->
+                val index = dayToIndex[data.day_of_week] ?: return@forEach
+                this[index] = (data.total_runtime.toDouble())/3600
+            }
         }
-        runtime
     }
 
     //weekly idle time
     val weeklyIdleTimeList: LiveData<List<Double>> = weeklyData.map { list ->
-        val idleTime = MutableList(7) { 0.0 } // 7 days
-        list.forEachIndexed { index, data ->
-            idleTime[index] = (data.total_idle_time.toDouble()/3600)
+        MutableList(7) { 0.0 }.apply {
+            list.forEach { data ->
+                val index = dayToIndex[data.day_of_week] ?: return@forEach
+                this[index] = (data.total_idle_time.toDouble())/3600
+            }
         }
-        idleTime
     }
 
 
