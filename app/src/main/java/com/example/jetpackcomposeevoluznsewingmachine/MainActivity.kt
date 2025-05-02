@@ -58,6 +58,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        DatabaseBackupHelper.backupDatabase(this)  // ⬅️ Backup happens here
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -92,7 +97,8 @@ fun AppNavigation(){
                 dataLabel = "Temperature Graph in \u00B0C",
                 todayTemps = todayTemps,
                 weeklyTemps = weeklyTemps,
-                valueColor = Color(0xFFF44336)
+                valueColor = Color(0xFFF44336),
+                unit="°C"
             )
         }
 
@@ -106,7 +112,8 @@ fun AppNavigation(){
                 dataLabel = "Vibration Graph in mm/s",
                 todayTemps = todayVibration,
                 weeklyTemps = weeklyVibrationList,
-                valueColor = Color(0xFFFF7B00)
+                valueColor = Color(0xFFFF7B00),
+                unit="mm/s"
         ) }
         composable("oilLevelGraphScreen"){
             OilLevelGraph(
@@ -117,7 +124,8 @@ fun AppNavigation(){
                 dataLabel = "OilLevel Graph in mm/s",
                 todayTemps = todayOilLevelList,
                 weeklyTemps = weeklyOilLevelList,
-                valueColor = Color(0xFF0BA911)
+                valueColor = Color(0xFF0BA911),
+                unit="mm/s"
             )
         }
         composable("runTimeAnalysisGraphScreen"){
@@ -129,7 +137,8 @@ fun AppNavigation(){
                 dataLabel = "RunTime Analysis Graph in hrs",
                 todayTemps = todayRuntimeList,
                 weeklyTemps = weeklyRunTimeList,
-                valueColor = Color(0xFF3386FF)
+                valueColor = Color(0xFF3386FF),
+                unit="hrs"
         ) }
         composable("idleTimeAnalysisGraphScreen"){
             IdleTimeAnalysisGraph(
@@ -140,7 +149,8 @@ fun AppNavigation(){
                 dataLabel = "IdleTime Analysis Graph in mm/s",
                 todayTemps = todayIdleTimeList,
                 weeklyTemps = weeklyIdleTimeList,
-                valueColor = Color(0xFF8569D8)
+                valueColor = Color(0xFF8569D8),
+                unit="hrs"
             ) }
 
 

@@ -1,8 +1,6 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
-import android.app.DatePickerDialog
 import android.os.Build
-import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -19,9 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -36,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,7 +42,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 
@@ -55,12 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
-import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
-import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.TemperatureMarkerView
 import com.github.mikephil.charting.animation.Easing
@@ -73,12 +62,8 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
-import java.util.Locale
-
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -90,7 +75,8 @@ fun TemperatureGraph(navController: NavController,
                      dataLabel:String,
                      todayTemps: List<Double>,
                      weeklyTemps: List<Double>,
-                     valueColor: Color) {
+                     valueColor: Color,
+                     unit:String) {
 
 
 
@@ -280,7 +266,9 @@ fun TemperatureGraph(navController: NavController,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(35.dp),
-                                valueColor = valueColor
+                                valueColor = valueColor,
+                                unit
+
                             )
                         }
                     }
@@ -322,7 +310,8 @@ fun ShowLineChart(
     yData: List<Double>,
     dataLabel: String,
     modifier: Modifier = Modifier,
-    valueColor: Color
+    valueColor: Color,
+    unit:String
 
 ) {
     AndroidView(
@@ -410,7 +399,7 @@ fun ShowLineChart(
             val maxY = yData.maxOrNull() ?: 0.0
             chart.axisLeft.axisMaximum = (maxY + 10f).toFloat()
 
-            val markerView = TemperatureMarkerView(context, xData)
+            val markerView = TemperatureMarkerView(context, xData,unit)
             markerView.chartView = chart
             chart.marker = markerView
 

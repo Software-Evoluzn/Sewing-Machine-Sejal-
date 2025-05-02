@@ -8,8 +8,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 
 class TemperatureMarkerView(
-    context: Context,
-    private val xData: List<String>
+    context: Context, private val xData: List<String>,val unit:String
 ) : MarkerView(context, R.layout.marker_view) {
 
     private val tvContent: TextView = findViewById(R.id.tvContent)
@@ -18,7 +17,7 @@ class TemperatureMarkerView(
         e?.let {
             val day = xData.getOrNull(e.x.toInt()) ?: "Unknown"
             val value = e.y.toInt()
-            tvContent.text = "$day: $value°C"
+            tvContent.text = "$day: $value $unit"
         }
         super.refreshContent(e, highlight)
     }

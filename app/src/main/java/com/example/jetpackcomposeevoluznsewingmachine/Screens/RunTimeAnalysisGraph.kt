@@ -18,7 +18,8 @@ fun RunTimeAnalysisGraph(navController: NavController,
                          dataLabel:String,
                          todayTemps: List<Double>,
                          weeklyTemps: List<Double>,
-                         valueColor: Color
+                         valueColor: Color,
+                         unit:String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -27,5 +28,6 @@ fun RunTimeAnalysisGraph(navController: NavController,
         dataLabel,
         todayTemps,
         weeklyTemps,
-        valueColor)
+        valueColor,
+        unit)
 }

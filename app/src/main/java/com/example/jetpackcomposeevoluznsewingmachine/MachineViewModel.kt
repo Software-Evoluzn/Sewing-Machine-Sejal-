@@ -44,7 +44,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     val todayTemperatureList: LiveData<List<Double>> = todayHourlyData.map { list ->
         val hourToTemp = list.associateBy { it.hour.toIntOrNull() ?: -1 }
 //        Log.d("TodayTempList", "Hourly Temps: $list")
-
         List(24) { hour ->
             hourToTemp[hour]?.avg_temperature ?: 0.0
         }
@@ -53,7 +52,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     // vibration list
     val todayVibrationList: LiveData<List<Double>> = todayHourlyData.map { list ->
       val hourToVib = list.associateBy {  it.hour.toIntOrNull() ?: -1 }
-
         List(24){ hour ->
             hourToVib[hour]?.avg_vibration ?: 0.0
 
@@ -64,7 +62,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     // oil level list
     val todayOilLevelList: LiveData<List<Double>> = todayHourlyData.map { list ->
        val hourToOilLevel=list.associateBy { it.hour.toIntOrNull() ?: -1 }
-
         List(24){ hour ->
             hourToOilLevel[hour]?.avg_oilLevel?.toDouble() ?: 0.0
         }
@@ -90,14 +87,8 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
     }
 
-
     //weekly data
     val weeklyData: LiveData<List<WeeklyData>> = dao.getWeeklyData()
-
-
-
-
-
     private val dayToIndex = mapOf(
         "Sunday" to 0,
         "Monday" to 1,
@@ -107,7 +98,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
         "Friday" to 5,
         "Saturday" to 6
     )
-
     val weeklyTemperatureList: LiveData<List<Double>> = weeklyData.map { list ->
         MutableList(7) { 0.0 }.apply {
             list.forEach { data ->
@@ -116,8 +106,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-
-
     //weekly vibration
     val weeklyVibrationList: LiveData<List<Double>> = weeklyData.map { list ->
         MutableList(7) { 0.0 }.apply {
@@ -127,7 +115,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-
     //weekly oilLevel
     val weeklyOilLevelList: LiveData<List<Double>> = weeklyData.map { list ->
         MutableList(7) { 0.0 }.apply {
@@ -137,7 +124,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-
     //weekly runtime
     val weeklyRunTimeList: LiveData<List<Double>> = weeklyData.map { list ->
         MutableList(7) { 0.0 }.apply {
@@ -147,7 +133,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
-
     //weekly idle time
     val weeklyIdleTimeList: LiveData<List<Double>> = weeklyData.map { list ->
         MutableList(7) { 0.0 }.apply {
@@ -158,17 +143,9 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-
-
-
-
-
-
-
     //selected date range  data
     private val _selectedDateRangeData = MutableLiveData<List<DailySummary>>()
     val selectedDateRangeData: LiveData<List<DailySummary>> = _selectedDateRangeData
-
     // Function to fetch daily summary for a given date range
     fun fetchDailySummary(startDate: String, endDate: String) {
         dao.getDailySummary(startDate, endDate).observeForever { summaries ->

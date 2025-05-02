@@ -19,7 +19,8 @@ fun VibrationGraph(navController: NavController,
                    dataLabel:String,
                    todayTemps: List<Double>,
                    weeklyTemps: List<Double>,
-                   valueColor: Color
+                   valueColor: Color,
+                   unit:String
 ) {
    TemperatureGraph(navController,
        modifier,
@@ -28,5 +29,6 @@ fun VibrationGraph(navController: NavController,
        dataLabel,
        todayTemps,
        weeklyTemps,
-       valueColor)
+       valueColor,
+       unit)
 }

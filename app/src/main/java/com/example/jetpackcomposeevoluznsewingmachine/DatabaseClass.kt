@@ -18,12 +18,13 @@ abstract class DatabaseClass : RoomDatabase() {
 
         fun getDatabase(context: Context): DatabaseClass {
             return INSTANCE ?: synchronized(this) {
+
+                DatabaseBackupHelper.restoreDatabaseIfExists(context)
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     DatabaseClass::class.java,
                     "machine_database"
-                ).fallbackToDestructiveMigration()  // 💥 This clears old schema and creates a new one
-                    .build()
+                ).build()
                 INSTANCE = instance
                 instance
             }
