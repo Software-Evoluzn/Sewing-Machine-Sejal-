@@ -1,6 +1,10 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
+
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,35 +16,52 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
-import com.example.jetpackcomposeevoluznsewingmachine.Screens.GraphScreenShowing
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.IdleTimeAnalysisGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MachineRuntime
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MainMenu
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MaintenanceScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.OilLevelGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.RunTimeAnalysisGraph
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.ShowingCombineGraphs
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.TemperatureGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.VibrationGraph
 import com.example.jetpackcomposeevoluznsewingmachine.ui.theme.JetpackComposeEvoluznSewingMachineTheme
 
 class MainActivity : ComponentActivity() {
 
+    private var showUsbDetachedDialog by mutableStateOf(false)
+
+    private val usbDetachedReceiver=object: BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+           if(intent?.action=="USB_DEVICE_DEATTACHED"){
+               showUsbDetachedDialog=true
+           }
+        }
+
+    }
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // Start the USB Serial Service
         val serviceIntent = Intent(this, UsbSerialService::class.java)
@@ -54,16 +75,48 @@ class MainActivity : ComponentActivity() {
                         .padding(WindowInsets.systemBars.asPaddingValues()) ,
                     color=MaterialTheme.colorScheme.background){
                     AppNavigation()
+
+
+                    if(showUsbDetachedDialog){
+                        AlertDialog(onDismissRequest = {showUsbDetachedDialog=false},
+                          title =  {Text("USB Disconnected")},
+                            text={Text("The Usb Device Disconnected")},
+                            confirmButton = {
+                                TextButton(onClick = {showUsbDetachedDialog=false}) {
+                                    Text("OK")
+                                }
+                            }
+                            )
+                    }
+
                 }
             }
         }
+    }
+
+
+
+    override fun onResume() {
+        super.onResume()
+        registerReceiver(usbDetachedReceiver, IntentFilter("USB_DEVICE_DEATTACHED"))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(usbDetachedReceiver)
     }
 
     override fun onStop() {
         super.onStop()
         DatabaseBackupHelper.backupDatabase(this)  // ⬅️ Backup happens here
     }
+
+
+
 }
+
+
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -87,6 +140,7 @@ fun AppNavigation(){
         composable("mainMenu"){ MainMenu(navController) }
         composable("machineRuntimeScreen"){ MachineRuntime(navController) }
         composable("maintenanceScreen"){ MaintenanceScreen(navController) }
+        composable("showCombineGraphScreen"){ShowingCombineGraphs(navController)}
         composable("temperatureGraph") {
 
             TemperatureGraph(

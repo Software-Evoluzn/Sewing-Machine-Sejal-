@@ -101,10 +101,10 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
         SUM(runtime) AS total_runtime,
         SUM(idleTime) AS total_idle_time,
         AVG(temperature) AS avg_temperature,
-          AVG(vibration) AS avg_vibration,      -- <-- ADD THIS
-        AVG(oilLevel) AS avg_oilLevel          -- <-- ADD THIS
+          AVG(vibration) AS avg_vibration,      
+        AVG(oilLevel) AS avg_oilLevel          
     FROM machine_data
-    WHERE strftime('%W', dateTime) = strftime('%W', 'now')  -- current week
+    WHERE strftime('%W', dateTime) = strftime('%W', 'now') 
     GROUP BY strftime('%w', dateTime)
     ORDER BY strftime('%w', dateTime) ASC
 """)
@@ -120,8 +120,8 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
         SUM(runtime) AS total_runtime,
         SUM(idleTime) AS total_idle_time,
         AVG(temperature) AS avg_temperature,
-          AVG(vibration) AS avg_vibration,      -- <-- ADD THIS
-        AVG(oilLevel) AS avg_oilLevel          -- <-- ADD THIS
+          AVG(vibration) AS avg_vibration,      
+        AVG(oilLevel) AS avg_oilLevel          
     FROM machine_data
     WHERE date(dateTime) BETWEEN date(:startDate) AND date(:endDate)
     GROUP BY date(dateTime)

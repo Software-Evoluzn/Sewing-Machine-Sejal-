@@ -74,7 +74,7 @@ fun MaintenanceScreen(navController: NavController) {
         val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
         Text(
-            text = "MAINTENANCE PARAMETERS",
+            text = "MAINTENANCE ",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = dmRegular,
@@ -270,7 +270,7 @@ fun ParameterBox(
                 contentDescription = "Forward",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .size(30.dp)
+                    .size(37.dp)
                     .clickable { onClick() }
             )
 
@@ -304,7 +304,7 @@ fun ParameterBox(
             ) {
                 Text(
                     text = value,
-                    fontSize = 40.sp,
+                    fontSize = 55.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = dmRegular,
                     color = valueColor

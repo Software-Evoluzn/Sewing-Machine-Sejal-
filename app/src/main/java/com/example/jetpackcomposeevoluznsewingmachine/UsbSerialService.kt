@@ -47,6 +47,8 @@ class UsbSerialService : Service() {
 
                 UsbManager.ACTION_USB_DEVICE_DETACHED -> {
                     stopSerialConnection()
+                    val intent=Intent("USB_DEVICE_DEATTACHED")
+                    sendBroadcast(intent)
                     stopSelf()  // Optionally stop service when device detaches
                 }
             }
@@ -195,10 +197,5 @@ class UsbSerialService : Service() {
     companion object {
         const val ACTION_USB_PERMISSION = "com.example.USB_PERMISSION"
     }
-
-
-
-
-
 
 }

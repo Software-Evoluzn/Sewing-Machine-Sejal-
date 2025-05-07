@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
 
 
-@Database(entities = [MachineData::class], version = 3, exportSchema = false)
+@Database(entities = [MachineData::class], version = 3)
 abstract class DatabaseClass : RoomDatabase() {
 
     abstract fun machineDataDao(): MachineDataDao

@@ -1,5 +1,7 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -52,8 +55,17 @@ fun MachineRuntime(navController: NavController) {
     ) {
         val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
+        Image(
+            painter = painterResource(R.drawable.btn_image),
+            contentDescription = "Forward",
+            modifier = Modifier
+
+                .size(37.dp)
+                .clickable { navController.navigate("showCombineGraphScreen") }
+        )
+
         Text(
-            text = "MACHINE RUNTIME PARAMETERS",
+            text = "MACHINE RUNTIME",
             fontSize = 24.sp,
             fontFamily = dmRegular,
             fontWeight = FontWeight.Bold,

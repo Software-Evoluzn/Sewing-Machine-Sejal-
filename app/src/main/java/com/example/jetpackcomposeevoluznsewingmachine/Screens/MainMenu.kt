@@ -89,7 +89,7 @@ fun MainMenu(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     MaintenanceCard(
-                        title = "MAINTENANCE SECTION",
+                        title = "MAINTENANCE",
                         icon = painterResource(R.drawable.maintenance),
                         arrowIcon = painterResource(R.drawable.btn_image),
                         onArrowClick = { navController.navigate("maintenanceScreen") },
@@ -97,7 +97,7 @@ fun MainMenu(navController: NavController) {
                     )
 
                     MaintenanceCard(
-                        title = "MACHINE RUNTIME SECTION",
+                        title = "MACHINE RUNTIME ",
                         icon = painterResource(R.drawable.machine_logo),
                         arrowIcon = painterResource(R.drawable.btn_image),
                         onArrowClick = { navController.navigate("machineRuntimeScreen") }
@@ -226,7 +226,7 @@ fun MaintenanceCard(
                 contentDescription = "Forward",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .size(24.dp)
+                    .size(37.dp)
                     .clickable { onArrowClick() }
             )
 
