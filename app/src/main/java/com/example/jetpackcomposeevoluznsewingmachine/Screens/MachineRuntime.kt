@@ -1,6 +1,9 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +16,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,14 +60,7 @@ fun MachineRuntime(navController: NavController) {
     ) {
         val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
-        Image(
-            painter = painterResource(R.drawable.btn_image),
-            contentDescription = "Forward",
-            modifier = Modifier
 
-                .size(37.dp)
-                .clickable { navController.navigate("showCombineGraphScreen") }
-        )
 
         Text(
             text = "MACHINE RUNTIME",
@@ -72,13 +70,32 @@ fun MachineRuntime(navController: NavController) {
             color=Color(0xFF4B4B4B)
         )
 
+
         // Middle content (cards) centered
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(0.5f),
             contentAlignment = Alignment.Center
         ) {
+            Button(
+                onClick = { navController.navigate("showCombineGraphScreen") },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 24.dp,end = 32.dp)
+                    .border(0.5.dp, Color(0xFF283593), shape = RoundedCornerShape(8.dp)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                ),
+                shape = RoundedCornerShape(8.dp),
+                elevation = ButtonDefaults.buttonElevation(0.dp) // No elevation
+            ) {
+                Text(text = "Showing Real Time Graph", fontWeight = FontWeight.SemiBold)
+            }
+
+
+
             if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,

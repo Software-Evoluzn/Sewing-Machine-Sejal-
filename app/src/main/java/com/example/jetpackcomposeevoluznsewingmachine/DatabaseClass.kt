@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
 
 
-@Database(entities = [MachineData::class], version = 3)
+@Database(entities = [MachineData::class], version = 5)
 abstract class DatabaseClass : RoomDatabase() {
 
     abstract fun machineDataDao(): MachineDataDao
@@ -15,6 +17,20 @@ abstract class DatabaseClass : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: DatabaseClass? = null
+
+        private val MIGRATION_3_4= object: Migration(3,4){
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE machine_data ADD COLUMN pushBackCount INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        private val MIGRATION_4_5=object:Migration(4,5){
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE machine_data ADD COLUMN stitchCount INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+
 
         fun getDatabase(context: Context): DatabaseClass {
             return INSTANCE ?: synchronized(this) {
@@ -24,7 +40,8 @@ abstract class DatabaseClass : RoomDatabase() {
                     context.applicationContext,
                     DatabaseClass::class.java,
                     "machine_database"
-                ).build()
+                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5)
+                    .build()
                 INSTANCE = instance
                 instance
             }

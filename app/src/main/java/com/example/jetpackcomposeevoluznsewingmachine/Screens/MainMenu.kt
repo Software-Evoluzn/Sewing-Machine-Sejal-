@@ -121,7 +121,7 @@ fun MainMenu(navController: NavController) {
                         title = "MACHINE RUNTIME SECTION",
                         icon = painterResource(R.drawable.machine_logo),
                         arrowIcon = painterResource(R.drawable.btn_image),
-                        onArrowClick = { navController.navigate("machineRuntimeScreen") },
+                        onArrowClick = { navController.navigate("starter") },
                         modifier = Modifier.weight(0.5f)
                     )
                 }

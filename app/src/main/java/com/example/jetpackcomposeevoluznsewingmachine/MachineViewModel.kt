@@ -1,22 +1,50 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
+
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
 import androidx.lifecycle.map
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineDataLive
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.RealTimeRunTimeData
+
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+
+class MachineViewModel(application: Application) : AndroidViewModel(application)
+ {
+     private val dao = DatabaseClass.getDatabase(application).machineDataDao()
+
+     val realTimeData: Flow<List<RealTimeRunTimeData>> = dao.getRecentRuntimeData()
 
 
 
-class MachineViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val dao = DatabaseClass.getDatabase(application).machineDataDao()
-      //live data
+     val realTimeRunTimeData:Flow<List<Int>> =realTimeData.map{list->
+         list.map{it.runtime}
+     }
+     val realTimeSecond:Flow<List<String>> =realTimeData.map{list->
+         list.map{it.dateTime}
+
+     }
+     val realTimePushBackCount:Flow<List<Int>> = realTimeData.map{list->
+         list.map{it.pushBackCount*2}
+
+     }
+
+
+
+
+
+
+     //live data
       val latestMachineData: LiveData<MachineDataLive> = dao.getLatestMachineData()
 
     // Transforming the runtime and idle time into hours
@@ -24,6 +52,8 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
         val runtimeInSeconds = result.totalRuntime ?: 0
         runtimeInSeconds / 3600f // Convert to hours
     }
+
+
 
     val latestIdleTime: LiveData<Float> = latestMachineData.map { result ->
         val idleTimeInSeconds = result.totalIdleTime ?: 0

@@ -403,6 +403,7 @@ fun ShowLineChart(
             markerView.chartView = chart
             chart.marker = markerView
 
+            chart.notifyDataSetChanged()
             chart.invalidate()
             chart
         }

@@ -9,7 +9,9 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineDataLive
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.RealTimeRunTimeData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -35,10 +37,13 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
     //latest data ends
 
 
+
+
+    @Query("SELECT dateTime, runtime,pushBackCount FROM machine_data ORDER BY dateTime DESC LIMIT 60")
+    fun getRecentRuntimeData(): Flow<List<RealTimeRunTimeData>>
+
+
     //hourly data showing
-
-
-
     @Query("""
     WITH hours AS (
         SELECT '00' AS hour

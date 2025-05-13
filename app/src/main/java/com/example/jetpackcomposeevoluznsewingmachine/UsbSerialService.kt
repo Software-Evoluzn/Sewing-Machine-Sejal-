@@ -128,12 +128,13 @@ class UsbSerialService : Service() {
                             println(completeMessage)
 
                             val parts = completeMessage.split(":")
-                            if (parts.size == 4) {
+                            if (parts.size == 6) {
                                 val runtime = parts[0].toIntOrNull() ?: 0
                                 val temp = parts[1].toDoubleOrNull() ?: 0.0
                                 val vibration = parts[2].toDoubleOrNull() ?: 0.0
                                 val oilLevel = parts[3].toIntOrNull() ?: 0
-
+                                val pushBackCount=parts[4].toIntOrNull()?:0
+                                val stichCount=parts[5].toIntOrNull()?:0
                                 val idleTime = if(runtime==1) 0 else 1
 
                                 val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
@@ -146,7 +147,9 @@ class UsbSerialService : Service() {
                                     idleTime = idleTime,
                                     temperature = temp,
                                     vibration = vibration,
-                                    oilLevel = oilLevel
+                                    oilLevel = oilLevel,
+                                    pushBackCount = pushBackCount,
+                                    stitchCount = stichCount
                                 )
 
                                 GlobalScope.launch(Dispatchers.IO) {

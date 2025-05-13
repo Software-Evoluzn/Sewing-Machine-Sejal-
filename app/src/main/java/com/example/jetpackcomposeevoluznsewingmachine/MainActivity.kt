@@ -29,9 +29,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.DifferentKeyboardTypes
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.EnterPasswordScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.IdleTimeAnalysisGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MachineRuntime
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MainMenu
@@ -39,9 +43,13 @@ import com.example.jetpackcomposeevoluznsewingmachine.Screens.MaintenanceScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.OilLevelGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.RunTimeAnalysisGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.ShowingCombineGraphs
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.StarterPasswordScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.TemperatureGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.VibrationGraph
 import com.example.jetpackcomposeevoluznsewingmachine.ui.theme.JetpackComposeEvoluznSewingMachineTheme
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+
 
 class MainActivity : ComponentActivity() {
 
@@ -141,6 +149,10 @@ fun AppNavigation(){
         composable("machineRuntimeScreen"){ MachineRuntime(navController) }
         composable("maintenanceScreen"){ MaintenanceScreen(navController) }
         composable("showCombineGraphScreen"){ShowingCombineGraphs(navController)}
+        composable("starter"){ StarterPasswordScreen(navController) }
+        composable("enterPassword") { EnterPasswordScreen(navController) }
+        composable("setPassword"){ DifferentKeyboardTypes(navController) }
+
         composable("temperatureGraph") {
 
             TemperatureGraph(

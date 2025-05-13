@@ -13,7 +13,9 @@ data class MachineData(
     val idleTime: Int,
     val temperature: Double,
     val vibration: Double,
-    val oilLevel: Int
+    val oilLevel: Int,
+    val pushBackCount:Int,
+    val stitchCount:Int
 )
 
 

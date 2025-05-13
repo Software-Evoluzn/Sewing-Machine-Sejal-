@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
+
 }
 
 android {
@@ -63,6 +64,7 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.foundation.layout.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -91,13 +93,14 @@ dependencies {
     //adding viewModel dependencies
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 
-    implementation ("com.google.android.material:material:1.11.0")
+    implementation ("com.google.android.material:material:1.12.0")
 
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
-
+    implementation ("androidx.compose.compiler:compiler:1.4.3")
 
 
 

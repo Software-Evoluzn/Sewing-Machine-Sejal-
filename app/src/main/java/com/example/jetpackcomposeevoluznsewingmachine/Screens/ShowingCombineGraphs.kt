@@ -1,18 +1,29 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -35,131 +46,114 @@ fun showPreview(){
 
 @Composable
 fun ShowingCombineGraphs(navController: NavHostController) {
-  val navController= rememberNavController()
-    ShowingGraphDemo(
-        navController = navController,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-            .padding(45.dp)
-    )
+
+
+
+        ShowingGraphDemo(
+            navController = navController,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+                .padding(45.dp)
+        )
+
 }
 
 @Composable
 fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier) {
+    val viewModel: MachineViewModel = viewModel()
+
+    val runTimeData by viewModel.realTimeRunTimeData.collectAsState(emptyList())
+    val secondData by viewModel.realTimeSecond.collectAsState(emptyList())
+    val pushBackCount by viewModel.realTimePushBackCount.collectAsState(emptyList())
+
+    val reversedRunTimeData = runTimeData.asReversed()
+    val reversedSecondData = secondData.asReversed()
+    val reversedPushBackCount = pushBackCount.asReversed()
+
     AndroidView(
         modifier = modifier,
         factory = { context ->
-
-            val combinedChart = CombinedChart(context)
-
-            val xLabels = (0..23).map { "${it}h" }
-
-            // Sample data
-            val runtimeData = listOf(
-                2f, 3f, 4f, 1f, 0f, 2f, 5f, 4f, 3f, 2f, 1f, 2f,
-                3f, 4f, 5f, 3f, 2f, 1f, 0f, 1f, 2f, 3f, 4f, 5f
-            )
-            val idleTimeData = runtimeData.map { runtime ->
-                if (runtime == 0f) (1..5).random().toFloat() else 0f
+            CombinedChart(context).apply {
+                description.isEnabled = false
+                setDrawGridBackground(false)
+                isHighlightFullBarEnabled = false
+                drawOrder = arrayOf(
+                    CombinedChart.DrawOrder.BAR,
+                    CombinedChart.DrawOrder.LINE
+                )
+                xAxis.apply {
+                    position = XAxis.XAxisPosition.BOTTOM
+                    granularity = 1f
+                    setDrawGridLines(false)
+                    textSize = 12f
+                    labelRotationAngle = -30f
+                }
+                axisLeft.apply {
+                    axisMinimum = 0f
+                    textSize = 12f
+                    setDrawGridLines(true)
+                }
+                axisRight.isEnabled = false
+                legend.apply {
+                    isEnabled = true
+                    textSize = 12f
+                    verticalAlignment = Legend.LegendVerticalAlignment.TOP
+                    horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                    orientation = Legend.LegendOrientation.HORIZONTAL
+                    yEntrySpace = 10f
+                }
             }
-            val pushBackCount = listOf(
-                0f, 0f, 2f, 1f, 0f, 2f, 3f, 4f, 0f, 2f, 1f, 0f,
-                1f, 0f, 3f, 4f, 5f, 0f, 3f, 2f, 1f, 0f, 1f, 2f
-            )
-
-            // Runtime Line
-            val runTimeEntries = runtimeData.mapIndexed { index, value ->
-                Entry(index.toFloat(), value)
+        },
+        update = update@{ combinedChart ->
+            if (reversedRunTimeData.isEmpty() || reversedSecondData.isEmpty() || reversedPushBackCount.isEmpty()) {
+                return@update
             }
-            val runTimeSet = LineDataSet(runTimeEntries, "Runtime (hrs)").apply {
-                color = Color(0xFF2196F3).toArgb() // Blue
+
+            val lineEntries = reversedRunTimeData.mapIndexed { index, value ->
+                Entry(index.toFloat(), value.toFloat())
+            }
+            val barEntries = reversedPushBackCount.mapIndexed { index, value ->
+                BarEntry(index.toFloat(), value.toFloat())
+            }
+
+            val lineDataSet = LineDataSet(lineEntries, "Runtime (hrs)").apply {
+                color = Color(0xFF2196F3).toArgb()
                 lineWidth = 5f
-                setDrawCircles(true)
-                setCircleColor(Color(0xFF1976D2).toArgb())
-                circleRadius = 4f
                 setDrawValues(false)
                 mode = LineDataSet.Mode.CUBIC_BEZIER
-                setDrawCircleHole(true)
-            }
-
-            // Idle Time Line
-            val idleTimeEntries = idleTimeData.mapIndexed { index, value ->
-                Entry(index.toFloat(), value)
-            }
-            val idleTimeSet = LineDataSet(idleTimeEntries, "Idle Time (hrs)").apply {
-                color = Color(0xFF4CAF50).toArgb() // Green
-                lineWidth = 5f
                 setDrawCircles(true)
-                setCircleColor(Color(0xFF388E3C).toArgb())
                 circleRadius = 4f
-                setDrawValues(false)
-                mode = LineDataSet.Mode.CUBIC_BEZIER
-                setDrawCircleHole(true)
+                setCircleColor(Color(0xFF2196F3).toArgb())
             }
 
-            // Push Back Bar
-            val pushBackEntries = pushBackCount.mapIndexed { index, value ->
-                BarEntry(index.toFloat(), value)
-            }
-            val pushBackSet = BarDataSet(pushBackEntries, "PushBack Count").apply {
-                color = Color(0xFFFF9800).toArgb() // Orange
+            val barDataSet = BarDataSet(barEntries, "PushBackCount").apply {
+                color = Color(0xFFE91E63).toArgb()
                 setDrawValues(false)
-                barShadowColor = Color.LightGray.toArgb()
-            }
 
-            // Combine Line Data
-            val lineData = LineData(runTimeSet, idleTimeSet)
-            // Combine Bar Data (with narrow bars)
-            val barData = BarData(pushBackSet).apply {
-                barWidth = 0.5f // thinner bars
+            }
+            val barData = BarData(barDataSet).apply {
+                barWidth = 0.4f // try values like 0.3f, 0.4f, 0.5f
             }
 
             val combinedData = CombinedData().apply {
-                setData(lineData)
+                setData(LineData(lineDataSet))
                 setData(barData)
             }
 
+            combinedChart.xAxis.valueFormatter = IndexAxisValueFormatter(reversedSecondData)
             combinedChart.data = combinedData
 
-            combinedChart.xAxis.apply {
-                valueFormatter = IndexAxisValueFormatter(xLabels)
-                position = XAxis.XAxisPosition.BOTTOM
-                granularity = 1f
-                setDrawGridLines(false)
-                textSize = 12f
-                labelRotationAngle = -30f
-            }
-            combinedChart.axisLeft.apply {
-                axisMinimum = 0f
-                textSize = 12f
-                setDrawGridLines(false)
-            }
-            combinedChart.axisRight.isEnabled = false
+            // Animate chart (both X and Y over 1000 ms)
 
-            combinedChart.legend.apply {
-                isEnabled = true
-                textSize = 12f
-                verticalAlignment = Legend.LegendVerticalAlignment.TOP
-                horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-                orientation = Legend.LegendOrientation.HORIZONTAL
-                yEntrySpace = 10f
-            }
 
-            combinedChart.apply {
-                description.isEnabled = false
-                setDrawGridBackground(false)
-                setDrawBarShadow(false)
-                isHighlightFullBarEnabled = false
-                animateXY(1200, 1200)
-                setExtraOffsets(16f, 24f, 16f, 16f)
-            }
-
+            combinedChart.notifyDataSetChanged()
             combinedChart.invalidate()
-            combinedChart
         }
     )
 }
+
+
 
 
 
