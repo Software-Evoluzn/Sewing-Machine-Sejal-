@@ -148,7 +148,11 @@ fun AppNavigation(){
         composable("mainMenu"){ MainMenu(navController) }
         composable("machineRuntimeScreen"){ MachineRuntime(navController) }
         composable("maintenanceScreen"){ MaintenanceScreen(navController) }
-        composable("showCombineGraphScreen"){ShowingCombineGraphs(navController)}
+        composable("showCombineGraphScreen"){ShowingCombineGraphs(
+            navController=navController,
+            GraphHeading = "SHOWING REAL TIME DATA",
+            onBack = {navController.popBackStack()}
+            )}
         composable("starter"){ StarterPasswordScreen(navController) }
         composable("enterPassword") { EnterPasswordScreen(navController) }
         composable("setPassword"){ DifferentKeyboardTypes(navController) }

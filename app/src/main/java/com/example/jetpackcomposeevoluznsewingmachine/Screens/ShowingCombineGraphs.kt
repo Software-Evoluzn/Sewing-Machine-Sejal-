@@ -1,29 +1,40 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -41,21 +52,71 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 @Composable
 fun showPreview(){
     val navController= rememberNavController()
-    ShowingCombineGraphs(navController = navController)
+//    ShowingCombineGraphs(navController = navController)
 }
 
 @Composable
-fun ShowingCombineGraphs(navController: NavHostController) {
+fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, GraphHeading: String) {
+    val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp).background(color=Color(0xFFF3F0F0))
 
-
-        ShowingGraphDemo(
-            navController = navController,
+    ) {
+        // Top Bar with Back Button and Heading
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
-                .padding(45.dp)
-        )
+                .padding(vertical = 8.dp)
+        ) {
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+            Text(
+                text = GraphHeading,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = dmRegular,
+                color = Color(0xFF4B4B4B),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Card(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                    ShowingGraphDemo(
+                            navController = navController,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(35.dp)
+
+                            )
+                     }
+                }
+            }
+
+         }
 
 }
 
@@ -92,7 +153,7 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
                 axisLeft.apply {
                     axisMinimum = 0f
                     textSize = 12f
-                    setDrawGridLines(true)
+                    setDrawGridLines(false)
                 }
                 axisRight.isEnabled = false
                 legend.apply {
@@ -119,12 +180,11 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
 
             val lineDataSet = LineDataSet(lineEntries, "Runtime (hrs)").apply {
                 color = Color(0xFF2196F3).toArgb()
-                lineWidth = 5f
+                lineWidth = 3f
                 setDrawValues(false)
-                mode = LineDataSet.Mode.CUBIC_BEZIER
-                setDrawCircles(true)
-                circleRadius = 4f
-                setCircleColor(Color(0xFF2196F3).toArgb())
+                setDrawCircles(false)
+                mode = LineDataSet.Mode.STEPPED
+
             }
 
             val barDataSet = BarDataSet(barEntries, "PushBackCount").apply {
@@ -133,7 +193,7 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
 
             }
             val barData = BarData(barDataSet).apply {
-                barWidth = 0.4f // try values like 0.3f, 0.4f, 0.5f
+                barWidth = 0.1f // try values like 0.3f, 0.4f, 0.5f
             }
 
             val combinedData = CombinedData().apply {
@@ -145,6 +205,12 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
             combinedChart.data = combinedData
 
             // Animate chart (both X and Y over 1000 ms)
+
+            val maxDataValue = (reversedPushBackCount.maxOrNull()?:0f).toFloat()
+            val dynamicMaxValue = (maxDataValue+ 2).toInt() // Increase by 5 units
+
+            // Set dynamic max value for Y-axis
+            combinedChart.axisLeft.axisMaximum = dynamicMaxValue.toFloat()
 
 
             combinedChart.notifyDataSetChanged()
