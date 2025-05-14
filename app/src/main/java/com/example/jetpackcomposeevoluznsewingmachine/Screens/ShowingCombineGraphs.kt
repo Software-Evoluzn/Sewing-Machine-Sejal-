@@ -34,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CycleData
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
@@ -127,10 +128,11 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
     val runTimeData by viewModel.realTimeRunTimeData.collectAsState(emptyList())
     val secondData by viewModel.realTimeSecond.collectAsState(emptyList())
     val pushBackCount by viewModel.realTimePushBackCount.collectAsState(emptyList())
+    val idleTimeValue by viewModel.realIdleTime.collectAsState(emptyList())
 
     val reversedRunTimeData = runTimeData.asReversed()
-    val reversedSecondData = secondData.asReversed()
     val reversedPushBackCount = pushBackCount.asReversed()
+    val reversedIdleTime = idleTimeValue.asReversed()
 
     AndroidView(
         modifier = modifier,
@@ -149,6 +151,7 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
                     setDrawGridLines(false)
                     textSize = 12f
                     labelRotationAngle = -30f
+                    setCenterAxisLabels(true)
                 }
                 axisLeft.apply {
                     axisMinimum = 0f
@@ -167,52 +170,58 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
             }
         },
         update = update@{ combinedChart ->
-            if (reversedRunTimeData.isEmpty() || reversedSecondData.isEmpty() || reversedPushBackCount.isEmpty()) {
+
+            if (reversedRunTimeData.isEmpty() || reversedPushBackCount.isEmpty() || reversedIdleTime.isEmpty()) {
                 return@update
             }
 
-            val lineEntries = reversedRunTimeData.mapIndexed { index, value ->
-                Entry(index.toFloat(), value.toFloat())
-            }
-            val barEntries = reversedPushBackCount.mapIndexed { index, value ->
-                BarEntry(index.toFloat(), value.toFloat())
-            }
 
-            val lineDataSet = LineDataSet(lineEntries, "Runtime (hrs)").apply {
-                color = Color(0xFF2196F3).toArgb()
-                lineWidth = 3f
-                setDrawValues(false)
-                setDrawCircles(false)
-                mode = LineDataSet.Mode.STEPPED
 
+            val cycles = groupIntoCycles(reversedRunTimeData, reversedIdleTime, reversedPushBackCount)
+            if (cycles.isEmpty()) return@update
+
+            // Bar entries
+            val barEntriesRunTime = cycles.mapIndexed { index, cycle ->
+                BarEntry(index.toFloat(), cycle.runTime.toFloat()/60f)
+            }
+            val barEntriesIdleTime = cycles.mapIndexed { index, cycle ->
+                BarEntry(index.toFloat(), cycle.idleTime.toFloat()/60f)
             }
 
-            val barDataSet = BarDataSet(barEntries, "PushBackCount").apply {
+            val runTimeDataSet = BarDataSet(barEntriesRunTime, "Run Time").apply {
                 color = Color(0xFFE91E63).toArgb()
-                setDrawValues(false)
-
-            }
-            val barData = BarData(barDataSet).apply {
-                barWidth = 0.1f // try values like 0.3f, 0.4f, 0.5f
+                setDrawValues(true)
             }
 
+            val idleTimeDataSet = BarDataSet(barEntriesIdleTime, "Idle Time").apply {
+                color = Color(0xFFFFC107).toArgb()
+                setDrawValues(true)
+            }
+
+            val barData = BarData(runTimeDataSet, idleTimeDataSet).apply {
+                barWidth = 0.3f
+            }
+
+            val groupSpace = 0.2f
+            val barSpace = 0f
+            barData.groupBars(0f, groupSpace, barSpace)
+
+            // X-Axis Label: "Cycle 1", "Cycle 2", ...
+            val xLabels = cycles.map { "Cycle ${it.cycleNumber}" }
+            combinedChart.xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
+            combinedChart.xAxis.axisMinimum = 0f
+            combinedChart.xAxis.axisMaximum = 0f + barData.getGroupWidth(groupSpace, barSpace) * cycles.size
+
+            // Set max Y-axis value based on highest total time in a cycle
+            val maxY = cycles.maxOf { (it.runTime + it.idleTime) / 60f } + 1
+            combinedChart.axisLeft.axisMaximum = maxY
+
+            // Set data and refresh
             val combinedData = CombinedData().apply {
-                setData(LineData(lineDataSet))
                 setData(barData)
             }
 
-            combinedChart.xAxis.valueFormatter = IndexAxisValueFormatter(reversedSecondData)
             combinedChart.data = combinedData
-
-            // Animate chart (both X and Y over 1000 ms)
-
-            val maxDataValue = (reversedPushBackCount.maxOrNull()?:0f).toFloat()
-            val dynamicMaxValue = (maxDataValue+ 2).toInt() // Increase by 5 units
-
-            // Set dynamic max value for Y-axis
-            combinedChart.axisLeft.axisMaximum = dynamicMaxValue.toFloat()
-
-
             combinedChart.notifyDataSetChanged()
             combinedChart.invalidate()
         }
@@ -221,6 +230,29 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
 
 
 
+fun groupIntoCycles(
+    runTimes: List<Int>,
+    idleTimes: List<Int>,
+    pushBackCounts: List<Int>
+): List<CycleData> {
+    val cycles = mutableListOf<CycleData>()
+    var cycleNumber = 1
+    var currentRunTime = 0
+    var currentIdleTime = 0
+
+    for (i in runTimes.indices) {
+        currentRunTime += runTimes[i]
+        currentIdleTime += idleTimes[i]
+
+        if (pushBackCounts[i] == 1) {
+            cycles.add(CycleData(cycleNumber, currentRunTime, currentIdleTime))
+            cycleNumber++
+            currentRunTime = 0
+            currentIdleTime = 0
+        }
+    }
+    return cycles
+}
 
 
 

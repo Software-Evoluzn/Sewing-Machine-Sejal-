@@ -24,17 +24,24 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
      val realTimeData: Flow<List<RealTimeRunTimeData>> = dao.getRecentRuntimeData()
 
-     val realTimeRunTimeData:Flow<List<Int>> =realTimeData.map{list->
-         list.map{it.runtime}
+     val realTimeRunTimeData: Flow<List<Int>> = realTimeData.map { list ->
+         list.map { (it.runtime) }
      }
-     val realTimeSecond:Flow<List<String>> =realTimeData.map{list->
-         list.map{it.dateTime}
+     val realTimeSecond: Flow<List<String>> = realTimeData.map { list ->
+         list.map { it.dateTime }
 
      }
-     val realTimePushBackCount:Flow<List<Int>> = realTimeData.map{list->
-         list.map{(it.pushBackCount*2)}
+     val realTimePushBackCount: Flow<List<Int>> = realTimeData.map { list ->
+         list.map { (it.pushBackCount) }
 
      }
+
+     val realIdleTime: Flow<List<Int>> = realTimeData.map { list ->
+         list.map { (it.idleTime) }
+
+     }
+
+
 
 
 

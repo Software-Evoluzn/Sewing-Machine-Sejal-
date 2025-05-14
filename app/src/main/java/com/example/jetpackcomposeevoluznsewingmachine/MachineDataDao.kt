@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 
-    @Query("SELECT dateTime, runtime,pushBackCount FROM machine_data ORDER BY dateTime DESC LIMIT 12")
+    @Query("SELECT dateTime, runtime, pushBackCount, idleTime  FROM machine_data ORDER BY dateTime DESC LIMIT 12")
     fun getRecentRuntimeData(): Flow<List<RealTimeRunTimeData>>
 
 

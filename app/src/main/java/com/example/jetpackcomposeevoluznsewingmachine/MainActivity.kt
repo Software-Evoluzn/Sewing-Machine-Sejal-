@@ -31,6 +31,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.DashBoardLiveScreen
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.DashBoardScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DifferentKeyboardTypes
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.EnterPasswordScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.IdleTimeAnalysisGraph
@@ -135,8 +137,9 @@ fun AppNavigation(){
     val weeklyRunTimeList by viewModel.weeklyRunTimeList.observeAsState(emptyList())
     val weeklyIdleTimeList by viewModel.weeklyIdleTimeList.observeAsState(emptyList())
 
-    NavHost(navController = navController, startDestination = "mainMenu"){
+    NavHost(navController = navController, startDestination = "dashBoardScreen"){
         composable("mainMenu"){ MainMenu(navController) }
+        composable("dashBoardScreen"){ DashBoardLiveScreen(navController) }
         composable("machineRuntimeScreen"){ MachineRuntime(navController) }
         composable("maintenanceScreen"){ MaintenanceScreen(navController) }
         composable("showCombineGraphScreen"){ShowingCombineGraphs(
