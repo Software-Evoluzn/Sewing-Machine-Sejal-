@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,10 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-
 import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.R
@@ -56,7 +52,6 @@ import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 
 @Composable
 fun MaintenanceScreen(navController: NavController) {
-
     val viewModel: MachineViewModel = viewModel()
 
 //    val latestData by viewModel.latestData.observeAsState()
@@ -79,9 +74,7 @@ fun MaintenanceScreen(navController: NavController) {
             fontWeight = FontWeight.Bold,
             fontFamily = dmRegular,
             color=Color(0xFF4B4B4B)
-
         )
-
         // Middle content (cards) centered
         Box(
             modifier = Modifier
@@ -165,8 +158,6 @@ fun MaintenanceScreen(navController: NavController) {
                         modifier = Modifier.weight(0.5f)
                     )
                 }
-
-
             }
         }
 
@@ -201,21 +192,6 @@ fun PreviewFunctionMaintenance(){
     val navController = rememberNavController()  // create dummy controller
     MaintenanceScreen(navController = navController)
 }
-
-//@Preview
-//@Composable
-//fun CardPreviewunction(){
-//    val navController= rememberNavController()
-//    ParameterBox("RUN TIME",
-//        "23.6",
-//        "\u00B0C",
-//        painterResource(R.drawable.run_time),
-//        painterResource(R.drawable.btn_image),
-//        onClick = { navController.navigate("machineRuntimeScreen") },
-//
-//    )
-//}
-
 @Composable
 fun ParameterBox(
     title: String,
@@ -243,7 +219,6 @@ fun ParameterBox(
     LaunchedEffect(Unit) {
         startAnimation = true
     }
-
     Card(
         modifier = modifier
             .graphicsLayer {

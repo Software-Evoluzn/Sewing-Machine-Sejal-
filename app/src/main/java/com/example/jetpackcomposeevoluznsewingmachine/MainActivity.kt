@@ -1,6 +1,5 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
-
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -29,11 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DifferentKeyboardTypes
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.EnterPasswordScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.IdleTimeAnalysisGraph
@@ -47,8 +44,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.Screens.StarterPasswordScr
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.TemperatureGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.VibrationGraph
 import com.example.jetpackcomposeevoluznsewingmachine.ui.theme.JetpackComposeEvoluznSewingMachineTheme
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
+
 
 
 class MainActivity : ComponentActivity() {
@@ -102,8 +98,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-
     override fun onResume() {
         super.onResume()
         registerReceiver(usbDetachedReceiver, IntentFilter("USB_DEVICE_DEATTACHED"))
@@ -118,9 +112,6 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         DatabaseBackupHelper.backupDatabase(this)  // ⬅️ Backup happens here
     }
-
-
-
 }
 
 
@@ -222,8 +213,6 @@ fun AppNavigation(){
                 valueColor = Color(0xFF8569D8),
                 unit="hrs"
             ) }
-
-
     }
 
 }

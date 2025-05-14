@@ -31,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
-
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,7 +43,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,9 +76,6 @@ fun TemperatureGraph(navController: NavController,
                      valueColor: Color,
                      unit:String) {
 
-
-
-
     val options =listOf("Today","Weekly")
     var expanded by remember{ mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Weekly") }
@@ -93,13 +88,11 @@ fun TemperatureGraph(navController: NavController,
         "Weekly" -> "Weekly"
         else -> "Weekly"
     }
-
     val displayBtnText=when(selectedOption){
          "Today" -> { "Today"}
         "Weekly" -> {"Weekly"}
         else -> "Weekly"
     }
-
 
     val (xAxisLabels, yAxisData) = when (selectedOption) {
         "Today" -> {
@@ -133,7 +126,6 @@ fun TemperatureGraph(navController: NavController,
         startAnimation = true
 
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -156,7 +148,6 @@ fun TemperatureGraph(navController: NavController,
                     contentDescription = "Back"
                 )
             }
-
             Text(
                 text = GraphHeading,
                 fontSize = 20.sp,
@@ -222,8 +213,6 @@ fun TemperatureGraph(navController: NavController,
                 }
 
             }
-
-
             var isLoading by remember { mutableStateOf(false) }
 
             LaunchedEffect(selectedOption) {
@@ -409,11 +398,6 @@ fun ShowLineChart(
         }
     )
 }
-
-
-
-
-
 @Composable
 fun ShimmerEffect(modifier: Modifier = Modifier) {
     val shimmerColors = listOf(

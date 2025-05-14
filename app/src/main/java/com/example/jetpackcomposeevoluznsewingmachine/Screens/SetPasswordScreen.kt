@@ -1,12 +1,11 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
-import android.widget.Toast
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -16,13 +15,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,11 +44,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.material3.*
-
-import java.net.URLDecoder
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -83,7 +74,6 @@ fun DifferentKeyboardTypes(navController: NavController) {
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
-
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
@@ -115,7 +105,6 @@ fun DifferentKeyboardTypes(navController: NavController) {
                 .width(380.dp)
                 .clip(RoundedCornerShape(12.dp))
         )
-
         if (!passwordsMatch && password.isNotBlank()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -126,7 +115,6 @@ fun DifferentKeyboardTypes(navController: NavController) {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-
         Button(
             onClick = {
                 if (newPassword.isNotBlank()) {
@@ -157,8 +145,6 @@ fun DifferentKeyboardTypes(navController: NavController) {
         }
     }
 }
-
-
 
 @Composable
 fun EnterPasswordScreen(navController: NavController) {
@@ -229,12 +215,8 @@ fun EnterPasswordScreen(navController: NavController) {
         ) {
             Text(text = "Continue", fontSize = 16.sp)
         }
-
-
-
     }
 
-    // Show dialog on incorrect password
     // Show dialog on incorrect password
     if (showDialog) {
         AlertDialog(
@@ -249,13 +231,9 @@ fun EnterPasswordScreen(navController: NavController) {
                     Text("OK")
                 }
             },
-            // Customizing the background and content of the dialog
-
             shape = RoundedCornerShape(16.dp)
         )
     }
-
-
 }
 
 

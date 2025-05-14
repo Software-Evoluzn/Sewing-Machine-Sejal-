@@ -37,8 +37,6 @@ fun StarterPasswordScreen(navController: NavController) {
             }
         }
     }
-
-
     Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center

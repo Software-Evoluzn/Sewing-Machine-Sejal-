@@ -1,6 +1,5 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
-import androidx.annotation.InspectableProperty
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -9,25 +8,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,9 +48,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 
 @Composable
 fun MainMenu(navController: NavController) {
-
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
-
     val windowInfo = rememberWindowInfo()
     Column(
         modifier = Modifier
@@ -67,7 +57,6 @@ fun MainMenu(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-
         Text(
             text = "MAIN MENU",
             fontSize = 24.sp,
@@ -75,7 +64,6 @@ fun MainMenu(navController: NavController) {
             fontWeight = FontWeight.Bold,
             color=Color(0xFF4B4B4B)
         )
-
         // Middle content (cards) centered
         Box(
             modifier = Modifier
@@ -125,11 +113,8 @@ fun MainMenu(navController: NavController) {
                         modifier = Modifier.weight(0.5f)
                     )
                 }
-
-
             }
         }
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,9 +141,6 @@ fun MainMenu(navController: NavController) {
 }
 
 
-
-
-
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewFunctionMainMenu(){
@@ -166,19 +148,6 @@ fun PreviewFunctionMainMenu(){
     MainMenu(navController = navController)
 
 }
-
-//@Preview
-//@Composable
-//fun CardPreview(){
-//    val navController= rememberNavController()
-//    MaintenanceCard("Machine Runtime",
-//        painterResource(id=R.drawable.machine_logo),
-//        painterResource(id=R.drawable.btn_image),
-//        onArrowClick = { navController.navigate("machineRuntimeScreen") },
-//    )
-//}
-
-
 
 @Composable
 fun MaintenanceCard(
@@ -197,12 +166,10 @@ fun MaintenanceCard(
         animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
         label = "scaleAnimation"
     )
-
     // Trigger the animation once when the Composable enters
     LaunchedEffect(Unit) {
         startAnimation = true
     }
-
     Card(
         modifier = modifier
             .graphicsLayer {
@@ -229,7 +196,6 @@ fun MaintenanceCard(
                     .size(37.dp)
                     .clickable { onArrowClick() }
             )
-
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally,

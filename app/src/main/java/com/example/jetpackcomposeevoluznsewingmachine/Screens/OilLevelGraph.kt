@@ -2,12 +2,11 @@ package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)

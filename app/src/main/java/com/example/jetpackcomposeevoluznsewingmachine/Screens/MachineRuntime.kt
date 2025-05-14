@@ -1,20 +1,14 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -44,9 +38,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 
 @Composable
 fun MachineRuntime(navController: NavController) {
-
     val viewModel: MachineViewModel = viewModel()
-
     val latestRunTimeData by viewModel.latestRunTime.observeAsState(0f)
     val latestIdleTime by viewModel.latestIdleTime.observeAsState(0f)
 
@@ -59,9 +51,6 @@ fun MachineRuntime(navController: NavController) {
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         val dmRegular = FontFamily(Font(R.font.dmsans_regular))
-
-
-
         Text(
             text = "MACHINE RUNTIME",
             fontSize = 24.sp,
@@ -69,8 +58,6 @@ fun MachineRuntime(navController: NavController) {
             fontWeight = FontWeight.Bold,
             color=Color(0xFF4B4B4B)
         )
-
-
         // Middle content (cards) centered
         Box(
             modifier = Modifier
@@ -93,8 +80,6 @@ fun MachineRuntime(navController: NavController) {
             ) {
                 Text(text = "Showing Real Time Graph", fontWeight = FontWeight.SemiBold)
             }
-
-
 
             if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact) {
                 Column(
@@ -121,9 +106,6 @@ fun MachineRuntime(navController: NavController) {
                         onClick = { navController.navigate("idleTimeAnalysisGraphScreen") },
                         valueColor = Color(0xFF8569D8)
                     )
-
-
-
                 }
             } else {
                 Row(
@@ -152,13 +134,9 @@ fun MachineRuntime(navController: NavController) {
                         valueColor = Color(0xFF8569D8),
                         modifier = Modifier.weight(0.5f)
                     )
-
                 }
-
-
             }
         }
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()

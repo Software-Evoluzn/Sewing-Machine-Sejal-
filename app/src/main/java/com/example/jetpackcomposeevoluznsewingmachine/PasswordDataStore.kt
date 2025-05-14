@@ -15,17 +15,10 @@ object PasswordDataStore {
         context.dataStore.edit{preferences ->
             preferences[PASSWORD_KEY] =password
         }
-
     }
-
     fun getPasswordFlow(context:Context): Flow<String?> {
         return context.dataStore.data.map{ preferences ->
             preferences[PASSWORD_KEY]
-
         }
-
-
     }
-
-
 }
