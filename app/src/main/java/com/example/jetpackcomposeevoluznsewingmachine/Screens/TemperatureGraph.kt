@@ -28,9 +28,11 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,6 +43,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.example.jetpackcomposeevoluznsewingmachine.NotificationAndSoundHelpherClass
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.TemperatureMarkerView
 import com.github.mikephil.charting.animation.Easing
@@ -74,11 +78,41 @@ fun TemperatureGraph(navController: NavController,
                      todayTemps: List<Double>,
                      weeklyTemps: List<Double>,
                      valueColor: Color,
-                     unit:String) {
-
+                     unit:String,
+                     snackBarHostState:SnackbarHostState,
+                     threshHold:Double,
+                     shouldTriggerAlert:(Double)->Boolean,
+                     alertMessage:String) {
+   val context=LocalContext.current
     val options =listOf("Today","Weekly")
     var expanded by remember{ mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("Weekly") }
+    var selectedOption by remember { mutableStateOf("Today") }
+
+    var oilLevel by remember { mutableStateOf((0..100).random()) }
+    var hasAlerted by remember{ mutableStateOf(false) }
+    val sendAlertNofication: NotificationAndSoundHelpherClass
+
+
+    sendAlertNofication=NotificationAndSoundHelpherClass()
+
+    LaunchedEffect(todayTemps) {
+        val latestValue = todayTemps.lastOrNull() ?: return@LaunchedEffect
+        if (shouldTriggerAlert(latestValue) && !hasAlerted) {
+            println("ALERT triggered: $alertMessage")
+            sendAlertNofication.NotificationFunction(context)
+            sendAlertNofication.PlayBuzzerSound()
+            hasAlerted=true
+            snackBarHostState.showSnackbar(alertMessage)
+        }else if(!shouldTriggerAlert(latestValue)){
+            hasAlerted=false
+
+        }
+
+
+
+    }
+
+
 
     val displayText = when(selectedOption){
         "Today" -> {
@@ -86,12 +120,12 @@ fun TemperatureGraph(navController: NavController,
             today.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
         }
         "Weekly" -> "Weekly"
-        else -> "Weekly"
+        else -> "Today"
     }
     val displayBtnText=when(selectedOption){
          "Today" -> { "Today"}
         "Weekly" -> {"Weekly"}
-        else -> "Weekly"
+        else -> "Set Date"
     }
 
     val (xAxisLabels, yAxisData) = when (selectedOption) {
@@ -110,8 +144,13 @@ fun TemperatureGraph(navController: NavController,
         }
 
         else -> {
-            val days = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-            days to weeklyTemps
+            val hours = (0..23).map { hour ->
+                "${hour.toString().padStart(2, '0')}:00" // Show all hours
+            }
+            // Y Axis Data - Always 24 values (default 0.0)
+            val fullTodayTemps = todayTemps.takeIf { it.size == 24 } ?: List(24) { 0.0 }
+
+            hours to fullTodayTemps
         }
     }
 
@@ -134,6 +173,8 @@ fun TemperatureGraph(navController: NavController,
 
     ) {
         // Top Bar with Back Button and Heading
+
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -315,9 +356,8 @@ fun ShowLineChart(
 
             val circleColors = yData.map { value ->
                 when {
-                    value < 60 -> Color(0xFF4CAF50).toArgb()     // Green (Normal)
-                    value in 60.0..75.0 -> Color(0xFFFF9800).toArgb() // Orange (Warning)
-                    else -> Color(0xFFF44336).toArgb()           // Red (Critical)
+                    value < 30 -> Color(0xFFF44336).toArgb()     //  Red (Critical)
+                    else -> Color(0xFF4CAF50).toArgb()           // Green (Normal)
                 }
             }
 
@@ -348,7 +388,6 @@ fun ShowLineChart(
             legend.setCustom(
                 listOf(
                     LegendEntry("Normal", Legend.LegendForm.CIRCLE, 10f, 2f, null, Color(0xFF4CAF50).toArgb()),
-                    LegendEntry("Warning", Legend.LegendForm.CIRCLE, 10f, 2f, null, Color(0xFFFF9800).toArgb()),
                     LegendEntry("Critical", Legend.LegendForm.CIRCLE, 10f, 2f, null, Color(0xFFF44336).toArgb())
                 )
             )

@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +36,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DashBoardLiveScreen
-import com.example.jetpackcomposeevoluznsewingmachine.Screens.DashBoardScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DifferentKeyboardTypes
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.EnterPasswordScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.IdleTimeAnalysisGraph
@@ -40,6 +43,8 @@ import com.example.jetpackcomposeevoluznsewingmachine.Screens.MachineRuntime
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MainMenu
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MaintenanceScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.OilLevelGraph
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.PreventiveMaintenanceScreen
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.ProductionEfficiencyScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.RunTimeAnalysisGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.ShowingCombineGraphs
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.StarterPasswordScreen
@@ -50,7 +55,8 @@ import com.example.jetpackcomposeevoluznsewingmachine.ui.theme.JetpackComposeEvo
 
 
 class MainActivity : ComponentActivity() {
-
+    lateinit var notificationAndSoundClass:NotificationAndSoundHelpherClass
+    lateinit var context:Context
     private var showUsbDetachedDialog by mutableStateOf(false)
 
     private val usbDetachedReceiver=object: BroadcastReceiver(){
@@ -61,13 +67,12 @@ class MainActivity : ComponentActivity() {
         }
 
     }
-
-
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        notificationAndSoundClass=NotificationAndSoundHelpherClass()
 
+        notificationAndSoundClass.initBuzzerSound(this)
 
         // Start the USB Serial Service
         val serviceIntent = Intent(this, UsbSerialService::class.java)
@@ -75,24 +80,31 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
+
+            var snackBar= remember {SnackbarHostState()}
             JetpackComposeEvoluznSewingMachineTheme {
                 Surface(
                     modifier=Modifier.fillMaxSize()
                         .padding(WindowInsets.systemBars.asPaddingValues()) ,
                     color=MaterialTheme.colorScheme.background){
-                    AppNavigation()
+
+                    Scaffold(
+                        snackbarHost = {SnackbarHost(hostState = snackBar)}
+                    ) { paddingValues->
 
 
-                    if(showUsbDetachedDialog){
-                        AlertDialog(onDismissRequest = {showUsbDetachedDialog=false},
-                          title =  {Text("USB Disconnected")},
-                            text={Text("The Usb Device Disconnected")},
-                            confirmButton = {
-                                TextButton(onClick = {showUsbDetachedDialog=false}) {
-                                    Text("OK")
+                        AppNavigation(snackBar)
+                        if (showUsbDetachedDialog) {
+                            AlertDialog(onDismissRequest = { showUsbDetachedDialog = false },
+                                title = { Text("USB Disconnected") },
+                                text = { Text("The Usb Device Disconnected") },
+                                confirmButton = {
+                                    TextButton(onClick = { showUsbDetachedDialog = false }) {
+                                        Text("OK")
+                                    }
                                 }
-                            }
                             )
+                        }
                     }
 
                 }
@@ -114,14 +126,15 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         DatabaseBackupHelper.backupDatabase(this)  // ⬅️ Backup happens here
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        notificationAndSoundClass.releaseSoundPool()
+    }
 }
-
-
-
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(){
+fun AppNavigation(snackBarHostState:SnackbarHostState){
     val navController= rememberNavController()
 
     val viewModel: MachineViewModel = viewModel()
@@ -142,6 +155,8 @@ fun AppNavigation(){
         composable("dashBoardScreen"){ DashBoardLiveScreen(navController) }
         composable("machineRuntimeScreen"){ MachineRuntime(navController) }
         composable("maintenanceScreen"){ MaintenanceScreen(navController) }
+        composable("preventiveMaintenance"){PreventiveMaintenanceScreen(navController)}
+        composable("productionEfficiency"){ProductionEfficiencyScreen(navController)}
         composable("showCombineGraphScreen"){ShowingCombineGraphs(
             navController=navController,
             GraphHeading = "SHOWING REAL TIME DATA",
@@ -162,10 +177,13 @@ fun AppNavigation(){
                 todayTemps = todayTemps,
                 weeklyTemps = weeklyTemps,
                 valueColor = Color(0xFFF44336),
-                unit="°C"
+                unit="°C",
+                snackBarHostState=snackBarHostState,
+                threshHold = 45.0,
+                shouldTriggerAlert = { it > 45.0 },
+                alertMessage = "🌡️ Temperature is above 45°C"
             )
         }
-
         composable("vibrationGraphScreen"){
 
             VibrationGraph(
@@ -177,7 +195,12 @@ fun AppNavigation(){
                 todayTemps = todayVibration,
                 weeklyTemps = weeklyVibrationList,
                 valueColor = Color(0xFFFF7B00),
-                unit="mm/s"
+                unit="mm/s",
+                snackBarHostState=snackBarHostState,
+                threshHold = 45.0,
+                shouldTriggerAlert = { it > 45.0 },
+                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s"
+
         ) }
         composable("oilLevelGraphScreen"){
             OilLevelGraph(
@@ -189,7 +212,13 @@ fun AppNavigation(){
                 todayTemps = todayOilLevelList,
                 weeklyTemps = weeklyOilLevelList,
                 valueColor = Color(0xFF0BA911),
-                unit="mm/s"
+                unit="mm/s",
+                snackBarHostState=snackBarHostState,
+                threshHold = 30.0,
+                shouldTriggerAlert = { it < 30.0 },
+                alertMessage = "⚠\uFE0F oil  level less than  30 %"
+
+
             )
         }
         composable("runTimeAnalysisGraphScreen"){
@@ -202,7 +231,11 @@ fun AppNavigation(){
                 todayTemps = todayRuntimeList,
                 weeklyTemps = weeklyRunTimeList,
                 valueColor = Color(0xFF3386FF),
-                unit="hrs"
+                unit="hrs",
+                snackBarHostState=snackBarHostState,
+                threshHold = 45.0,
+                shouldTriggerAlert = { it > 45.0 },
+                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s"
         ) }
         composable("idleTimeAnalysisGraphScreen"){
             IdleTimeAnalysisGraph(
@@ -214,10 +247,13 @@ fun AppNavigation(){
                 todayTemps = todayIdleTimeList,
                 weeklyTemps = weeklyIdleTimeList,
                 valueColor = Color(0xFF8569D8),
-                unit="hrs"
+                unit="hrs",
+                snackBarHostState=snackBarHostState,
+                threshHold = 45.0,
+                shouldTriggerAlert = { it > 45.0 },
+                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s"
             ) }
     }
-
 }
 
 

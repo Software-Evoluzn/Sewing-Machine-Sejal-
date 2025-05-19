@@ -190,12 +190,12 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
 
             val runTimeDataSet = BarDataSet(barEntriesRunTime, "Run Time").apply {
                 color = Color(0xFFE91E63).toArgb()
-                setDrawValues(true)
+                setDrawValues(false)
             }
 
             val idleTimeDataSet = BarDataSet(barEntriesIdleTime, "Idle Time").apply {
                 color = Color(0xFFFFC107).toArgb()
-                setDrawValues(true)
+                setDrawValues(false)
             }
 
             val barData = BarData(runTimeDataSet, idleTimeDataSet).apply {

@@ -4,11 +4,13 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -18,6 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,6 +50,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.ProductionCartItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
 import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
@@ -59,10 +65,53 @@ fun MaintenanceScreen(navController: NavController) {
     val latestVib by viewModel.latestVibValue.observeAsState()
     val latestOilLevel by viewModel.latestOilLevelValue.observeAsState()
     val windowInfo = rememberWindowInfo()
+
+
+
+    val productionCardListItem=listOf(
+        ProductionCartItemList(
+            title ="TEMPERATURE",
+            value ="${latestTemp ?: 0}",
+            unit ="hrs" ,
+            icon = painterResource(R.drawable.temp),
+            arrowIcon = painterResource(R.drawable.btn_image),
+            onClick = {navController.navigate("temperatureGraph")},
+            valueColor = Color(0xFF3386FF)
+        ),
+        ProductionCartItemList(
+            title ="VIBRATION",
+            value ="${latestVib ?: 0}",
+            unit ="hrs" ,
+            icon = painterResource(R.drawable.vib),
+            arrowIcon = painterResource(R.drawable.btn_image),
+            onClick = {navController.navigate("vibrationGraphScreen")},
+            valueColor = Color(0xFF8569D8)
+        ),
+        ProductionCartItemList(
+            title ="OIL LEVEL",
+            value ="${latestOilLevel ?: 0}",
+            unit ="hrs" ,
+            icon = painterResource(R.drawable.oil_level),
+            arrowIcon = painterResource(R.drawable.btn_image),
+            onClick = {navController.navigate("oilLevelGraphScreen")},
+            valueColor = Color(0xFF3386FF)
+        ),
+        ProductionCartItemList(
+            title ="PREVENTIVE MAINTENANCE",
+            value ="${latestVib ?: 0}",
+            unit ="hrs" ,
+            icon = painterResource(R.drawable.oil_level),
+            arrowIcon = painterResource(R.drawable.btn_image),
+            onClick = {navController.navigate("preventiveMaintenance")},
+            valueColor = Color(0xFF3386FF)
+        )
+
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(8.dp)
+            .background(color = Color(0xFFF3F0F0)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -83,82 +132,55 @@ fun MaintenanceScreen(navController: NavController) {
             contentAlignment = Alignment.Center
         ) {
             if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+
+                LazyVerticalGrid(columns= GridCells.Fixed(2),
+                    modifier=Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+
                 ) {
-                    ParameterBox(
-                        title = "TEMPERATURE ",
-                        value="${latestTemp ?: 0}",
-                        unit="°C",
-                        icon = painterResource(R.drawable.temp),
-                        arrowIcon = painterResource(R.drawable.btn_image),
-                        onClick = { navController.navigate("temperatureGraph") },
-                        valueColor = Color(0xFFEE5D50)
-                    )
+                    items(productionCardListItem) { card ->
+                        ParameterBox(
+                            title = card.title,
+                            value = card.value,
+                            unit = card.unit,
+                            icon=card.icon,
+                            arrowIcon = card.arrowIcon,
+                            onClick = card.onClick,
+                            valueColor = card.valueColor
 
-                    ParameterBox(
-                        title = "VIBRATION ",
-                        value="${latestVib ?: 0}",
-                        unit="mm/s",
-                        icon = painterResource(R.drawable.vib),
-                        arrowIcon = painterResource(R.drawable.btn_image),
-                        onClick = { navController.navigate("vibrationGraphScreen") },
-                        valueColor = Color(0xFFFF7B00)
-                    )
-
-
-                    ParameterBox(
-                        title = "OIL LEVEL ",
-                        value="${latestOilLevel ?: 0}",
-                        unit="mm/s",
-                        icon = painterResource(R.drawable.oil_level),
-                        arrowIcon = painterResource(R.drawable.btn_image),
-                        onClick = { navController.navigate("oilLevelGraphScreen") },
-                        valueColor = Color(0xFF0BA911)
-                    )
+                        )
+                    }
                 }
             } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 25.dp)
-                ) {
-                    ParameterBox(
-                        title = "TEMPERATURE ",
-                        value="${latestTemp ?: 0}",
-                        unit="°C",
-                        icon = painterResource(R.drawable.temp),
-                        arrowIcon = painterResource(R.drawable.btn_image),
-                        onClick = { navController.navigate("temperatureGraph") },
-                        valueColor = Color(0xFFEE5D50),
-                        modifier = Modifier.weight(0.5f)
-                    )
-                    Spacer(modifier = Modifier.width(32.dp))  // Space between the two cards
-                    ParameterBox(
-                        title = "VIBRATION ",
-                        value="${latestVib ?: 0}",
-                        unit="mm/s",
-                        icon = painterResource(R.drawable.vib),
-                        arrowIcon = painterResource(R.drawable.btn_image),
-                        onClick = { navController.navigate("vibrationGraphScreen") },
-                        valueColor = Color(0xFFFF7B00),
-                        modifier = Modifier.weight(0.5f)
-                    )
-                    Spacer(modifier = Modifier.width(32.dp))  // Space between the two cards
 
-                    ParameterBox(
-                        title = "OIL LEVEL ",
-                        value="${latestOilLevel ?: 0}",
-                        unit="mm/s",
-                        icon = painterResource(R.drawable.oil_level),
-                        arrowIcon = painterResource(R.drawable.btn_image),
-                        onClick = { navController.navigate("oilLevelGraphScreen") },
-                        valueColor = Color(0xFF0BA911),
-                        modifier = Modifier.weight(0.5f)
-                    )
+                LazyVerticalGrid(columns= GridCells.Fixed(2),
+                    modifier=Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+                ) {
+                    items(productionCardListItem) { card ->
+                        ParameterBox(
+                            title = card.title,
+                            value = card.value,
+                            unit = card.unit,
+                            icon=card.icon,
+                            arrowIcon = card.arrowIcon,
+                            onClick = card.onClick,
+                            valueColor = card.valueColor
+
+                        )
+                    }
                 }
-            }
+
+         }
         }
 
         Row(
@@ -226,8 +248,8 @@ fun ParameterBox(
                 scaleY = scale
             }
             .padding(8.dp)
-            .defaultMinSize(minWidth = 150.dp)
-            .height(200.dp)
+            .defaultMinSize(minWidth = 80.dp)
+            .height(155.dp)
             .border(0.5.dp, Color(0xFF283593), RoundedCornerShape(12.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(12.dp),
@@ -236,7 +258,7 @@ fun ParameterBox(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp)
+                .padding(25.dp)
         ) {
 
             // Arrow at top-right
@@ -274,8 +296,9 @@ fun ParameterBox(
             // Value and Unit at center
             Row(
                 verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.align(Alignment.Center)
-                    .padding(top=30.dp)
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(top = 30.dp)
             ) {
                 Text(
                     text = value,

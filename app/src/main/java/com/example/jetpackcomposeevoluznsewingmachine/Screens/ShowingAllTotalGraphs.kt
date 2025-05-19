@@ -2,6 +2,7 @@ package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,7 +19,11 @@ fun IdleTimeAnalysisGraph(navController: NavController,
                           todayTemps: List<Double>,
                           weeklyTemps: List<Double>,
                           valueColor: Color,
-                          unit:String
+                          unit:String,
+                          snackBarHostState:SnackbarHostState,
+                          threshHold:Double,
+                          shouldTriggerAlert:(Double)->Boolean,
+                          alertMessage:String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -28,7 +33,12 @@ fun IdleTimeAnalysisGraph(navController: NavController,
         todayTemps,
         weeklyTemps,
         valueColor,
-        unit)
+        unit,
+        snackBarHostState=snackBarHostState,
+        threshHold=threshHold,
+        shouldTriggerAlert = shouldTriggerAlert,
+        alertMessage=alertMessage
+        )
 }
 
 
@@ -43,7 +53,11 @@ fun OilLevelGraph(navController: NavController,
                   todayTemps: List<Double>,
                   weeklyTemps: List<Double>,
                   valueColor: Color,
-                  unit:String
+                  unit:String,
+                  snackBarHostState:SnackbarHostState,
+                  threshHold:Double,
+                  shouldTriggerAlert:(Double)->Boolean,
+                  alertMessage:String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -53,7 +67,12 @@ fun OilLevelGraph(navController: NavController,
         todayTemps,
         weeklyTemps,
         valueColor,
-        unit)
+        unit,
+        snackBarHostState = snackBarHostState,
+        threshHold=threshHold,
+        shouldTriggerAlert = shouldTriggerAlert,
+        alertMessage=alertMessage
+        )
 }
 
 
@@ -69,7 +88,11 @@ fun RunTimeAnalysisGraph(navController: NavController,
                          todayTemps: List<Double>,
                          weeklyTemps: List<Double>,
                          valueColor: Color,
-                         unit:String
+                         unit:String,
+                         snackBarHostState:SnackbarHostState,
+                         threshHold:Double,
+                         shouldTriggerAlert:(Double)->Boolean,
+                         alertMessage:String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -79,7 +102,11 @@ fun RunTimeAnalysisGraph(navController: NavController,
         todayTemps,
         weeklyTemps,
         valueColor,
-        unit)
+        unit,
+        snackBarHostState=snackBarHostState,
+        threshHold=threshHold,
+        shouldTriggerAlert = shouldTriggerAlert,
+        alertMessage=alertMessage)
 }
 
 //vibration
@@ -93,7 +120,11 @@ fun VibrationGraph(navController: NavController,
                    todayTemps: List<Double>,
                    weeklyTemps: List<Double>,
                    valueColor: Color,
-                   unit:String
+                   unit:String,
+                   snackBarHostState:SnackbarHostState,
+                   threshHold:Double,
+                   shouldTriggerAlert:(Double)->Boolean,
+                   alertMessage:String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -103,5 +134,10 @@ fun VibrationGraph(navController: NavController,
         todayTemps,
         weeklyTemps,
         valueColor,
-        unit)
+        unit,
+        snackBarHostState = snackBarHostState,
+        threshHold=threshHold,
+        shouldTriggerAlert = shouldTriggerAlert,
+        alertMessage=alertMessage
+        )
 }
