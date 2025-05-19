@@ -1,5 +1,10 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
+import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -40,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -48,13 +54,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.jetpackcomposeevoluznsewingmachine.DatabaseBackupHelper
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CardItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
+import java.io.File
 
 
 @Composable
 fun DashBoardLiveScreen(navController: NavController) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+
+    val context=LocalContext.current
+    val launcher=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")){uri ->
+        uri?.let{
+            backUpDataAndExport(context,it)
+        }
+
+    }
 
     Column(
         modifier = Modifier
@@ -85,7 +101,9 @@ fun DashBoardLiveScreen(navController: NavController) {
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .size(67.dp)
-                    .clickable { /* Handle download */ }
+                    .clickable {
+                        launcher.launch("machine_database_backup.db")
+                    }
                     .padding(end = 30.dp)
             )
         }
@@ -144,6 +162,7 @@ fun DashBoardLiveScreen(navController: NavController) {
         }
     }
 }
+
 
 
 
@@ -265,5 +284,43 @@ fun OilLevelIndicator() {
             )
         }
     }
+}
+
+
+
+fun backUpDataAndExport(context: Context, uri: Uri) {
+    try{
+
+       DatabaseBackupHelper.backupDatabase(context)
+        val backUpFile= File(context.getExternalFilesDir(null),"backup_machine_database.db")
+        if(!backUpFile.exists()){
+            println("backupFile does not exists")
+               return
+
+        }
+
+
+        //write the file to the selected Uri
+
+        context.contentResolver.openOutputStream(uri)?.use{outputStream ->
+            backUpFile.inputStream().use{inputStream->
+                inputStream.copyTo(outputStream)
+
+            }
+
+        }
+        Toast.makeText(context,"Database file exported successfully",Toast.LENGTH_SHORT).show()
+        println("database file export to external directly successfully")
+
+
+    }
+    catch(e:Exception){
+        Toast.makeText(context,"Export failed: ${e.message}",Toast.LENGTH_SHORT).show()
+        println("database file not download due to some error!")
+        e.printStackTrace()
+
+    }
+
+
 }
 

@@ -76,7 +76,7 @@ fun MaintenanceScreen(navController: NavController) {
             icon = painterResource(R.drawable.temp),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("temperatureGraph")},
-            valueColor = Color(0xFF3386FF)
+            valueColor = Color(0xFFF44336)
         ),
         ProductionCartItemList(
             title ="VIBRATION",
@@ -85,7 +85,7 @@ fun MaintenanceScreen(navController: NavController) {
             icon = painterResource(R.drawable.vib),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("vibrationGraphScreen")},
-            valueColor = Color(0xFF8569D8)
+            valueColor = Color(0xFFFF5722)
         ),
         ProductionCartItemList(
             title ="OIL LEVEL",
@@ -94,16 +94,16 @@ fun MaintenanceScreen(navController: NavController) {
             icon = painterResource(R.drawable.oil_level),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("oilLevelGraphScreen")},
-            valueColor = Color(0xFF3386FF)
+            valueColor = Color(0xFF4CAF50)
         ),
         ProductionCartItemList(
             title ="PREVENTIVE MAINTENANCE",
             value ="${latestVib ?: 0}",
             unit ="hrs" ,
-            icon = painterResource(R.drawable.oil_level),
+            icon = painterResource(R.drawable.preventive_maintainance),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("preventiveMaintenance")},
-            valueColor = Color(0xFF3386FF)
+            valueColor = Color(0xFF6B47D4)
         )
 
     )
