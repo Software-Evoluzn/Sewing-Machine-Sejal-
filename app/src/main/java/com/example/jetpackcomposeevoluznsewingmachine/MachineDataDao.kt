@@ -135,6 +135,124 @@ import kotlinx.coroutines.flow.Flow
     fun getDailySummary(startDate: String, endDate: String): LiveData<List<DailySummary>>
 
 
+    //combine runtme ,idletime,production graph queries
+
+    //for showing particular hour  and individual cycle  time
+
+    @Query("""
+              SELECT 
+                    dateTime,
+                    runtime,
+                    idleTime,
+                    (runtime + idleTime) AS total_time_per_cycle
+                     FROM machine_data
+                     WHERE pushBackCount = 1
+                     AND strftime('%H', dateTime) = '15'
+                     AND date(dateTime) = date('now')
+                     ORDER BY dateTime;
+            """)
+    fun getIndividualHourData(selectedHour:String)
+
+
+    //showing today hourly data of showing cycles
+    @Query("""
+         with hours As(
+     SELECT '00' as hour UNION  ALL SELECT '01' UNION ALL SELECT '02' UNION ALL
+	 SELECT '03' UNION ALL SELECT '04' UNION ALL SELECT '05' UNION ALL 
+	 SELECT '06' UNION ALL SELECT '07' UNION ALL SELECT '08' UNION ALL
+	 SELECT '09' UNION ALL SELECT '10' UNION ALL SELECT '11' UNION ALL
+	 SELECT '12' UNION ALL SELECT '13' UNION ALL SELECT '14' UNION ALL
+	 SELECT '15' UNION ALL SELECT '16' UNION ALL SELECT '17' UNION ALL
+	 SELECT '18' UNION ALL SELECT '19' UNION ALL SELECT '20' UNION ALL
+	 SELECT '21' UNION ALL SELECT '22' UNION ALL SELECT '23' 
+	 ) 
+	 select h.hour,
+	             count(m.id) AS cycle_count,
+				 IFNULL (SUM(m.runtime),0) AS total_runtime,
+				 IFNULL (SUM(m.idleTime),0) AS total_idletime
+				 
+				 from hours h
+				 LEFT JOIN machine_data m
+				 
+				 ON strftime('%H',datetime) =h.hour
+				 AND date(datetime) = date('now')
+				 AND m.pushBackCount=1
+				 group by h.hour
+				 order by h.hour;
+    """)
+    fun getCalculateTotalNumberOfCycleToday()
+
+
+
+    //showing the selected date range data
+
+    @Query("""
+        WITH RECURSIVE date_range(day) AS (
+    SELECT date(:startDate)
+    UNION ALL
+    SELECT date(day, '+1 day')
+    FROM date_range
+    WHERE day < date(:endDate)
+)
+SELECT day,
+       COUNT(m.id) AS cycle_count,
+       IFNULL(SUM(m.runtime), 0) AS total_runtime,
+       IFNULL(SUM(m.idleTime), 0) AS total_idleTime
+FROM date_range
+LEFT JOIN machine_data m
+  ON date(m.dateTime) = day
+  AND m.pushBackCount = 1
+GROUP BY day
+ORDER BY day;
+    """)
+    fun getNumberOfCyclerBySelectedDateRange(startDate:String,endDate:String)
+
+
+    @Query("""
+        WITH hours AS (
+    SELECT '00' AS hour UNION ALL SELECT '01' UNION ALL SELECT '02' UNION ALL
+    SELECT '03' UNION ALL SELECT '04' UNION ALL SELECT '05' UNION ALL
+    SELECT '06' UNION ALL SELECT '07' UNION ALL SELECT '08' UNION ALL
+    SELECT '09' UNION ALL SELECT '10' UNION ALL SELECT '11' UNION ALL
+    SELECT '12' UNION ALL SELECT '13' UNION ALL SELECT '14' UNION ALL
+    SELECT '15' UNION ALL SELECT '16' UNION ALL SELECT '17' UNION ALL
+    SELECT '18' UNION ALL SELECT '19' UNION ALL SELECT '20' UNION ALL
+    SELECT '21' UNION ALL SELECT '22' UNION ALL SELECT '23'
+)
+SELECT h.hour,
+       COUNT(m.id) AS cycle_count,
+       IFNULL(SUM(m.runtime), 0) AS total_runtime,
+       IFNULL(SUM(m.idleTime), 0) AS total_idleTime
+FROM hours h
+LEFT JOIN machine_data m
+  ON strftime('%H', m.dateTime) = h.hour
+  AND date(m.dateTime) = '2025-05-19'
+  AND m.pushBackCount = 1
+GROUP BY h.hour
+ORDER BY h.hour;
+    """)
+    fun getNumberOfCyclesBySelectedSameDate(startDate:String)
+
+
+
+
+
+    //showing individual cycle timing and number of cycles by selected same date
+    @Query("""
+        SELECT 
+  dateTime,
+  runtime,
+  idleTime,
+  (runtime + idleTime) AS total_time_per_cycle
+FROM machine_data
+WHERE pushBackCount = 1
+  AND strftime('%H', dateTime) = :selectHour
+  AND date(dateTime) = date(:selectedDate)
+ORDER BY dateTime;
+    """)
+    fun getShowingIndividualCycleShowingInSameDate(selectedDate:String,selectHour:String)
+
+
 
 
 
