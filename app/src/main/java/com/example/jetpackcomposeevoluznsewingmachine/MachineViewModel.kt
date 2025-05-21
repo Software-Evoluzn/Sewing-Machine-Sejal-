@@ -5,14 +5,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-
-
 import androidx.lifecycle.map
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHourDataShowing
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineDataLive
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.RealTimeRunTimeData
-
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -21,6 +19,56 @@ import kotlinx.coroutines.flow.map
 class MachineViewModel(application: Application) : AndroidViewModel(application)
  {
      private val dao = DatabaseClass.getDatabase(application).machineDataDao()
+
+
+//     //showing individual hour data
+//    fun getCombineGraphHourData(selectedHour:String) {
+//        return dao.getIndividualHourData(selectedHour)
+//    }
+
+     //showing individual day combined graph
+     var getCombineGraphOfTodayData: Flow<List<CombineGraphHourDataShowing>> = dao.getCalculateTotalNumberOfCycleToday()
+
+//     var CombinedGraphRunTime : Flow<List<Int>> =getCombineGraphOfTodayData.map {list->
+//         list.map { it.total_runtime }
+//     }
+//
+//     var CombinedGraphIdleTime : Flow<List<Int>> =getCombineGraphOfTodayData.map{list->
+//         list.map{it.total_idletime}
+//
+//     }
+//     var cycleCountOfCompbineGraphOfToday :Flow<List<Int>> = getCombineGraphOfTodayData.map{list->
+//         list.map{it.cycle_count}
+//
+//     }
+//     var hourCountInCombineGraphOfToday :Flow<List<String>> = getCombineGraphOfTodayData.map{list->
+//         list.map{it.hour}
+//
+//     }
+
+
+
+
+
+//     //showing selectedDateRange combine graph
+//     fun getCombinedGraphOfSelectedDateRange(startDate:String,endDate:String){
+//         return dao.getNumberOfCyclerBySelectedDateRange(startDate,endDate)
+//     }
+
+//     //showing selected same date combine graph data
+//     fun getCombinedGraphOfSameDate(selectedDate:String){
+//         return dao.getNumberOfCyclesBySelectedSameDate(selectedDate)
+//     }
+//
+//     //showing selected same date individual hour data
+//     fun getCombinedGraphIndividualCyclesOfSameDate(selectedDate:String,selectedHour:String){
+//         return dao.getShowingIndividualCycleShowingInSameDate(selectedDate,selectedHour)
+//     }
+
+
+
+
+
 
      val realTimeData: Flow<List<RealTimeRunTimeData>> = dao.getRecentRuntimeData()
 
@@ -38,15 +86,7 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
      val realIdleTime: Flow<List<Int>> = realTimeData.map { list ->
          list.map { (it.idleTime) }
-
      }
-
-
-
-
-
-
-
 
      //live data
       val latestMachineData: LiveData<MachineDataLive> = dao.getLatestMachineData()

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -26,9 +27,13 @@ import com.example.jetpackcomposeevoluznsewingmachine.R
 fun ProductionEfficiencyScreen(navController: NavController) {
 
     val cardItemList=listOf(
-        CardItemList("TARGET PIECES", onCardClick = {navController.navigate("mainMenu")}),
-        CardItemList("COMPLETED PIECES", onCardClick = {navController.navigate("mainMenu")}),
-        CardItemList("BALANCE PIECES", onCardClick = {navController.navigate("mainMenu")}),
+        CardItemList("TARGET PIECES", onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.production_icon)
+        ),
+        CardItemList("COMPLETED PIECES", onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.production_icon)),
+        CardItemList("BALANCE PIECES", onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.production_icon)),
 
         )
     Column(modifier=Modifier.fillMaxSize().padding(25.dp),
@@ -60,6 +65,7 @@ fun ProductionEfficiencyScreen(navController: NavController) {
                 ShowingCard(
                     title = card.title,
                     onCardClick = card.onCardClick,
+                    icon=card.icon
 
                     )
             }

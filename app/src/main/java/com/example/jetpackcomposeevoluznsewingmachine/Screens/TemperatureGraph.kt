@@ -88,12 +88,11 @@ fun TemperatureGraph(navController: NavController,
     var expanded by remember{ mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Today") }
 
-    var oilLevel by remember { mutableStateOf((0..100).random()) }
+
     var hasAlerted by remember{ mutableStateOf(false) }
-    val sendAlertNofication: NotificationAndSoundHelpherClass
 
 
-    sendAlertNofication=NotificationAndSoundHelpherClass()
+    val sendAlertNofication: NotificationAndSoundHelpherClass = NotificationAndSoundHelpherClass()
 
     LaunchedEffect(todayTemps) {
         val latestValue = todayTemps.lastOrNull() ?: return@LaunchedEffect

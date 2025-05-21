@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -26,9 +27,13 @@ import com.example.jetpackcomposeevoluznsewingmachine.R
 fun PreventiveMaintenanceScreen(navController: NavController) {
 
     val cardItemList = listOf(
-        CardItemList("RUN TIME", onCardClick = { navController.navigate("mainMenu") }),
-        CardItemList("DUE TIME", onCardClick = { navController.navigate("mainMenu") }),
-        CardItemList("PRE NOTIFICATION TIME", onCardClick = { navController.navigate("mainMenu") }),
+        CardItemList("RUN TIME", onCardClick = { navController.navigate("mainMenu") },
+            painterResource(R.drawable.production_icon)
+        ),
+        CardItemList("DUE TIME", onCardClick = { navController.navigate("mainMenu") },
+            painterResource(R.drawable.production_icon)),
+        CardItemList("PRE NOTIFICATION TIME", onCardClick = { navController.navigate("mainMenu") },
+            painterResource(R.drawable.production_icon)),
 
         )
   Column(modifier = Modifier.fillMaxSize().padding(25.dp),
@@ -59,7 +64,7 @@ fun PreventiveMaintenanceScreen(navController: NavController) {
             ShowingCard(
                 title = card.title,
                 onCardClick = card.onCardClick,
-
+                icon = card.icon
                 )
         }
 

@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,12 +24,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,8 +46,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -76,7 +81,7 @@ fun DashBoardLiveScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .background(color=Color(0xFFF3F0F0)),
+           ,
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -87,6 +92,11 @@ fun DashBoardLiveScreen(navController: NavController) {
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         ) {
+            Image(
+                painter= painterResource(R.drawable.aquarelle_logo),
+                contentDescription = "logo",
+                modifier = Modifier.size(70.dp).align(Alignment.TopStart)
+            )
             Text(
                 text = "SEWING MACHINE LIVE DASHBOARD",
                 fontSize = 24.sp,
@@ -169,14 +179,30 @@ fun DashBoardLiveScreen(navController: NavController) {
 @Composable
 fun DashBoardScreen(navController: NavController) {
     val cardItemList=listOf(
-        CardItemList("PRODUCTION", onCardClick = {navController.navigate("machineRuntimeScreen")}),
-        CardItemList("MAINTENANCE", onCardClick = {navController.navigate("maintenanceScreen")}),
-        CardItemList("QUALITY", onCardClick = {navController.navigate("mainMenu")}),
-        CardItemList("STITCH COUNT", onCardClick = {navController.navigate("mainMenu")}),
-        CardItemList("BREAKDOWN", onCardClick = {navController.navigate("mainMenu")}),
-        CardItemList("TRAINING", onCardClick = {navController.navigate("mainMenu")}),
-        CardItemList("BOBBIN THREAD", onCardClick = {navController.navigate("mainMenu")}),
-        CardItemList("SPI", onCardClick = {navController.navigate("mainMenu")}),
+        CardItemList("PRODUCTION",
+            onCardClick = {navController.navigate("machineRuntimeScreen")},
+            painterResource(R.drawable.production_icon)),
+        CardItemList("MAINTENANCE",
+            onCardClick = {navController.navigate("maintenanceScreen")},
+            painterResource(R.drawable.maintenance_icon)),
+        CardItemList("QUALITY",
+            onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.quality_icon)),
+        CardItemList("STITCH COUNT",
+            onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.spi_icon)),
+        CardItemList("BREAKDOWN",
+            onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.break_down_icon)),
+        CardItemList("TRAINING",
+            onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.training_icon)),
+        CardItemList("BOBBIN THREAD",
+            onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.bobbin_icon)),
+        CardItemList("SPI",
+            onCardClick = {navController.navigate("mainMenu")},
+            painterResource(R.drawable.stitch_count_icon)),
         )
 
     LazyVerticalGrid(
@@ -193,6 +219,7 @@ fun DashBoardScreen(navController: NavController) {
             ShowingCard(
                 title = card.title,
                 onCardClick = card.onCardClick,
+                icon =card.icon
                 )
         }
 
@@ -203,7 +230,8 @@ fun DashBoardScreen(navController: NavController) {
 fun ShowingCard(
     title: String,
     modifier:Modifier=Modifier,
-    onCardClick : ()->Unit
+    onCardClick: ()->Unit,
+    icon: Painter
 ) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
@@ -226,11 +254,12 @@ fun ShowingCard(
             }
             .clickable {  onCardClick() }
             .padding(8.dp)
-            .defaultMinSize(minWidth = 80.dp)
-            .height(120.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
+            .defaultMinSize(minWidth = 100.dp)
+            .height(120.dp)
+            .border(width = 0.5.dp,Color(0xFFD0D0D3), RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F6F6)),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
+        elevation = CardDefaults.cardElevation(12.dp)
     ) {
         Box(
             modifier = Modifier
@@ -238,16 +267,23 @@ fun ShowingCard(
                 .padding(18.dp)
         ) {
 
+
+
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Spacer(modifier = Modifier.height(18.dp))
+                Image(
+                    painter = icon,
+                    contentDescription = "Section Icon",
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = title,
                     color = Color.Black,
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontFamily = dmRegular,
                     fontWeight = FontWeight.Bold
                 )
@@ -259,32 +295,55 @@ fun ShowingCard(
 @Preview(showBackground = true)
 @Composable
 fun OilLevelIndicator() {
-    var oilLevel by remember { mutableStateOf(0.5f) }
+    val oilLevel = 0.7f // 70%
 
     Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        contentAlignment = Alignment.Center
+        modifier = Modifier
+            .width(60.dp)
+            .height(300.dp),
+        contentAlignment = Alignment.BottomCenter
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            // Tank
-            val tankWidth = size.width
-            val tankHeight = size.height
-            drawRect(
-                color = Color.LightGray,
-                topLeft = Offset(0f, 0f),
-                size = Size(tankWidth, tankHeight)
-            )
+        // Thermometer background
+        Box(
+            modifier = Modifier
+                .width(30.dp)
+                .fillMaxHeight()
+                .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(50.dp))
+        )
 
-            // Oil
-            val oilHeight = oilLevel * tankHeight
-            drawRect(
-                color = Color.Blue,
-                topLeft = Offset(0f, tankHeight - oilHeight),
-                size = Size(tankWidth, oilHeight)
+        // Oil fill with gradient
+        Box(
+            modifier = Modifier
+                .width(30.dp)
+                .fillMaxHeight(oilLevel)
+                .align(Alignment.BottomCenter)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFFFFA500), Color.Yellow)
+                    ),
+                    shape = RoundedCornerShape(50.dp)
+                )
+        )
+
+        // Movable circular head
+        Box(
+            modifier = Modifier
+                .offset(y = -600.dp * (1f - oilLevel)) // Move the circle to the top of fill
+                .size(50.dp)
+                .background(Color(0xFFFFA500), shape = CircleShape)
+                .border(2.dp, Color.White, shape = CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "${(oilLevel * 100).toInt()}%",
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
         }
     }
 }
+
+
 
 
 
