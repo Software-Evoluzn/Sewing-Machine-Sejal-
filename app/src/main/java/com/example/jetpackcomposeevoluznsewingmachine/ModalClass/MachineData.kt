@@ -15,7 +15,8 @@ data class MachineData(
     val vibration: Double,
     val oilLevel: Int,
     val pushBackCount:Int,
-    val stitchCount:Int
+    val stitchCount:Int,
+    val bobbinThread:Int
 )
 
 

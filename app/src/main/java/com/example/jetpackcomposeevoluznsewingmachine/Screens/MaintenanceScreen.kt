@@ -111,19 +111,31 @@ fun MaintenanceScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
-            .background(color = Color(0xFFF3F0F0)),
+            ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
-        Text(
-            text = "MAINTENANCE ",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = dmRegular,
-            color=Color(0xFF4B4B4B)
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+
+        ) {
+            Image(
+                painter = painterResource(R.drawable.aquarelle_logo),
+                contentDescription = "logo",
+                modifier = Modifier.size(70.dp).align(Alignment.TopStart)
+            )
+            Text(
+                text = "MAINTENANCE ",
+                fontSize = 24.sp,
+                fontFamily = dmRegular,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4B4B4B),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
         // Middle content (cards) centered
         Box(
             modifier = Modifier

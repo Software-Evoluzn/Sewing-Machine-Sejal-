@@ -5,11 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
 
 
-@Database(entities = [MachineData::class], version = 5)
+@Database(entities = [MachineData::class], version = 6)
 abstract class DatabaseClass : RoomDatabase() {
 
     abstract fun machineDataDao(): MachineDataDao
@@ -29,6 +30,12 @@ abstract class DatabaseClass : RoomDatabase() {
                 db.execSQL("ALTER TABLE machine_data ADD COLUMN stitchCount INTEGER NOT NULL DEFAULT 0")
             }
         }
+        private val MIGRATION_5_6=object:Migration(5,6){
+            override fun migrate(db: SupportSQLiteDatabase) {
+               db.execSQL("ALTER TABLE machine_data ADD COLUMN bobbinThread INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
 
 
 
@@ -40,7 +47,7 @@ abstract class DatabaseClass : RoomDatabase() {
                     context.applicationContext,
                     DatabaseClass::class.java,
                     "machine_database"
-                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5)
+                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .build()
                 INSTANCE = instance
                 instance

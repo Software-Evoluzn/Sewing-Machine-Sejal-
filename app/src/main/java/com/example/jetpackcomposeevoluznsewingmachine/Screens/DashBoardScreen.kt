@@ -15,6 +15,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -35,10 +37,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -58,8 +64,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.DatabaseBackupHelper
+import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CardItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import java.io.File
@@ -292,29 +300,38 @@ fun ShowingCard(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Oil Level")
 @Composable
 fun OilLevelIndicator() {
-    val oilLevel = 0.7f // 70%
+    val viewModel: MachineViewModel = viewModel()
+    val oilLevelValue by viewModel.latestOilLevelValue.observeAsState()
+
+    // Convert oil level from 0-100 to 0.0 - 1.0
+    val oilLevel = ((oilLevelValue ?: 0).coerceIn(0, 100)) / 100f
+
+    val containerHeight = 300.dp
+    val containerWidth = 60.dp
+    val tubeWidth = 30.dp
+    val circleSize = 50.dp
 
     Box(
         modifier = Modifier
-            .width(60.dp)
-            .height(300.dp),
-        contentAlignment = Alignment.BottomCenter
+            .width(containerWidth)
+            .height(containerHeight)
     ) {
         // Thermometer background
         Box(
             modifier = Modifier
-                .width(30.dp)
+                .width(tubeWidth)
                 .fillMaxHeight()
+                .align(Alignment.BottomCenter)
                 .background(Color(0xFFE0E0E0), shape = RoundedCornerShape(50.dp))
         )
 
-        // Oil fill with gradient
+        // Oil fill
         Box(
             modifier = Modifier
-                .width(30.dp)
+                .width(tubeWidth)
                 .fillMaxHeight(oilLevel)
                 .align(Alignment.BottomCenter)
                 .background(
@@ -325,23 +342,42 @@ fun OilLevelIndicator() {
                 )
         )
 
-        // Movable circular head
-        Box(
-            modifier = Modifier
-                .offset(y = -600.dp * (1f - oilLevel)) // Move the circle to the top of fill
-                .size(50.dp)
-                .background(Color(0xFFFFA500), shape = CircleShape)
-                .border(2.dp, Color.White, shape = CircleShape),
-            contentAlignment = Alignment.Center
+        // Circle at the top of the fill
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = "${(oilLevel * 100).toInt()}%",
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
+            val density = LocalDensity.current
+            val heightPx = constraints.maxHeight.toFloat()
+            val circlePx = with(density) { circleSize.toPx() }
+            val circleOffset = heightPx * (1f - oilLevel) - (circlePx / 2)
+            val offsetDp = with(density) { circleOffset.toDp() }
+
+            Box(
+                modifier = Modifier
+                    .size(circleSize)
+                    .align(Alignment.TopCenter)
+                    .offset(y = offsetDp.coerceIn(0.dp, containerHeight - circleSize))
+                    .background(Color(0xFFFFA500), shape = CircleShape)
+                    .border(2.dp, Color.White, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "${(oilLevel * 100).toInt()}%",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
+
     }
 }
+
+
+
+
+
+
+
 
 
 

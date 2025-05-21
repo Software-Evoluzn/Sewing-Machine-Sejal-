@@ -1,5 +1,9 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
+import android.app.DatePickerDialog
+import android.icu.util.Calendar
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -35,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -61,6 +67,7 @@ import com.github.mikephil.charting.data.LineDataSet
 
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlin.math.ceil
 
 
@@ -71,6 +78,7 @@ fun showPreview(){
 //    ShowingCombineGraphs(navController = navController)
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, GraphHeading: String) {
@@ -185,9 +193,54 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
 
                         }
                         "Weekly" ->{
-
+                            Text("Showing weekly trend data.", fontWeight = FontWeight.Medium)
                         }
                         "Set Range" ->{
+
+                            DatePickerButton("Start Date",startDate){selected->
+                                startDate=selected
+
+                            }
+                            DatePickerButton("End Date",endDate){selected->
+                                endDate=selected
+
+                            }
+                            if(startDate != null && endDate !=null && startDate==endDate){
+                                Spacer(modifier=Modifier.height(8.dp))
+                                Text(text="Select Hour (same day):",
+                                    fontWeight = FontWeight.Medium)
+
+                                ExposedDropdownMenuBox(
+                                    expanded = expandedHour,
+                                    onExpandedChange = { expandedHour = !expandedHour }
+                                ){
+                                    TextField(
+                                        value = selectedHour,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text("Hour") },
+                                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHour) },
+                                        modifier = Modifier.menuAnchor()
+                                    )
+                                    DropdownMenu(
+                                        expanded = expandedHour,
+                                        onDismissRequest = { expandedHour = false }
+                                    ){
+                                        hourOptions.forEach{hour->
+                                            DropdownMenuItem(
+                                                text={Text(hour)},
+                                                onClick={
+                                                    selectedHour = hour
+                                                    expandedHour = false
+                                                }
+
+                                            )
+
+                                        }
+                                    }
+
+                                }
+                            }
 
                         }
 
@@ -235,6 +288,33 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
          }
 
 }
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DatePickerButton(label:String,date:LocalDate?,onDateSelected:(LocalDate)->Unit){
+    val context= LocalContext.current
+    val formatter=DateTimeFormatter.ofPattern("yyyy MM dd")
+    val datePickerDialog = remember{
+        DatePickerDialog(context)
+    }
+
+    Button(onClick = {
+        val calendar=Calendar.getInstance()
+        datePickerDialog.setOnDateSetListener{_,year,month,day->
+            onDateSelected(LocalDate.of(year,month+1,day))
+        }
+        datePickerDialog.updateDate(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH))
+         datePickerDialog.show()
+    }){
+        Text(text="${label}:${date?.format(formatter)?:"Select"}")
+
+    }
+
+
+
+
+}
+
 
 @Composable
 fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier) {

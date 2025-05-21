@@ -1,5 +1,6 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -95,18 +97,35 @@ fun MachineRuntime(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
-            .background(color=Color(0xFFF3F0F0)),
+           ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
+
     ) {
 
-        Text(
-            text = "MACHINE RUNTIME",
-            fontSize = 24.sp,
-            fontFamily = dmRegular,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF4B4B4B)
-        )
+        // Logo pinned to top-start
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+
+        ) {
+            Image(
+                painter = painterResource(R.drawable.aquarelle_logo),
+                contentDescription = "logo",
+                modifier = Modifier.size(70.dp).align(Alignment.TopStart)
+            )
+            Text(
+                text = "MACHINE RUNTIME",
+                fontSize = 24.sp,
+                fontFamily = dmRegular,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4B4B4B),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+
+
         // Middle content (cards) centered
         Box(
             modifier = Modifier
@@ -192,9 +211,4 @@ fun MachineRuntime(navController: NavController) {
 
 }
 
-@Preview
-@Composable
-fun PreviewFunctionMachineRuntime(){
-    val navController= rememberNavController()
-    MachineRuntime(navController)
-}
+
