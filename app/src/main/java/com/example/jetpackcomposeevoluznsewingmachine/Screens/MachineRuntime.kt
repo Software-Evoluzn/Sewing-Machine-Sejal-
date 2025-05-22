@@ -57,37 +57,37 @@ fun MachineRuntime(navController: NavController) {
             title ="RUN TIME",
             value ="${String.format("%.2f",latestRunTimeData)}",
             unit ="hrs" ,
-            icon = painterResource(R.drawable.run_time),
+            icon = painterResource(R.drawable.clock),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("showCombineGraphScreen")},
-            valueColor = Color(0xFF3386FF)
+            valueColor = Color(0xFFFFC107)
         ),
         ProductionCartItemList(
             title ="IDLE TIME",
             value ="${String.format("%.2f",latestIdleTime)}",
             unit ="hrs" ,
-            icon = painterResource(R.drawable.idle_time),
+            icon = painterResource(R.drawable.pause),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("showCombineGraphScreen")},
-            valueColor = Color(0xFF8569D8)
+            valueColor = Color(0xFFF44336)
         ),
         ProductionCartItemList(
             title ="PRODUCTION COUNT",
             value ="${String.format("%.2f",latestIdleTime)}",
             unit ="hrs" ,
-            icon = painterResource(R.drawable.run_time),
+            icon = painterResource(R.drawable.counter),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("showCombineGraphScreen")},
-            valueColor = Color(0xFF3386FF)
+            valueColor = Color(0xFF4CAF50)
         ),
         ProductionCartItemList(
             title ="PRODUCTION  EFFICIENCY",
             value ="${String.format("%.2f",latestIdleTime)}",
             unit ="hrs" ,
-            icon = painterResource(R.drawable.run_time),
+            icon = painterResource(R.drawable.efficacy),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("productionEfficiency")},
-            valueColor = Color(0xFF3386FF)
+            valueColor = Color(0xFF673AB7)
         )
 
     )

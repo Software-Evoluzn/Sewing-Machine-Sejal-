@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,8 +36,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,8 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -68,6 +63,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.DatabaseBackupHelper
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.BlurCardData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CardItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import java.io.File
@@ -77,115 +73,236 @@ import java.io.File
 fun DashBoardLiveScreen(navController: NavController) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
-    val context=LocalContext.current
-    val launcher=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")){uri ->
-        uri?.let{
-            backUpDataAndExport(context,it)
+
+        var showCardByBackgroundBlur by remember { mutableStateOf(false) }
+        var selectedCardData by remember{mutableStateOf<BlurCardData?>(null)}
+        val context = LocalContext.current
+        val launcher =
+            rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+                uri?.let {
+                    backUpDataAndExport(context, it)
+                }
+
+            }
+
+    Box(modifier=Modifier.fillMaxSize()) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            // Heading with text and image
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.aquarelle_logo),
+                    contentDescription = "logo",
+                    modifier = Modifier.size(70.dp).align(Alignment.TopStart)
+                )
+                Text(
+                    text = "SEWING MACHINE LIVE DASHBOARD",
+                    fontSize = 24.sp,
+                    fontFamily = dmRegular,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4B4B4B),
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                Image(
+                    painter = painterResource(R.drawable.download_img),
+                    contentDescription = "Download",
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .size(67.dp)
+                        .clickable {
+                            launcher.launch("machine_database_backup.db")
+                        }
+                        .padding(end = 30.dp)
+                )
+            }
+
+            // Cards grid
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Main dashboard grid - takes most space
+                Box(
+                    modifier = Modifier
+                        .weight(10f)
+                        .fillMaxHeight()
+                ) {
+                    DashBoardScreen(navController = navController,
+                        onShowBlurCardRequested = {
+                            selectedCardData =it
+                            showCardByBackgroundBlur = true })
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Oil level indicator - smaller width
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    OilLevelIndicator()
+                }
+            }
+
+            // Footer
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Powered by ",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Thin,
+                    fontFamily = dmRegular,
+                    color = Color(0xFF424242)
+                )
+                Text(
+                    text = "EVOLUZN",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = dmRegular,
+                    color = Color(0xFF424242)
+                )
+            }
         }
 
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-           ,
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        // Heading with text and image
+    if (showCardByBackgroundBlur && selectedCardData != null) {
+        val liveValue by selectedCardData!!.value.observeAsState()
+        val formattedValue=liveValue?.toString()?:"0"
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.1f)) // dim background
+                .clickable { showCardByBackgroundBlur = false }, // tap outside to dismiss
+            contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter= painterResource(R.drawable.aquarelle_logo),
-                contentDescription = "logo",
-                modifier = Modifier.size(70.dp).align(Alignment.TopStart)
+            val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+
+            // Animation trigger state
+            var startAnimation by remember { mutableStateOf(false) }
+
+            // Smooth scale animation from 0.8f to 1f
+            val scale by animateFloatAsState(
+                targetValue = if (startAnimation) 1f else 0.8f,
+                animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+                label = "parameterBoxScale"
             )
-            Text(
-                text = "SEWING MACHINE LIVE DASHBOARD",
-                fontSize = 24.sp,
-                fontFamily = dmRegular,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4B4B4B),
-                modifier = Modifier.align(Alignment.Center)
-            )
-            Image(
-                painter = painterResource(R.drawable.download_img),
-                contentDescription = "Download",
+
+            // Trigger animation when this composable enters composition
+            LaunchedEffect(Unit) {
+                startAnimation = true
+            }
+            Card(
                 modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .size(67.dp)
-                    .clickable {
-                        launcher.launch("machine_database_backup.db")
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
                     }
-                    .padding(end = 30.dp)
-            )
-        }
+                    .padding(8.dp)
+                    .width( 300.dp)
+                    .height(255.dp)
+                    .border(0.5.dp, Color(0xFF0C0C0C), RoundedCornerShape(12.dp)),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(20.dp)
 
-        // Cards grid
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Main dashboard grid - takes most space
-            Box(
-                modifier = Modifier
-                    .weight(10f)
-                    .fillMaxHeight()
             ) {
-                DashBoardScreen(navController = navController)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically) // Balanced spacing
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.close_icon),
+                                contentDescription = "Close",
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable { showCardByBackgroundBlur = false }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp)) // Optional spacing
+
+                        Text(
+                            text =selectedCardData!!.title,
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF0C0C0C),
+                            fontFamily = dmRegular
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp)) // Add vertical space between title and value
+
+                        Row(
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text(
+                                text = formattedValue,
+                                fontSize = 35.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = dmRegular,
+                                color = selectedCardData!!.valueColor
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = selectedCardData!!.unit,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color(0xFF0C0C0C),
+                                modifier = Modifier.padding(bottom = 5.dp),
+                                fontFamily = dmRegular
+                            )
+                        }
+                    }
+
+                }
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Oil level indicator - smaller width
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                OilLevelIndicator()
-            }
-        }
-
-        // Footer
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Powered by ",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Thin,
-                fontFamily = dmRegular,
-                color = Color(0xFF424242)
-            )
-            Text(
-                text = "EVOLUZN",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = dmRegular,
-                color = Color(0xFF424242)
-            )
         }
     }
+
+
+
 }
 
 
-
-
 @Composable
-fun DashBoardScreen(navController: NavController) {
+fun DashBoardScreen(navController: NavController,
+                    onShowBlurCardRequested: (BlurCardData) -> Unit) {
+
+    val viewModel:MachineViewModel= viewModel()
+
+    val latestStitchCount by viewModel.latestStitchCount.observeAsState()
+    val latestBobbinThread by viewModel.latestBobbinThread.observeAsState()
+    val latestStitchPerInch by viewModel.latestSPI.observeAsState()
     val cardItemList=listOf(
         CardItemList("PRODUCTION",
             onCardClick = {navController.navigate("machineRuntimeScreen")},
@@ -194,10 +311,20 @@ fun DashBoardScreen(navController: NavController) {
             onCardClick = {navController.navigate("maintenanceScreen")},
             painterResource(R.drawable.maintenance_icon)),
         CardItemList("QUALITY",
-            onCardClick = {navController.navigate("mainMenu")},
+            onCardClick = {navController.navigate("")},
             painterResource(R.drawable.quality_icon)),
         CardItemList("STITCH COUNT",
-            onCardClick = {navController.navigate("mainMenu")},
+            onCardClick = {
+                onShowBlurCardRequested(
+                    BlurCardData(
+                        title = "STITCH COUNT",
+                        value =viewModel.latestStitchCount,
+                        unit ="count",
+                        valueColor =Color(0xFF9C27B0)
+
+                    )
+                )
+            },
             painterResource(R.drawable.spi_icon)),
         CardItemList("BREAKDOWN",
             onCardClick = {navController.navigate("mainMenu")},
@@ -206,10 +333,30 @@ fun DashBoardScreen(navController: NavController) {
             onCardClick = {navController.navigate("mainMenu")},
             painterResource(R.drawable.training_icon)),
         CardItemList("BOBBIN THREAD",
-            onCardClick = {navController.navigate("mainMenu")},
+            onCardClick = {
+                onShowBlurCardRequested(
+                    BlurCardData(
+                        title = "BOBBIN THREAD",
+                        value =viewModel.latestBobbinThread,
+                        unit ="count",
+                        valueColor =Color(0xFFF44336)
+
+                    )
+                )
+            },
             painterResource(R.drawable.bobbin_icon)),
         CardItemList("SPI",
-            onCardClick = {navController.navigate("mainMenu")},
+            onCardClick = {
+                onShowBlurCardRequested(
+                    BlurCardData(
+                        title = "SPI",
+                        value =viewModel.latestSPI,
+                        unit ="stitch/inch",
+                        valueColor =Color(0xFF4CAF50)
+
+                    )
+                )
+            },
             painterResource(R.drawable.stitch_count_icon)),
         )
 

@@ -45,7 +45,7 @@ fun PreventiveMaintenanceScreen(navController: NavController) {
             icon = painterResource(R.drawable.clock),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("")},
-            valueColor = Color(0xFF0BA911)
+            valueColor = Color(0xFFFFC107)
         ),
         ProductionCartItemList(
             title ="DUE TIME",

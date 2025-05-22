@@ -29,7 +29,17 @@ import kotlinx.coroutines.flow.Flow
         (SELECT vibration FROM machine_data WHERE date(dateTime) = date('now') ORDER BY id DESC LIMIT 1) AS latestVibration,
         (SELECT oilLevel FROM machine_data WHERE date(dateTime) = date('now') ORDER BY id DESC LIMIT 1) AS latestOilLevel,
         SUM(runtime) AS totalRuntime,
-        SUM(idleTime) AS totalIdleTime
+        SUM(idleTime) AS totalIdleTime,
+        SUM(stitchCount) AS totalStitchCount,
+        ROUND(SUM(bobbinThread*2.54),2) AS totalBobbinThread,
+        
+        CASE 
+            WHEN SUM(bobbinThread) > 0 THEN 
+                ROUND(CAST(SUM(stitchCount) AS FLOAT) / SUM(bobbinThread), 2)
+            ELSE 0
+        END AS stitchPerBobbin
+        
+        
     FROM machine_data
     WHERE date(dateTime) = date('now')
 """)

@@ -5,5 +5,8 @@ data class MachineDataLive(
     val latestVibration: Double?,
     val latestOilLevel: Int?,
     val totalRuntime: Int?,
-    val totalIdleTime: Int?
+    val totalIdleTime: Int?,
+    val totalStitchCount:Int?,
+    val totalBobbinThread:Float,
+    val stitchPerBobbin :Float
 )

@@ -104,6 +104,24 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
         idleTimeInSeconds / 3600f // Convert to hours
     }
 
+     val latestStitchCount:LiveData<Int> = latestMachineData.map{ result ->
+         val totalStitchCount =result.totalStitchCount?:0
+         totalStitchCount
+
+     }
+
+     val latestBobbinThread:LiveData<Float> = latestMachineData.map{result->
+         val totalBobbinThread=result.totalBobbinThread?:0
+         totalBobbinThread.toFloat()
+
+     }
+     val latestSPI:LiveData<Int> = latestMachineData.map{result ->
+         val totalSPI=result.stitchPerBobbin
+         totalSPI.toInt()
+
+     }
+
+
     // Mapping the other values directly from the result
     val latestTempValue: LiveData<Double?> = latestMachineData.map { it.latestTemperature }
     val latestVibValue: LiveData<Double?> = latestMachineData.map { it.latestVibration }
