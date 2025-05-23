@@ -110,6 +110,12 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
      }
 
+     val latestPushBackCount:LiveData<Int> = latestMachineData.map{result ->
+         val totalPushBackCount=result.totalPushBackCount?:0
+         totalPushBackCount
+
+     }
+
      val latestBobbinThread:LiveData<Float> = latestMachineData.map{result->
          val totalBobbinThread=result.totalBobbinThread?:0
          totalBobbinThread.toFloat()

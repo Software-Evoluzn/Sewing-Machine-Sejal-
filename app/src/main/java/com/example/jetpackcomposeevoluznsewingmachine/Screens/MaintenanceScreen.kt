@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.PreventiveAndProductionDataClass
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.ProductionCartItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
@@ -64,6 +66,7 @@ fun MaintenanceScreen(navController: NavController) {
     val latestTemp by viewModel.latestTempValue.observeAsState()
     val latestVib by viewModel.latestVibValue.observeAsState()
     val latestOilLevel by viewModel.latestOilLevelValue.observeAsState()
+
     val windowInfo = rememberWindowInfo()
 
 
@@ -72,7 +75,7 @@ fun MaintenanceScreen(navController: NavController) {
         ProductionCartItemList(
             title ="TEMPERATURE",
             value ="${latestTemp ?: 0}",
-            unit ="hrs" ,
+            unit ="°C" ,
             icon = painterResource(R.drawable.temp),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("temperatureGraph")},
@@ -81,7 +84,7 @@ fun MaintenanceScreen(navController: NavController) {
         ProductionCartItemList(
             title ="VIBRATION",
             value ="${latestVib ?: 0}",
-            unit ="hrs" ,
+            unit ="mm/s" ,
             icon = painterResource(R.drawable.vib),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("vibrationGraphScreen")},
@@ -90,20 +93,19 @@ fun MaintenanceScreen(navController: NavController) {
         ProductionCartItemList(
             title ="OIL LEVEL",
             value ="${latestOilLevel ?: 0}",
-            unit ="hrs" ,
+            unit ="%" ,
             icon = painterResource(R.drawable.oil_level),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("oilLevelGraphScreen")},
             valueColor = Color(0xFF4CAF50)
         ),
-        ProductionCartItemList(
+        PreventiveAndProductionDataClass(
             title ="PREVENTIVE MAINTENANCE",
-            value ="${latestVib ?: 0}",
-            unit ="hrs" ,
-            icon = painterResource(R.drawable.preventive_maintainance),
+
+            icon = painterResource(R.drawable.settings),
             arrowIcon = painterResource(R.drawable.btn_image),
-            onClick = {navController.navigate("preventiveMaintenance")},
-            valueColor = Color(0xFF6B47D4)
+            arrowIconClick = {navController.navigate("preventiveMaintenance")},
+
         )
 
     )
@@ -154,17 +156,26 @@ fun MaintenanceScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
 
                 ) {
-                    items(productionCardListItem) { card ->
-                        ParameterBox(
-                            title = card.title,
-                            value = card.value,
-                            unit = card.unit,
-                            icon=card.icon,
-                            arrowIcon = card.arrowIcon,
-                            onClick = card.onClick,
-                            valueColor = card.valueColor
+                    itemsIndexed(productionCardListItem) {index, card ->
+                        if(index==3 && card is PreventiveAndProductionDataClass){
+                            MaintenanceCard(
+                                title = card.title,
+                                icon = card.icon,
+                                arrowIcon = card.arrowIcon,
+                                onArrowClick = card.arrowIconClick
+                            )
+                        }else if(card is ProductionCartItemList) {
+                            ParameterBox(
+                                title = card.title,
+                                value = card.value,
+                                unit = card.unit,
+                                icon = card.icon,
+                                arrowIcon = card.arrowIcon,
+                                onClick = card.onClick,
+                                valueColor = card.valueColor
 
-                        )
+                            )
+                        }
                     }
                 }
             } else {
@@ -178,17 +189,26 @@ fun MaintenanceScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
 
                 ) {
-                    items(productionCardListItem) { card ->
-                        ParameterBox(
-                            title = card.title,
-                            value = card.value,
-                            unit = card.unit,
-                            icon=card.icon,
-                            arrowIcon = card.arrowIcon,
-                            onClick = card.onClick,
-                            valueColor = card.valueColor
+                    itemsIndexed(productionCardListItem) { index, card ->
+                        if (index == 3 && card is PreventiveAndProductionDataClass) {
+                            MaintenanceCard(
+                                title = card.title,
+                                icon = card.icon,
+                                arrowIcon = card.arrowIcon,
+                                onArrowClick = card.arrowIconClick
+                            )
+                        } else if (card is ProductionCartItemList) {
+                            ParameterBox(
+                                title = card.title,
+                                value = card.value,
+                                unit = card.unit,
+                                icon = card.icon,
+                                arrowIcon = card.arrowIcon,
+                                onClick = card.onClick,
+                                valueColor = card.valueColor
 
-                        )
+                            )
+                        }
                     }
                 }
 

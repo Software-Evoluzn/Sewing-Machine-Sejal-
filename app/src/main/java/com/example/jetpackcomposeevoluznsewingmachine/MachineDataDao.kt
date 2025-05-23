@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.Flow
         SUM(runtime) AS totalRuntime,
         SUM(idleTime) AS totalIdleTime,
         SUM(stitchCount) AS totalStitchCount,
+        SUM(pushBackCount) As totalPushBackCount,
         ROUND(SUM(bobbinThread*2.54),2) AS totalBobbinThread,
         
         CASE 

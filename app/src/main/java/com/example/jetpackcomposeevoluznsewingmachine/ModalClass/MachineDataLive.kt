@@ -7,6 +7,7 @@ data class MachineDataLive(
     val totalRuntime: Int?,
     val totalIdleTime: Int?,
     val totalStitchCount:Int?,
+    val totalPushBackCount:Int,
     val totalBobbinThread:Float,
     val stitchPerBobbin :Float
 )

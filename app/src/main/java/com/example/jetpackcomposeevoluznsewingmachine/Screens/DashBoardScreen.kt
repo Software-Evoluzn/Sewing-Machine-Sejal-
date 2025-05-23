@@ -192,7 +192,7 @@ fun DashBoardLiveScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.1f)) // dim background
+                .background(Color.Black.copy(alpha = 0.7f)) // dim background
                 .clickable { showCardByBackgroundBlur = false }, // tap outside to dismiss
             contentAlignment = Alignment.Center
         ) {
@@ -218,74 +218,75 @@ fun DashBoardLiveScreen(navController: NavController) {
                         scaleX = scale
                         scaleY = scale
                     }
-                    .padding(8.dp)
-                    .width( 300.dp)
-                    .height(255.dp)
+                    .padding(20.dp)
+                    .width(310.dp)
+                    .height(165.dp)
                     .border(0.5.dp, Color(0xFF0C0C0C), RoundedCornerShape(12.dp)),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(20.dp)
-
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically) // Balanced spacing
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            Image(
-                                painter = painterResource(R.drawable.close_icon),
-                                contentDescription = "Close",
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable { showCardByBackgroundBlur = false }
-                            )
-                        }
+                    // ❌ Close icon at top-right
+                    Image(
+                        painter = painterResource(R.drawable.close_icon),
+                        contentDescription = "Close",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                            .clickable { showCardByBackgroundBlur = false }
+                    )
 
-                        Spacer(modifier = Modifier.height(8.dp)) // Optional spacing
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text =selectedCardData!!.title,
-                            fontSize = 25.sp,
+                            text = selectedCardData!!.title,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF0C0C0C),
-                            fontFamily = dmRegular
+                            fontFamily = dmRegular,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp)) // Add vertical space between title and value
+                        Spacer(modifier = Modifier.height(12.dp))
 
                         Row(
-                            verticalAlignment = Alignment.Bottom
+                            verticalAlignment = Alignment.Bottom,
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = formattedValue,
-                                fontSize = 35.sp,
+                                text = formattedValue, // e.g., "23.6"
+                                fontSize = 36.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = dmRegular,
                                 color = selectedCardData!!.valueColor
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
                             Text(
-                                text = selectedCardData!!.unit,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Normal,
+                                text = selectedCardData!!.unit, // e.g., "mm/s" or "°C"
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
                                 color = Color(0xFF0C0C0C),
-                                modifier = Modifier.padding(bottom = 5.dp),
-                                fontFamily = dmRegular
+                                fontFamily = dmRegular,
+                                modifier = Modifier.padding(bottom = 4.dp)
                             )
                         }
                     }
-
                 }
             }
+
         }
     }
 
@@ -300,9 +301,7 @@ fun DashBoardScreen(navController: NavController,
 
     val viewModel:MachineViewModel= viewModel()
 
-    val latestStitchCount by viewModel.latestStitchCount.observeAsState()
-    val latestBobbinThread by viewModel.latestBobbinThread.observeAsState()
-    val latestStitchPerInch by viewModel.latestSPI.observeAsState()
+
     val cardItemList=listOf(
         CardItemList("PRODUCTION",
             onCardClick = {navController.navigate("machineRuntimeScreen")},
@@ -311,7 +310,7 @@ fun DashBoardScreen(navController: NavController,
             onCardClick = {navController.navigate("maintenanceScreen")},
             painterResource(R.drawable.maintenance_icon)),
         CardItemList("QUALITY",
-            onCardClick = {navController.navigate("")},
+            onCardClick = {},
             painterResource(R.drawable.quality_icon)),
         CardItemList("STITCH COUNT",
             onCardClick = {
@@ -327,10 +326,10 @@ fun DashBoardScreen(navController: NavController,
             },
             painterResource(R.drawable.spi_icon)),
         CardItemList("BREAKDOWN",
-            onCardClick = {navController.navigate("mainMenu")},
+            onCardClick = {},
             painterResource(R.drawable.break_down_icon)),
         CardItemList("TRAINING",
-            onCardClick = {navController.navigate("mainMenu")},
+            onCardClick = {},
             painterResource(R.drawable.training_icon)),
         CardItemList("BOBBIN THREAD",
             onCardClick = {

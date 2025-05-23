@@ -1,26 +1,19 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,13 +25,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.PreventiveAndProductionDataClass
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.ProductionCartItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
@@ -50,6 +42,7 @@ fun MachineRuntime(navController: NavController) {
     val viewModel: MachineViewModel = viewModel()
     val latestRunTimeData by viewModel.latestRunTime.observeAsState(0f)
     val latestIdleTime by viewModel.latestIdleTime.observeAsState(0f)
+    val latestPushBackCount by viewModel.latestPushBackCount.observeAsState()
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
     val productionCardListItem=listOf(
@@ -73,21 +66,20 @@ fun MachineRuntime(navController: NavController) {
         ),
         ProductionCartItemList(
             title ="PRODUCTION COUNT",
-            value ="${String.format("%.2f",latestIdleTime)}",
-            unit ="hrs" ,
+            value ="${latestPushBackCount?:0}",
+            unit ="count" ,
             icon = painterResource(R.drawable.counter),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("showCombineGraphScreen")},
             valueColor = Color(0xFF4CAF50)
         ),
-        ProductionCartItemList(
+        PreventiveAndProductionDataClass(
             title ="PRODUCTION  EFFICIENCY",
-            value ="${String.format("%.2f",latestIdleTime)}",
-            unit ="hrs" ,
+
             icon = painterResource(R.drawable.efficacy),
             arrowIcon = painterResource(R.drawable.btn_image),
-            onClick = {navController.navigate("productionEfficiency")},
-            valueColor = Color(0xFF673AB7)
+            arrowIconClick = {navController.navigate("productionEfficiency")}
+
         )
 
     )
@@ -146,17 +138,26 @@ fun MachineRuntime(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
 
                 ) {
-                    items(productionCardListItem) { card ->
-                        ParameterBox(
-                            title = card.title,
-                            value = card.value,
-                            unit = card.unit,
-                            icon = card.icon,
-                            arrowIcon = card.arrowIcon,
-                            onClick = card.onClick,
-                            valueColor = card.valueColor
+                    itemsIndexed(productionCardListItem) { index,card ->
+                        if(index==3 &&  card is PreventiveAndProductionDataClass){
+                            MaintenanceCard(
+                                title = card.title,
+                                icon = card.icon,
+                                arrowIcon = card.arrowIcon,
+                                onArrowClick = card.arrowIconClick
+                            )
+                        }else if(card is ProductionCartItemList) {
+                            ParameterBox(
+                                title = card.title,
+                                value = card.value,
+                                unit = card.unit,
+                                icon = card.icon,
+                                arrowIcon = card.arrowIcon,
+                                onClick = card.onClick,
+                                valueColor = card.valueColor
 
-                        )
+                            )
+                        }
                     }
                 }
             } else {
@@ -168,17 +169,26 @@ fun MachineRuntime(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
 
                 ) {
-                    items(productionCardListItem) { card ->
-                        ParameterBox(
-                            title = card.title,
-                            value = card.value,
-                            unit = card.unit,
-                            icon = card.icon,
-                            arrowIcon = card.arrowIcon,
-                            onClick = card.onClick,
-                            valueColor = card.valueColor
+                    itemsIndexed(productionCardListItem) { index,card ->
+                        if(index==3 && card is PreventiveAndProductionDataClass) {
+                            MaintenanceCard(
+                                title = card.title,
+                                icon = card.icon,
+                                arrowIcon = card.arrowIcon,
+                                onArrowClick = card.arrowIconClick
+                            )
+                        }else if(card is ProductionCartItemList) {
+                            ParameterBox(
+                                title = card.title,
+                                value = card.value,
+                                unit = card.unit,
+                                icon = card.icon,
+                                arrowIcon = card.arrowIcon,
+                                onClick = card.onClick,
+                                valueColor = card.valueColor
 
-                        )
+                            )
+                        }
                     }
                 }
 

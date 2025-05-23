@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -177,11 +178,12 @@ fun MaintenanceCard(
                 scaleY = scale
             }
             .padding(8.dp)
-            .defaultMinSize(minWidth = 150.dp)
-            .height(200.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF2196F3)),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
+            .defaultMinSize(minWidth = 80.dp)
+            .height(155.dp)
+            .border(0.5.dp, Color(0xFF283593), RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Box(
             modifier = Modifier
@@ -211,7 +213,7 @@ fun MaintenanceCard(
 
                 Text(
                     text = title,
-                    color = Color.White,
+                    color = Color(0xFF2B3674),
                     fontSize = 14.sp,
                     fontFamily = dmRegular,
                     fontWeight = FontWeight.Bold
