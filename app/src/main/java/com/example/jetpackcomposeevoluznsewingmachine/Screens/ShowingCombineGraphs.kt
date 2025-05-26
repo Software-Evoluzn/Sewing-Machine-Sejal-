@@ -5,14 +5,12 @@ import android.icu.util.Calendar
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,8 +24,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -35,12 +31,9 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,16 +47,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.datastore.dataStore
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.example.jetpackcomposeevoluznsewingmachine.CustomMarkView
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.GraphDataModel
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
@@ -77,34 +69,22 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.google.android.material.datepicker.MaterialDatePicker
-import java.text.SimpleDateFormat
-
-import java.time.Instant
+import com.github.mikephil.charting.formatter.ValueFormatter
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
+
 import kotlin.math.ceil
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground=true, heightDp = 250,widthDp=400)
-@Composable
-fun previewFunction(){
-    val navController= rememberNavController()
-    val onBack:()->Unit
-    val graphHeading="Heading"
-    ShowingCombineGraphs(navController,onBack={},graphHeading)
-
-
-}
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, GraphHeading: String) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+
+    val viewModel:MachineViewModel=viewModel()
+
+
+
     var selectedOption by remember{mutableStateOf("Today")}
     val options=listOf("Today","Weekly","Set Range")
 
@@ -117,13 +97,21 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
     var startDate by remember{ mutableStateOf<LocalDate?>(null)}
     var endDate by remember {mutableStateOf<LocalDate?>(null)}
 
-    var showStartDatePicker by remember{mutableStateOf(false)}
+    val todayCombineGraph by viewModel.getCombineGraphOfTodayData.collectAsState(emptyList())
+    val todayIndividualHourCombineGraph by viewModel.
+    getIndividualHourCombineGraphData(selectedHour).collectAsState(emptyList())
 
-    val dateFormatter = remember{
-        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    }
+    val setRangeCombineGraphShowing by viewModel.getSetRangeCombineGraphShow(startDate.toString(),
+        endDate.toString()
+    ).collectAsState(emptyList())
 
+    val setRangeSameDateCombineGraph by viewModel.getSameDateCombineGraph(startDate.toString()).collectAsState(
+        emptyList())
 
+    val setHourOfSameDateCombineGraph by viewModel.
+    getSameDateHourDataCombineGraph(startDate.toString(),selectedHour).collectAsState(emptyList())
+
+    val setWeeklyCombineGraph by viewModel.getWeeklyCombinedGraph().collectAsState(emptyList())
 
 
 
@@ -271,7 +259,62 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
 
 
             }
+
+            if(selectedOption == "Weekly"){
+               Text("weekly")
+            }
         }
+
+        val graphToShowData=when (selectedOption){
+            "Today" ->{
+                if(selectedHour != "Select Hour"){
+                    todayIndividualHourCombineGraph.map{
+                        GraphDataModel(it.dateTime.toString(),it.runtime,it.idleTime,it.total_time_per_cycle)
+                    }
+
+                }else{
+                    todayCombineGraph.map{
+                        GraphDataModel(it.hour,it.total_runtime,it.total_idleTime,it.cycle_count)
+                    }
+                }
+
+            }
+            "Weekly" ->{
+                setWeeklyCombineGraph.map{
+                    GraphDataModel(it.day,it.total_runtime,it.total_idleTime,it.cycle_count)
+                }
+
+            }
+            "Set Range" ->{
+                if(startDate != null && endDate != null){
+                    if(startDate == endDate){
+                        if(selectedHour != "Select Hour"){
+                            setHourOfSameDateCombineGraph.map{
+                                GraphDataModel(it.dateTime.toString(),it.runtime,it.idleTime,it.total_time_per_cycle)
+                            }
+                        }else{
+                            setRangeSameDateCombineGraph.map{
+                                GraphDataModel(it.hour,it.total_runtime,it.total_idleTime,it.cycle_count)
+                            }
+
+                        }
+                    }else{
+                        setRangeCombineGraphShowing.map{
+                            GraphDataModel(it.day,it.total_runtime,it.total_idleTime,it.cycle_count)
+                        }
+                    }
+                }else{
+                    emptyList()
+                }
+
+
+            }
+            else -> {
+                emptyList()
+            }
+
+        }
+
 
 
 
@@ -291,13 +334,30 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                    ShowingGraphDemo(
-                            navController = navController,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(35.dp)
+                    if(graphToShowData.isEmpty()){
+                        Text(
+                            text = "No data available for selected range/hour.",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center,
+                            fontSize = 16.sp,
+                            color = Color.Gray
+                        )
 
-                            )
+                    }else{
+
+                        ShowingGraphDemo(
+                            navController = navController,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(35.dp),
+                            data = graphToShowData
+
+                        )
+
+                    }
+
                      }
                 }
             }
@@ -346,16 +406,12 @@ fun DatePickerButton(label:String,date:LocalDate?,onDateSelected:(LocalDate)->Un
 
 
 
-
-
-
-
-
-
 @Composable
-fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier) {
+fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier,
+                     data: List<GraphDataModel>) {
     val viewModel: MachineViewModel = viewModel()
-    val hourlyData by viewModel.getCombineGraphOfTodayData.collectAsState(emptyList())
+    val hourlyData =data
+
 
     AndroidView(
         modifier = modifier,
@@ -382,13 +438,19 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
                     axisMinimum = 0f
                     textSize = 12f
                     setDrawGridLines(false)
+                    granularity=1f
+                    valueFormatter=object :ValueFormatter(){
+                        override fun getFormattedValue(value: Float): String {
+                            return "${value.toInt()}h"
+                        }
+                    }
                 }
 
                 axisRight.apply {
                     isEnabled = true
                     axisMinimum = 0f
-                    axisMaximum = 100f // Percentage for cycle count
                     textSize = 12f
+                    setDrawGridLines(false)
                     textColor = Color(0xFF2196F3).toArgb()
                 }
 
@@ -407,40 +469,43 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
 
             if (hourlyData.isEmpty()) return@update
 
-            val maxCyclePossible = 100f // Replace this with your actual hourly max if dynamic
 
             // --- Bar Entries ---
             val barEntriesRunTime = hourlyData.mapIndexed { index, data ->
-                BarEntry(index.toFloat(), data.total_runtime.toFloat())
+                BarEntry(index.toFloat(), data.runTime.toFloat()/3600f)
             }
             val barEntriesIdleTime = hourlyData.mapIndexed { index, data ->
-                BarEntry(index.toFloat(), data.total_idletime.toFloat())
+                BarEntry(index.toFloat(), data.idleTime.toFloat()/3600f)
             }
 
             // --- Line Entries: Convert cycle count to percentage ---
             val lineEntriesCycleCount = hourlyData.mapIndexed { index, data ->
-                val percentage = (data.cycle_count * 100f) / maxCyclePossible
-                Entry(index.toFloat(), percentage)
+                Entry(index.toFloat(), data.cycleCount.toFloat())
             }
 
-            val runTimeDataSet = BarDataSet(barEntriesRunTime, "Run Time").apply {
+            val runTimeDataSet = BarDataSet(barEntriesRunTime, "Run Time (hrs)").apply {
                 color = Color(0xFFE91E63).toArgb()
                 setDrawValues(false)
             }
 
-            val idleTimeDataSet = BarDataSet(barEntriesIdleTime, "Idle Time").apply {
+            val idleTimeDataSet = BarDataSet(barEntriesIdleTime, "Idle Time (hrs)").apply {
                 color = Color(0xFFFFC107).toArgb()
                 setDrawValues(false)
             }
 
-            val lineDataSet = LineDataSet(lineEntriesCycleCount, "% Cycle Count").apply {
-                axisDependency = YAxis.AxisDependency.RIGHT
+            val lineDataSet = LineDataSet(lineEntriesCycleCount, "Cycle Count").apply {
+                axisDependency = YAxis.AxisDependency.LEFT
                 color = Color(0xFF2196F3).toArgb()
                 lineWidth = 2f
                 circleRadius = 4f
                 setCircleColor(Color(0xFF2196F3).toArgb())
                 setDrawValues(false)
                 valueTextSize = 10f
+                valueFormatter=object:ValueFormatter(){
+                    override fun getPointLabel(entry: Entry?): String {
+                        return entry?.y?.toInt()?.toString() ?: ""
+                    }
+                }
             }
 
             val barData = BarData(runTimeDataSet, idleTimeDataSet).apply {
@@ -453,23 +518,42 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
             val barSpace = 0f
             barData.groupBars(0f, groupSpace, barSpace)
 
+            val groupWidth = barData.getGroupWidth(groupSpace, barSpace)
+
             combinedChart.xAxis.apply {
-                valueFormatter = IndexAxisValueFormatter(hourlyData.map { it.hour })
+                valueFormatter = IndexAxisValueFormatter(hourlyData.map { it.xLabel })
                 axisMinimum = 0f
-                axisMaximum = barData.getGroupWidth(groupSpace, barSpace) * hourlyData.size
-                labelRotationAngle = -45f
+                axisMaximum = groupWidth * hourlyData.size
+
             }
 
             // Max Y for bars (left axis)
-            val maxBarY = hourlyData.maxOf { it.total_runtime + it.total_idletime }.toFloat()
-            val roundedMax = ceil((maxBarY * 1.2f) / 10) * 10
+            val maxBarY =  hourlyData.maxOf { it.runTime + it.idleTime } / 3600f
 
-            combinedChart.axisLeft.axisMaximum = roundedMax
+
+            combinedChart.axisLeft.axisMaximum = ceil((maxBarY * 1.2f) / 1) * 1f
+
+            // Right Axis Max (cycle count)
+            val maxCycle = hourlyData.maxOf { it.cycleCount }
+            combinedChart.axisRight.axisMaximum = ceil((maxCycle * 1.2f) / 1) * 1f
+            combinedChart.axisRight.valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return value.toInt().toString()
+                }
+            }
 
             val combinedData = CombinedData().apply {
                 setData(barData)
                 setData(lineData)
             }
+
+            val marker=CustomMarkView(
+                context = combinedChart.context,
+                layoutResource = R.layout.marker_view,
+                hourlyData = hourlyData
+            )
+            marker.chartView = combinedChart
+            combinedChart.marker = marker
 
             combinedChart.data = combinedData
             combinedChart.notifyDataSetChanged()

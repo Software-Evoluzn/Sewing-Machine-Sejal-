@@ -10,9 +10,11 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHou
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineDataLive
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.OneHourCombineGraphData
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.SetRangeCombineGraph
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import kotlinx.coroutines.flow.Flow
-
+import kotlinx.coroutines.flow.map
 
 
 class MachineViewModel(application: Application) : AndroidViewModel(application)
@@ -23,41 +25,40 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
      //showing individual day combined graph
      var getCombineGraphOfTodayData: Flow<List<CombineGraphHourDataShowing>> = dao.getCalculateTotalNumberOfCycleToday()
 
-//     var CombinedGraphRunTime : Flow<List<Int>> =getCombineGraphOfTodayData.map {list->
-//         list.map { it.total_runtime }
-//     }
-//
-//     var CombinedGraphIdleTime : Flow<List<Int>> =getCombineGraphOfTodayData.map{list->
-//         list.map{it.total_idletime}
-//
-//     }
-//     var cycleCountOfCompbineGraphOfToday :Flow<List<Int>> = getCombineGraphOfTodayData.map{list->
-//         list.map{it.cycle_count}
-//
-//     }
-//     var hourCountInCombineGraphOfToday :Flow<List<String>> = getCombineGraphOfTodayData.map{list->
-//         list.map{it.hour}
-//
-//     }
+     fun getIndividualHourCombineGraphData(selectedHour:String):Flow<List<OneHourCombineGraphData>>{
+         return dao.getIndividualHourData(selectedHour)
+     }
+
+     fun getSetRangeCombineGraphShow(startDate:String,endDate:String):Flow<List<SetRangeCombineGraph>>{
+         return dao.getNumberOfCyclerBySelectedDateRange(startDate,endDate)
+     }
+
+     fun getSameDateCombineGraph(startDate:String):Flow<List<CombineGraphHourDataShowing>>{
+         return dao.getNumberOfCyclesBySelectedSameDate(startDate)
+     }
+
+     fun getSameDateHourDataCombineGraph(selectedDate:String,selectedHour:String):Flow<List<OneHourCombineGraphData>>{
+         return dao.getShowingIndividualCycleShowingInSameDate(selectedDate,selectedHour)
+     }
+
+     fun getWeeklyCombinedGraph():Flow<List<SetRangeCombineGraph>>{
+         return dao.getWeeklyDataCombinedGraph()
+     }
 
 
 
 
 
-//     //showing selectedDateRange combine graph
-//     fun getCombinedGraphOfSelectedDateRange(startDate:String,endDate:String){
-//         return dao.getNumberOfCyclerBySelectedDateRange(startDate,endDate)
-//     }
 
-//     //showing selected same date combine graph data
-//     fun getCombinedGraphOfSameDate(selectedDate:String){
-//         return dao.getNumberOfCyclesBySelectedSameDate(selectedDate)
-//     }
-//
-//     //showing selected same date individual hour data
-//     fun getCombinedGraphIndividualCyclesOfSameDate(selectedDate:String,selectedHour:String){
-//         return dao.getShowingIndividualCycleShowingInSameDate(selectedDate,selectedHour)
-//     }
+
+
+
+
+
+
+
+
+
 
 
 
