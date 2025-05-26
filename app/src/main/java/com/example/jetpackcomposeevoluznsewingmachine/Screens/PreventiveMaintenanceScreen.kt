@@ -44,7 +44,7 @@ fun PreventiveMaintenanceScreen(navController: NavController) {
             unit ="hrs" ,
             icon = painterResource(R.drawable.clock),
             arrowIcon = painterResource(R.drawable.btn_image),
-            onClick = {navController.navigate("")},
+            onClick = {},
             valueColor = Color(0xFFFFC107)
         ),
         ProductionCartItemList(
@@ -53,7 +53,7 @@ fun PreventiveMaintenanceScreen(navController: NavController) {
             unit ="hrs" ,
             icon = painterResource(R.drawable.due_date),
             arrowIcon = painterResource(R.drawable.btn_image),
-            onClick = {navController.navigate("")},
+            onClick = {},
             valueColor = Color(0xFFFC5353)
         ),
         ProductionCartItemList(
@@ -62,7 +62,7 @@ fun PreventiveMaintenanceScreen(navController: NavController) {
             unit ="hrs" ,
             icon = painterResource(R.drawable.active),
             arrowIcon = painterResource(R.drawable.btn_image),
-            onClick = {navController.navigate("")},
+            onClick = {},
             valueColor = Color(0xFF2196F3)
         )
     )

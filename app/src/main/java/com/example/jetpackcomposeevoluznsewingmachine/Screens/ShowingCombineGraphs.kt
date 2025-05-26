@@ -4,22 +4,29 @@ import android.app.DatePickerDialog
 import android.icu.util.Calendar
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
+
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,8 +35,12 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +51,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +58,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.datastore.dataStore
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -64,19 +76,29 @@ import com.github.mikephil.charting.data.CombinedData
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.google.android.material.datepicker.MaterialDatePicker
+import java.text.SimpleDateFormat
+
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.ceil
 
-
-@Preview(showBackground = true)
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground=true, heightDp = 250,widthDp=400)
 @Composable
-fun showPreview(){
+fun previewFunction(){
     val navController= rememberNavController()
-//    ShowingCombineGraphs(navController = navController)
+    val onBack:()->Unit
+    val graphHeading="Heading"
+    ShowingCombineGraphs(navController,onBack={},graphHeading)
+
+
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,170 +116,165 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
 
     var startDate by remember{ mutableStateOf<LocalDate?>(null)}
     var endDate by remember {mutableStateOf<LocalDate?>(null)}
-    val context=LocalContext.current
+
+    var showStartDatePicker by remember{mutableStateOf(false)}
+
+    val dateFormatter = remember{
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    }
+
+
+
+
 
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(8.dp)
             .background(color=Color(0xFFF3F0F0))
 
     ) {
-        // Top Bar with Back Button and Heading
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.align(Alignment.CenterStart)
+
+            // Top Bar with Back Button and Heading
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+                Text(
+                    text = GraphHeading,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = dmRegular,
+                    color = Color(0xFF4B4B4B),
+                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 50.dp)
                 )
             }
-            Text(
-                text = GraphHeading,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = dmRegular,
-                color = Color(0xFF4B4B4B),
-                modifier = Modifier.align(Alignment.CenterStart).padding(start = 50.dp)
-            )
-            Box(modifier=Modifier.align(Alignment.BottomEnd)){
-                ExposedDropdownMenuBox(
+
+
+
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally) ,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Date Option Dropdown
+            ExposedDropdownMenuBox(
+                expanded = expandedMain,
+                onExpandedChange = { expandedMain = !expandedMain }
+            ) {
+                TextField(
+                    value = selectedOption,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Set Date") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMain)
+
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.White,
+                        unfocusedIndicatorColor  = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    ),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .width(150.dp)
+                        .height(55.dp)
+                        .border(0.1.dp,color=Color.LightGray, RoundedCornerShape(8.dp))
+
+                )
+                ExposedDropdownMenu(
                     expanded = expandedMain,
-                    onExpandedChange = { expandedMain = !expandedMain}
+                    onDismissRequest = { expandedMain = false }
+                ) {
+                    options.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                selectedOption = option
+                                expandedMain = false
+                                selectedHour = "Select Hour"
+                                startDate = null
+                                endDate = null
+                            }
+                        )
+                    }
+                }
+            }
+
+            // Hour Dropdown
+            if (selectedOption == "Today" || (selectedOption == "Set Range" && startDate == endDate && startDate != null)) {
+                ExposedDropdownMenuBox(
+                    expanded = expandedHour,
+                    onExpandedChange = { expandedHour = !expandedHour }
                 ) {
                     TextField(
-                        value=selectedOption,
+                        value = selectedHour,
                         onValueChange = {},
                         readOnly = true,
-                        label={Text("Set Date")},
-                        trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMain)},
-                        modifier=Modifier.menuAnchor()
-
+                        label = { Text("Select Hour") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHour)
+                        },
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = Color.White,
+                            unfocusedIndicatorColor  = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .width(170.dp)
+                            .height(55.dp)
+                            .border(0.1.dp,color=Color.LightGray, RoundedCornerShape(8.dp))
                     )
-                    DropdownMenu(expanded=expandedMain,
-                        onDismissRequest = { expandedMain=false }){
-                        options.forEach{option->
+                    ExposedDropdownMenu(
+                        expanded = expandedHour,
+                        onDismissRequest = { expandedHour = false }
+                    ) {
+                        hourOptions.forEach { hour ->
                             DropdownMenuItem(
-                                    text={ Text(option)},
-                                   onClick = {
-                                       selectedOption=option
-                                       expandedMain=false
-                                   }
+                                text = { Text(hour) },
+                                onClick = {
+                                    selectedHour = hour
+                                    expandedHour = false
+                                }
                             )
                         }
-
                     }
-                    Spacer(modifier=Modifier.height(16.dp))
-
-                    when(selectedOption){
-                        "Today" ->{
-                             ExposedDropdownMenuBox(
-                                 expanded=expandedHour,
-                                 onExpandedChange = {expandedHour = !expandedHour}
-                             ) {
-                                 TextField(
-                                     value=selectedHour,
-                                     onValueChange={},
-                                     readOnly=true,
-                                     label={Text("Hour")},
-                                     trailingIcon={ExposedDropdownMenuDefaults.TrailingIcon(expanded=expandedHour)},
-                                     modifier=Modifier.menuAnchor()
-                                 )
-
-                                 DropdownMenu(
-                                     expanded=expandedHour,
-                                     onDismissRequest={expandedHour=false}
-                                 ){
-                                     hourOptions.forEach{hour->
-                                              DropdownMenuItem(
-                                                  text = {Text(hour)},
-                                                  onClick = {
-                                                      selectedHour=hour
-                                                      expandedHour=false
-
-                                                  }
-
-                                              )
-
-                                     }
-
-                                 }
-                             }
-
-                        }
-                        "Weekly" ->{
-                            Text("Showing weekly trend data.", fontWeight = FontWeight.Medium)
-                        }
-                        "Set Range" ->{
-
-                            DatePickerButton("Start Date",startDate){selected->
-                                startDate=selected
-
-                            }
-                            DatePickerButton("End Date",endDate){selected->
-                                endDate=selected
-
-                            }
-                            if(startDate != null && endDate !=null && startDate==endDate){
-                                Spacer(modifier=Modifier.height(8.dp))
-                                Text(text="Select Hour (same day):",
-                                    fontWeight = FontWeight.Medium)
-
-                                ExposedDropdownMenuBox(
-                                    expanded = expandedHour,
-                                    onExpandedChange = { expandedHour = !expandedHour }
-                                ){
-                                    TextField(
-                                        value = selectedHour,
-                                        onValueChange = {},
-                                        readOnly = true,
-                                        label = { Text("Hour") },
-                                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHour) },
-                                        modifier = Modifier.menuAnchor()
-                                    )
-                                    DropdownMenu(
-                                        expanded = expandedHour,
-                                        onDismissRequest = { expandedHour = false }
-                                    ){
-                                        hourOptions.forEach{hour->
-                                            DropdownMenuItem(
-                                                text={Text(hour)},
-                                                onClick={
-                                                    selectedHour = hour
-                                                    expandedHour = false
-                                                }
-
-                                            )
-
-                                        }
-                                    }
-
-                                }
-                            }
-
-                        }
-
-                    }
+                }
+            }
 
 
+            if (selectedOption == "Set Range") {
+                DatePickerButton("Start Date",startDate){selected->
+                    startDate=selected
 
-
-
+                }
+                DatePickerButton("End Date",endDate){selected->
+                    endDate=selected
 
                 }
 
+
             }
-
-
-
         }
+
+
+
         Column(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -287,13 +304,16 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
 
          }
 
+
+
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DatePickerButton(label:String,date:LocalDate?,onDateSelected:(LocalDate)->Unit){
     val context= LocalContext.current
-    val formatter=DateTimeFormatter.ofPattern("yyyy MM dd")
+    val formatter=DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val datePickerDialog = remember{
         DatePickerDialog(context)
     }
@@ -304,9 +324,18 @@ fun DatePickerButton(label:String,date:LocalDate?,onDateSelected:(LocalDate)->Un
             onDateSelected(LocalDate.of(year,month+1,day))
         }
         datePickerDialog.updateDate(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH))
-         datePickerDialog.show()
-    }){
-        Text(text="${label}:${date?.format(formatter)?:"Select"}")
+        datePickerDialog.show()
+    },
+        colors=ButtonDefaults.buttonColors(
+            containerColor = Color.White,
+            contentColor = Color.Black
+        ),
+        border= BorderStroke(0.1.dp,Color.LightGray),
+        shape= RoundedCornerShape(8.dp)
+
+    )
+    {
+        Text(text="$label : ${date?.format(formatter)?:"Select"}")
 
     }
 
@@ -314,6 +343,13 @@ fun DatePickerButton(label:String,date:LocalDate?,onDateSelected:(LocalDate)->Un
 
 
 }
+
+
+
+
+
+
+
 
 
 @Composable

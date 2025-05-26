@@ -41,7 +41,7 @@ fun ProductionEfficiencyScreen(navController: NavController) {
             unit ="hrs" ,
             icon = painterResource(R.drawable.completed_pieces),
             arrowIcon = painterResource(R.drawable.btn_image),
-            onClick = {navController.navigate("")},
+            onClick = {},
             valueColor = Color(0xFF0BA911)
         ),
         ProductionCartItemList(
@@ -50,7 +50,7 @@ fun ProductionEfficiencyScreen(navController: NavController) {
             unit ="hrs" ,
             icon = painterResource(R.drawable.target_pieces),
             arrowIcon = painterResource(R.drawable.btn_image),
-            onClick = {navController.navigate("")},
+            onClick = {},
             valueColor = Color(0xFFFC5353)
         ),
         ProductionCartItemList(
@@ -59,7 +59,7 @@ fun ProductionEfficiencyScreen(navController: NavController) {
             unit ="hrs" ,
             icon = painterResource(R.drawable.balance_pieces),
             arrowIcon = painterResource(R.drawable.btn_image),
-            onClick = {navController.navigate("")},
+            onClick = {},
             valueColor = Color(0xFF2196F3)
         ))
     val windowInfo = rememberWindowInfo()

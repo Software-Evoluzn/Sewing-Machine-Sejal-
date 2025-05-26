@@ -10,21 +10,15 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHou
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineDataLive
-import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.RealTimeRunTimeData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+
 
 
 class MachineViewModel(application: Application) : AndroidViewModel(application)
  {
      private val dao = DatabaseClass.getDatabase(application).machineDataDao()
 
-
-//     //showing individual hour data
-//    fun getCombineGraphHourData(selectedHour:String) {
-//        return dao.getIndividualHourData(selectedHour)
-//    }
 
      //showing individual day combined graph
      var getCombineGraphOfTodayData: Flow<List<CombineGraphHourDataShowing>> = dao.getCalculateTotalNumberOfCycleToday()
@@ -70,23 +64,7 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
 
 
-     val realTimeData: Flow<List<RealTimeRunTimeData>> = dao.getRecentRuntimeData()
 
-     val realTimeRunTimeData: Flow<List<Int>> = realTimeData.map { list ->
-         list.map { (it.runtime) }
-     }
-     val realTimeSecond: Flow<List<String>> = realTimeData.map { list ->
-         list.map { it.dateTime }
-
-     }
-     val realTimePushBackCount: Flow<List<Int>> = realTimeData.map { list ->
-         list.map { (it.pushBackCount) }
-
-     }
-
-     val realIdleTime: Flow<List<Int>> = realTimeData.map { list ->
-         list.map { (it.idleTime) }
-     }
 
      //live data
       val latestMachineData: LiveData<MachineDataLive> = dao.getLatestMachineData()
