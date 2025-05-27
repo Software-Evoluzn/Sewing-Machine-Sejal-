@@ -55,6 +55,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.CustomMarkView
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHourDataShowing
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.GraphDataModel
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.github.mikephil.charting.charts.CombinedChart
@@ -82,6 +83,7 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
     val viewModel:MachineViewModel=viewModel()
+    val fullDayHourLabels = (0..23).map { hour -> hour.toString().padStart(2, '0') + ":00" }
 
 
 
@@ -101,12 +103,22 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
     val todayIndividualHourCombineGraph by viewModel.
     getIndividualHourCombineGraphData(selectedHour).collectAsState(emptyList())
 
-    val setRangeCombineGraphShowing by viewModel.getSetRangeCombineGraphShow(startDate.toString(),
-        endDate.toString()
-    ).collectAsState(emptyList())
+    val setRangeCombineGraphShowing by
+    if(startDate != null  && endDate != null) {
+        viewModel.getSetRangeCombineGraphShow(
+            startDate.toString(),
+            endDate.toString()
+        ).collectAsState(emptyList())
+    }else{
+        remember { mutableStateOf(emptyList()) }
+    }
 
-    val setRangeSameDateCombineGraph by viewModel.getSameDateCombineGraph(startDate.toString()).collectAsState(
-        emptyList())
+    val setRangeSameDateCombineGraph by
+    if(startDate != null) {
+        viewModel.getSameDateCombineGraph(startDate.toString()).collectAsState(emptyList())
+    }else{
+        remember { mutableStateOf(emptyList()) }
+    }
 
     val setHourOfSameDateCombineGraph by viewModel.
     getSameDateHourDataCombineGraph(startDate.toString(),selectedHour).collectAsState(emptyList())
@@ -265,58 +277,93 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
             }
         }
 
-        val graphToShowData=when (selectedOption){
-            "Today" ->{
-                if(selectedHour != "Select Hour"){
-                    todayIndividualHourCombineGraph.map{
-                        GraphDataModel(it.dateTime.toString(),it.runtime,it.idleTime,it.total_time_per_cycle)
+
+
+
+
+
+        val graphToShowData =when (selectedOption) {
+            "Today" -> {
+                if (selectedHour != "Select Hour") {
+                    todayIndividualHourCombineGraph.map {
+                        GraphDataModel(
+                            it.dateTime.toString(),
+                            it.runtime,
+                            it.idleTime,
+                            it.total_time_per_cycle
+                        )
                     }
 
-                }else{
-                    todayCombineGraph.map{
-                        GraphDataModel(it.hour,it.total_runtime,it.total_idleTime,it.cycle_count)
+                } else {
+                    val existingMap = todayCombineGraph.associateBy { it.hour }
+                    fullDayHourLabels.map { hourLabel ->
+                        existingMap[hourLabel] ?: GraphDataModel(
+                            xLabel = hourLabel,
+                            runTime = 0,
+                            idleTime = 0,
+                            cycleCount = 0
+                        )
                     }
+
+
+
+                }
+            }
+
+            "Weekly" -> {
+                setWeeklyCombineGraph.map {
+                    GraphDataModel(it.day, it.total_runtime, it.total_idleTime, it.cycle_count)
                 }
 
             }
-            "Weekly" ->{
-                setWeeklyCombineGraph.map{
-                    GraphDataModel(it.day,it.total_runtime,it.total_idleTime,it.cycle_count)
-                }
 
-            }
-            "Set Range" ->{
-                if(startDate != null && endDate != null){
-                    if(startDate == endDate){
-                        if(selectedHour != "Select Hour"){
-                            setHourOfSameDateCombineGraph.map{
-                                GraphDataModel(it.dateTime.toString(),it.runtime,it.idleTime,it.total_time_per_cycle)
+            "Set Range" -> {
+                if (startDate != null && endDate != null) {
+                    if (startDate == endDate) {
+                        if (selectedHour != "Select Hour") {
+                            setHourOfSameDateCombineGraph.map {
+                                GraphDataModel(
+                                    it.dateTime.toString(),
+                                    it.runtime,
+                                    it.idleTime,
+                                    it.total_time_per_cycle
+                                )
                             }
-                        }else{
-                            setRangeSameDateCombineGraph.map{
-                                GraphDataModel(it.hour,it.total_runtime,it.total_idleTime,it.cycle_count)
+                        } else {
+                            setRangeSameDateCombineGraph.map {
+                                GraphDataModel(
+                                    it.hour,
+                                    it.total_runtime,
+                                    it.total_idleTime,
+                                    it.cycle_count
+                                )
                             }
 
                         }
-                    }else{
-                        setRangeCombineGraphShowing.map{
+                    } else {
+
+                       setRangeCombineGraphShowing.map{
                             GraphDataModel(it.day,it.total_runtime,it.total_idleTime,it.cycle_count)
                         }
                     }
-                }else{
+                } else {
                     emptyList()
                 }
 
 
             }
+
             else -> {
-                emptyList()
+                todayCombineGraph.map {
+                    GraphDataModel(it.hour, it.total_runtime, it.total_idleTime, it.cycle_count)
+
+                }
+
             }
 
+
+
         }
-
-
-
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
@@ -352,7 +399,7 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(35.dp),
-                            data = graphToShowData
+                            data = graphToShowData as List<GraphDataModel>
 
                         )
 
@@ -439,20 +486,10 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
                     textSize = 12f
                     setDrawGridLines(false)
                     granularity=1f
-                    valueFormatter=object :ValueFormatter(){
-                        override fun getFormattedValue(value: Float): String {
-                            return "${value.toInt()}h"
-                        }
-                    }
+
                 }
 
-                axisRight.apply {
-                    isEnabled = true
-                    axisMinimum = 0f
-                    textSize = 12f
-                    setDrawGridLines(false)
-                    textColor = Color(0xFF2196F3).toArgb()
-                }
+
 
                 legend.apply {
                     isEnabled = true
@@ -523,24 +560,23 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
             combinedChart.xAxis.apply {
                 valueFormatter = IndexAxisValueFormatter(hourlyData.map { it.xLabel })
                 axisMinimum = 0f
-                axisMaximum = groupWidth * hourlyData.size
+                axisMaximum = 24f  // number of labels
+                labelCount = 24
+                granularity = 1f
 
             }
 
             // Max Y for bars (left axis)
-            val maxBarY =  hourlyData.maxOf { it.runTime + it.idleTime } / 3600f
+            val maxRunIdle = hourlyData.maxOf { (it.runTime + it.idleTime) / 3600f }
+            val maxCycle = hourlyData.maxOf { it.cycleCount.toFloat() }
+            val maxLeftAxis = ceil(maxOf(maxRunIdle, maxCycle) * 1.2f)
+            combinedChart.axisLeft.axisMaximum = maxLeftAxis
 
 
-            combinedChart.axisLeft.axisMaximum = ceil((maxBarY * 1.2f) / 1) * 1f
 
-            // Right Axis Max (cycle count)
-            val maxCycle = hourlyData.maxOf { it.cycleCount }
-            combinedChart.axisRight.axisMaximum = ceil((maxCycle * 1.2f) / 1) * 1f
-            combinedChart.axisRight.valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    return value.toInt().toString()
-                }
-            }
+
+            combinedChart.axisRight.isEnabled=false
+
 
             val combinedData = CombinedData().apply {
                 setData(barData)
@@ -554,6 +590,8 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
             )
             marker.chartView = combinedChart
             combinedChart.marker = marker
+
+            combinedChart.animateXY(1000, 1000)
 
             combinedChart.data = combinedData
             combinedChart.notifyDataSetChanged()
