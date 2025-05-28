@@ -83,9 +83,6 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
     val viewModel:MachineViewModel=viewModel()
-    val fullDayHourLabels = (0..23).map { hour -> hour.toString().padStart(2, '0') + ":00" }
-
-
 
     var selectedOption by remember{mutableStateOf("Today")}
     val options=listOf("Today","Weekly","Set Range")
@@ -216,47 +213,47 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
             }
 
             // Hour Dropdown
-            if (selectedOption == "Today" || (selectedOption == "Set Range" && startDate == endDate && startDate != null)) {
-                ExposedDropdownMenuBox(
-                    expanded = expandedHour,
-                    onExpandedChange = { expandedHour = !expandedHour }
-                ) {
-                    TextField(
-                        value = selectedHour,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Select Hour") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHour)
-                        },
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = Color.White,
-                            unfocusedIndicatorColor  = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .menuAnchor()
-                            .width(170.dp)
-                            .height(55.dp)
-                            .border(0.1.dp,color=Color.LightGray, RoundedCornerShape(8.dp))
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expandedHour,
-                        onDismissRequest = { expandedHour = false }
-                    ) {
-                        hourOptions.forEach { hour ->
-                            DropdownMenuItem(
-                                text = { Text(hour) },
-                                onClick = {
-                                    selectedHour = hour
-                                    expandedHour = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
+//            if (selectedOption == "Today" || (selectedOption == "Set Range" && startDate == endDate && startDate != null)) {
+//                ExposedDropdownMenuBox(
+//                    expanded = expandedHour,
+//                    onExpandedChange = { expandedHour = !expandedHour }
+//                ) {
+//                    TextField(
+//                        value = selectedHour,
+//                        onValueChange = {},
+//                        readOnly = true,
+//                        label = { Text("Select Hour") },
+//                        trailingIcon = {
+//                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHour)
+//                        },
+//                        colors = TextFieldDefaults.textFieldColors(
+//                            containerColor = Color.White,
+//                            unfocusedIndicatorColor  = Color.Transparent,
+//                            focusedIndicatorColor = Color.Transparent,
+//                            disabledIndicatorColor = Color.Transparent
+//                        ),
+//                        modifier = Modifier
+//                            .menuAnchor()
+//                            .width(170.dp)
+//                            .height(55.dp)
+//                            .border(0.1.dp,color=Color.LightGray, RoundedCornerShape(8.dp))
+//                    )
+//                    ExposedDropdownMenu(
+//                        expanded = expandedHour,
+//                        onDismissRequest = { expandedHour = false }
+//                    ) {
+//                        hourOptions.forEach { hour ->
+//                            DropdownMenuItem(
+//                                text = { Text(hour) },
+//                                onClick = {
+//                                    selectedHour = hour
+//                                    expandedHour = false
+//                                }
+//                            )
+//                        }
+//                    }
+//                }
+//            }
 
 
             if (selectedOption == "Set Range") {
@@ -284,35 +281,16 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
 
         val graphToShowData =when (selectedOption) {
             "Today" -> {
-                if (selectedHour != "Select Hour") {
-                    todayIndividualHourCombineGraph.map {
-                        GraphDataModel(
-                            it.dateTime.toString(),
-                            it.runtime,
-                            it.idleTime,
-                            it.total_time_per_cycle
-                        )
+
+                    todayCombineGraph.map {
+                        GraphDataModel(it.hour, it.total_runtime, it.total_idleTime, it.cycle_count,labelType = "hour")
+
                     }
-
-                } else {
-                    val existingMap = todayCombineGraph.associateBy { it.hour }
-                    fullDayHourLabels.map { hourLabel ->
-                        existingMap[hourLabel] ?: GraphDataModel(
-                            xLabel = hourLabel,
-                            runTime = 0,
-                            idleTime = 0,
-                            cycleCount = 0
-                        )
-                    }
-
-
-
-                }
             }
 
             "Weekly" -> {
                 setWeeklyCombineGraph.map {
-                    GraphDataModel(it.day, it.total_runtime, it.total_idleTime, it.cycle_count)
+                    GraphDataModel(it.day, it.total_runtime, it.total_idleTime, it.cycle_count,labelType = "Day")
                 }
 
             }
@@ -320,30 +298,23 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
             "Set Range" -> {
                 if (startDate != null && endDate != null) {
                     if (startDate == endDate) {
-                        if (selectedHour != "Select Hour") {
-                            setHourOfSameDateCombineGraph.map {
-                                GraphDataModel(
-                                    it.dateTime.toString(),
-                                    it.runtime,
-                                    it.idleTime,
-                                    it.total_time_per_cycle
-                                )
-                            }
-                        } else {
+
+
                             setRangeSameDateCombineGraph.map {
                                 GraphDataModel(
                                     it.hour,
                                     it.total_runtime,
                                     it.total_idleTime,
-                                    it.cycle_count
+                                    it.cycle_count,
+                                            labelType = "hour"
                                 )
                             }
 
-                        }
+
                     } else {
 
                        setRangeCombineGraphShowing.map{
-                            GraphDataModel(it.day,it.total_runtime,it.total_idleTime,it.cycle_count)
+                            GraphDataModel(it.day,it.total_runtime,it.total_idleTime,it.cycle_count,labelType = "Date")
                         }
                     }
                 } else {
@@ -458,6 +429,7 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
                      data: List<GraphDataModel>) {
     val viewModel: MachineViewModel = viewModel()
     val hourlyData =data
+    println(hourlyData)
 
 
     AndroidView(
@@ -523,11 +495,13 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
             val runTimeDataSet = BarDataSet(barEntriesRunTime, "Run Time (hrs)").apply {
                 color = Color(0xFFE91E63).toArgb()
                 setDrawValues(false)
+                axisDependency=YAxis.AxisDependency.RIGHT
             }
 
             val idleTimeDataSet = BarDataSet(barEntriesIdleTime, "Idle Time (hrs)").apply {
                 color = Color(0xFFFFC107).toArgb()
                 setDrawValues(false)
+                axisDependency=YAxis.AxisDependency.RIGHT
             }
 
             val lineDataSet = LineDataSet(lineEntriesCycleCount, "Cycle Count").apply {
@@ -555,27 +529,69 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
             val barSpace = 0f
             barData.groupBars(0f, groupSpace, barSpace)
 
-            val groupWidth = barData.getGroupWidth(groupSpace, barSpace)
+
 
             combinedChart.xAxis.apply {
-                valueFormatter = IndexAxisValueFormatter(hourlyData.map { it.xLabel })
-                axisMinimum = 0f
-                axisMaximum = 24f  // number of labels
-                labelCount = 24
+                val xLabels = hourlyData.map { it.xLabel }
+                valueFormatter = IndexAxisValueFormatter(xLabels)
                 granularity = 1f
+                setDrawGridLines(false)
+                labelRotationAngle = -30f
+                setCenterAxisLabels(true)
 
+                when (hourlyData.firstOrNull()?.labelType) {
+                    "hour" -> {
+                        axisMinimum = 0f
+                        axisMaximum = 24f  // Show 24 hours
+                        labelCount = 24
+                    }
+
+                    "Day" -> {
+                        axisMinimum = 0f
+                        axisMaximum = 7f   // 7 days
+                        labelCount = xLabels.size
+                    }
+
+                    "Date" -> {
+                        axisMinimum = 0f
+                        axisMaximum = xLabels.size.toFloat()
+                        labelCount = xLabels.size
+                    }
+
+                    else -> {
+                        axisMinimum = 0f
+                        axisMaximum = xLabels.size.toFloat()
+                        labelCount = xLabels.size
+                    }
+                }
             }
+
 
             // Max Y for bars (left axis)
             val maxRunIdle = hourlyData.maxOf { (it.runTime + it.idleTime) / 3600f }
             val maxCycle = hourlyData.maxOf { it.cycleCount.toFloat() }
-            val maxLeftAxis = ceil(maxOf(maxRunIdle, maxCycle) * 1.2f)
-            combinedChart.axisLeft.axisMaximum = maxLeftAxis
+            val maxLeftAxis = ceil(maxOf(maxRunIdle.toFloat(), maxCycle) * 1.2f)
+            combinedChart.axisLeft.axisMaximum = maxLeftAxis.toFloat()
 
 
 
 
-            combinedChart.axisRight.isEnabled=false
+            combinedChart.axisRight.apply {
+                isEnabled = true
+                setDrawGridLines(false)
+                axisMinimum = 0f
+                granularity = 1f
+                textSize = 12f
+                axisMaximum = ceil(
+                    hourlyData.maxOf { (it.runTime + it.idleTime) / 3600f } * 1.2f // assuming values in hrs
+                ).toFloat()
+                valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        return "${value.toInt()} hr"
+                    }
+                }
+            }
+
 
 
             val combinedData = CombinedData().apply {
@@ -585,13 +601,13 @@ fun ShowingGraphDemo(navController: NavController, modifier: Modifier = Modifier
 
             val marker=CustomMarkView(
                 context = combinedChart.context,
-                layoutResource = R.layout.marker_view,
+                layoutResource = R.layout.custom_markview,
                 hourlyData = hourlyData
             )
             marker.chartView = combinedChart
             combinedChart.marker = marker
 
-            combinedChart.animateXY(1000, 1000)
+//            combinedChart.animateXY(1000, 1000)
 
             combinedChart.data = combinedData
             combinedChart.notifyDataSetChanged()

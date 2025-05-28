@@ -21,9 +21,19 @@ class CustomMarkView(
         val index = e?.x?.toInt() ?: 0
         if (index in hourlyData.indices) {
             val data = hourlyData[index]
-            val text = "Hour: ${data.xLabel}\n" +
-                    "Run: ${data.runTime/ 3600}h\n" +
-                    "Idle: ${data.idleTime / 3600}h\n" +
+            val runtimeHrs=data.runTime/3600f
+            val idletimeHrs=data.idleTime/3600f
+            val labelTitle = if(data.labelType == "hour"){
+                             "hour"
+            }else if(data.labelType =="Day"){
+                            "Day"
+            }else{
+                            "Date"
+            }
+
+            val text = "$labelTitle: ${data.xLabel}\n" +
+                    "Run: %.2f h\n".format(runtimeHrs) +
+                    "Idle: %.2f h\n".format(idletimeHrs) +
                     "Cycles: ${data.cycleCount}"
 
             tvContent.text = text
