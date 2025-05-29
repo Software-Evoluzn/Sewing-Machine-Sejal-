@@ -2,9 +2,11 @@ package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -62,13 +64,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.DatabaseBackupHelper
+import com.example.jetpackcomposeevoluznsewingmachine.DatabaseClass
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.BlurCardData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CardItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun DashBoardLiveScreen(navController: NavController) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
@@ -78,9 +86,10 @@ fun DashBoardLiveScreen(navController: NavController) {
         var selectedCardData by remember{mutableStateOf<BlurCardData?>(null)}
         val context = LocalContext.current
         val launcher =
-            rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+            rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv"))
+            { uri ->
                 uri?.let {
-                    backUpDataAndExport(context, it)
+                    exportCsvToUri(context, it)
                 }
 
             }
@@ -121,7 +130,12 @@ fun DashBoardLiveScreen(navController: NavController) {
                         .align(Alignment.CenterEnd)
                         .size(67.dp)
                         .clickable {
-                            launcher.launch("machine_database_backup.db")
+                           launcher.launch("machine_database_backup.csv")
+//                            CoroutineScope(Dispatchers.IO).launch {
+//                                val db = DatabaseClass.getDatabase(context)
+//                                val allData = db.machineDataDao().getMachineDataConvertToCSVFile()
+//                                DatabaseBackupHelper.exportCsvUsingMediaStore(context, allData)
+//                            }
                         }
                         .padding(end = 30.dp)
                 )
@@ -562,6 +576,46 @@ fun backUpDataAndExport(context: Context, uri: Uri) {
 
     }
 
+
+}
+
+fun exportCsvToUri(context:Context,uri:Uri){
+    try{
+
+        CoroutineScope(Dispatchers.IO).launch{
+
+            val csvContext= getMachineDataAsCsv(context)
+            withContext(Dispatchers.Main){
+                context.contentResolver.openOutputStream(uri)?.use {outputStream->
+                    outputStream.write(csvContext.toByteArray())
+
+                }
+                println("csv file exported successfully ")
+            }
+
+        }
+
+
+
+    }catch(e:Exception){
+        println("Csv Export failed  ${e.message}")
+        e.printStackTrace()
+    }
+
+}
+
+
+
+suspend fun getMachineDataAsCsv(context:Context):String{
+    val db=DatabaseClass.getDatabase(context)
+    val allData=db.machineDataDao().getMachineDataConvertToCSVFile()
+
+    val CsvHeader="Id,DateTime,RunTime,IdleTime,Temperature,Vibration,OilLevel,pushBackCount,StitchCount,BobbinThread"
+    val CsvRows=allData.joinToString(separator = "\n"){data->
+        "${data.id},=\"${data.dateTime}\",${data.runtime},${data.idleTime},${data.temperature},${data.vibration},${data.oilLevel},${data.pushBackCount},${data.stitchCount},${data.bobbinThread}"
+
+    }
+    return "$CsvHeader\n$CsvRows"
 
 }
 

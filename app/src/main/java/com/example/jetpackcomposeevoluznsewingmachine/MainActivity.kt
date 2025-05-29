@@ -150,6 +150,8 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
     val weeklyRunTimeList by viewModel.weeklyRunTimeList.observeAsState(emptyList())
     val weeklyIdleTimeList by viewModel.weeklyIdleTimeList.observeAsState(emptyList())
 
+
+
     NavHost(navController = navController, startDestination = "dashBoardScreen"){
         composable("mainMenu"){ MainMenu(navController) }
         composable("dashBoardScreen"){ DashBoardLiveScreen(navController) }

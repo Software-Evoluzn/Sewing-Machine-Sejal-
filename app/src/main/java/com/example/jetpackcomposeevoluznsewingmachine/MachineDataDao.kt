@@ -23,6 +23,10 @@ import kotlinx.coroutines.flow.Flow
     @Insert(onConflict = OnConflictStrategy.REPLACE)
         suspend fun insert(data: MachineData)
 
+
+        @Query("select * from machine_data")
+          fun getMachineDataConvertToCSVFile():List<MachineData>
+
         //latest data starts
 
     @Query("""
@@ -144,7 +148,7 @@ import kotlinx.coroutines.flow.Flow
     GROUP BY date(dateTime)
     ORDER BY date(dateTime)
 """)
-    fun getDailySummary(startDate: String, endDate: String): LiveData<List<DailySummary>>
+    fun getDailySummary(startDate: String, endDate: String): Flow<List<DailySummary>>
 
 
     //combine runtme ,idletime,production graph queries

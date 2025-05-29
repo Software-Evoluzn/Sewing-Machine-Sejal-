@@ -31,6 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +51,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.NotificationAndSoundHelpherClass
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.TemperatureMarkerView
@@ -83,10 +86,25 @@ fun TemperatureGraph(navController: NavController,
                      threshHold:Double,
                      shouldTriggerAlert:(Double)->Boolean,
                      alertMessage:String) {
+
+    var startDate by remember{ mutableStateOf<LocalDate?>(null)}
+    var endDate by remember {mutableStateOf<LocalDate?>(null)}
    val context=LocalContext.current
-    val options =listOf("Today","Weekly")
+    val options =listOf("Today","Weekly","Set Range")
     var expanded by remember{ mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Today") }
+    var viewModel:MachineViewModel=viewModel()
+
+
+
+    val SelectDateRangeData by
+         if(startDate != null && endDate != null){
+        viewModel.getSelectedDateRangeMaintenance(startDate.toString(),endDate.toString()).collectAsState(
+            emptyList()
+        )
+       }else{
+         remember{mutableStateOf(emptyList())}
+      }
 
 
     var hasAlerted by remember{ mutableStateOf(false) }

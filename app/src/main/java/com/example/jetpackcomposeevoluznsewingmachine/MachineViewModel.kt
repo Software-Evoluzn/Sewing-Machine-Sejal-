@@ -46,27 +46,6 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
      }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
      //live data
       val latestMachineData: LiveData<MachineDataLive> = dao.getLatestMachineData()
 
@@ -221,14 +200,9 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     }
 
     //selected date range  data
-    private val _selectedDateRangeData = MutableLiveData<List<DailySummary>>()
-    val selectedDateRangeData: LiveData<List<DailySummary>> = _selectedDateRangeData
-    // Function to fetch daily summary for a given date range
-    fun fetchDailySummary(startDate: String, endDate: String) {
-        dao.getDailySummary(startDate, endDate).observeForever { summaries ->
-            _selectedDateRangeData.postValue(summaries)
-        }
-    }
+     fun getSelectedDateRangeMaintenance(startDate:String,endDate:String):Flow<List<DailySummary>>{
+         return dao.getDailySummary(startDate, endDate)
+     }
 
 }
 

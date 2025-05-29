@@ -1,6 +1,8 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -8,12 +10,16 @@ import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @Database(entities = [MachineData::class], version = 6)
 abstract class DatabaseClass : RoomDatabase() {
 
     abstract fun machineDataDao(): MachineDataDao
+
 
     companion object {
         @Volatile
@@ -39,6 +45,7 @@ abstract class DatabaseClass : RoomDatabase() {
 
 
 
+
         fun getDatabase(context: Context): DatabaseClass {
             return INSTANCE ?: synchronized(this) {
 
@@ -50,6 +57,8 @@ abstract class DatabaseClass : RoomDatabase() {
                 ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .build()
                 INSTANCE = instance
+
+
                 instance
             }
         }
