@@ -32,8 +32,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.key
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +54,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourSummary
 import com.example.jetpackcomposeevoluznsewingmachine.NotificationAndSoundHelpherClass
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.TemperatureMarkerView
@@ -66,145 +68,147 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TemperatureGraph(navController: NavController,
-                     modifier: Modifier,
-                     onBack: () -> Unit,
-                     GraphHeading: String,
-                     dataLabel:String,
-                     todayTemps: List<Double>,
-                     weeklyTemps: List<Double>,
-                     valueColor: Color,
-                     unit:String,
-                     snackBarHostState:SnackbarHostState,
-                     threshHold:Double,
-                     shouldTriggerAlert:(Double)->Boolean,
-                     alertMessage:String) {
+fun TemperatureGraph(
+    navController: NavController,
+    modifier: Modifier,
+    onBack: () -> Unit,
+    GraphHeading: String,
+    dataLabel: String,
+    todayTemps: List<Double>,
+    weeklyTemps: List<Double>,
+    valueColor: Color,
+    unit: String,
+    snackBarHostState: SnackbarHostState,
+    threshHold: Double,
+    shouldTriggerAlert: (Double) -> Boolean,
+    alertMessage: String
+) {
+    val context = LocalContext.current
+    val options = listOf("Today", "Weekly", "Set Range")
 
-    var startDate by remember{ mutableStateOf<LocalDate?>(null)}
-    var endDate by remember {mutableStateOf<LocalDate?>(null)}
-   val context=LocalContext.current
-    val options =listOf("Today","Weekly","Set Range")
-    var expanded by remember{ mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("Today") }
-    var viewModel:MachineViewModel=viewModel()
+    var appliedOption by remember { mutableStateOf("Today") }
 
+    var startDate by remember { mutableStateOf<LocalDate?>(null) }
+    var endDate by remember { mutableStateOf<LocalDate?>(null) }
 
+    var appliedStartDate by remember { mutableStateOf<LocalDate?>(null) }
+    var appliedEndDate by remember { mutableStateOf<LocalDate?>(null) }
 
-    val SelectDateRangeData by
-         if(startDate != null && endDate != null){
-        viewModel.getSelectedDateRangeMaintenance(startDate.toString(),endDate.toString()).collectAsState(
-            emptyList()
-        )
-       }else{
-         remember{mutableStateOf(emptyList())}
-      }
+    val viewModel: MachineViewModel = viewModel()
 
+    val SelectedDateRangeData by if (appliedStartDate != null && appliedEndDate != null) {
+        viewModel.getSelectedDateRangeMaintenance(
+            appliedStartDate.toString(),
+            appliedEndDate.toString()
+        ).collectAsState(emptyList())
+    } else {
+        remember { mutableStateOf(emptyList()) }
+    }
 
-    var hasAlerted by remember{ mutableStateOf(false) }
+    val selectedDateHourlyData by if (appliedStartDate != null && appliedEndDate != null) {
+        viewModel.getHourlySummaryDateOfSelectedDate(appliedStartDate.toString())
+            .collectAsState(emptyList())
+    } else {
+        remember { mutableStateOf(emptyList()) }
+    }
 
-
-    val sendAlertNofication: NotificationAndSoundHelpherClass = NotificationAndSoundHelpherClass()
+    var hasAlerted by remember { mutableStateOf(false) }
+    val sendAlertNotification = NotificationAndSoundHelpherClass()
 
     LaunchedEffect(todayTemps) {
         val latestValue = todayTemps.lastOrNull() ?: return@LaunchedEffect
         if (shouldTriggerAlert(latestValue) && !hasAlerted) {
-            println("ALERT triggered: $alertMessage")
-            sendAlertNofication.NotificationFunction(context)
-            sendAlertNofication.PlayBuzzerSound()
-            hasAlerted=true
+            sendAlertNotification.NotificationFunction(context)
+            sendAlertNotification.PlayBuzzerSound()
+            hasAlerted = true
             snackBarHostState.showSnackbar(alertMessage)
-        }else if(!shouldTriggerAlert(latestValue)){
-            hasAlerted=false
-
+        } else if (!shouldTriggerAlert(latestValue)) {
+            hasAlerted = false
         }
-
-
-
     }
 
-
-
-    val displayText = when(selectedOption){
-        "Today" -> {
-            val today=LocalDate.now()
-            today.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-        }
+    val displayText = when (selectedOption) {
+        "Today" -> LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
         "Weekly" -> "Weekly"
-        else -> "Today"
-    }
-    val displayBtnText=when(selectedOption){
-         "Today" -> { "Today"}
-        "Weekly" -> {"Weekly"}
-        else -> "Set Date"
+        "Set Range" -> "Set Range"
+        else -> ""
     }
 
-    val (xAxisLabels, yAxisData) = when (selectedOption) {
+    val displayBtnText = "Set Date"
+
+    val (xAxisLabels, yAxisData) = when (appliedOption) {
         "Today" -> {
-            val hours = (0..23).map { hour ->
-                "${hour.toString().padStart(2, '0')}:00" // Show all hours
-            }
-            // Y Axis Data - Always 24 values (default 0.0)
-            val fullTodayTemps = todayTemps.takeIf { it.size == 24 } ?: List(24) { 0.0 }
-
-            hours to fullTodayTemps
+            val hours = (0..23).map { "${it.toString().padStart(2, '0')}:00" }
+            val data = todayTemps.takeIf { it.size == 24 } ?: List(24) { 0.0 }
+            hours to data
         }
+
         "Weekly" -> {
             val days = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
             days to weeklyTemps
         }
 
-        else -> {
-            val hours = (0..23).map { hour ->
-                "${hour.toString().padStart(2, '0')}:00" // Show all hours
-            }
-            // Y Axis Data - Always 24 values (default 0.0)
-            val fullTodayTemps = todayTemps.takeIf { it.size == 24 } ?: List(24) { 0.0 }
-
-            hours to fullTodayTemps
+        "Set Range" -> {
+            if (appliedStartDate != null && appliedEndDate != null) {
+                if (appliedStartDate == appliedEndDate) {
+                    val labels = selectedDateHourlyData.map { it.hour }
+                    val data = selectedDateHourlyData.map { it.avg_temperature }
+                    labels to data
+                } else {
+                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    val labels = SelectedDateRangeData.map {
+                        LocalDate.parse(it.day).format(formatter)
+                    }
+                    val temps = SelectedDateRangeData.map { it.avg_temperature }
+                    labels to temps
+                }
+            } else emptyList<String>() to emptyList()
         }
+
+        else -> emptyList<String>() to emptyList()
     }
 
+    var isLoading by remember { mutableStateOf(false) }
     var startAnimation by remember { mutableStateOf(false) }
+
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0.8f,
-        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
-        label = "parameterBoxScale"
+        animationSpec = tween(600, easing = FastOutSlowInEasing),
+        label = "scale"
     )
+
+    LaunchedEffect(appliedOption, appliedStartDate, appliedEndDate) {
+        isLoading = true
+        delay(500)
+        isLoading = false
+    }
+
     LaunchedEffect(Unit) {
         startAnimation = true
-
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp).background(color=Color(0xFFF3F0F0))
-
-
+            .padding(16.dp)
+            .background(Color(0xFFF3F0F0))
     ) {
-        // Top Bar with Back Button and Heading
-
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.align(Alignment.CenterStart)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
+        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+            IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
             }
             Text(
                 text = GraphHeading,
@@ -215,68 +219,60 @@ fun TemperatureGraph(navController: NavController,
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
 
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-               contentAlignment = Alignment.CenterEnd
-            ) {
-
+        Column(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                 Column(horizontalAlignment = Alignment.End) {
-                    Row {
-                        Text(text = displayText, color = Color.Black,
-                        modifier=modifier.padding(top=12.dp),
-                        fontFamily = dmRegular, fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Button(
-                        onClick = { expanded = true },
-                        shape = RoundedCornerShape(12.dp), // Rounded corners with 12.dp radius
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 4.dp, // Default shadow elevation
-                            pressedElevation = 8.dp, // Elevation when pressed
-                            disabledElevation = 0.dp // No elevation when disabled
-                        ),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF492883) // Custom background color
-                        )
-
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = displayBtnText,
-                            color = Color.White
+                            text = displayText,
+                            color = Color.Black,
+                            modifier = modifier.padding(top = 12.dp),
+                            fontFamily = dmRegular,
+                            fontWeight = FontWeight.Bold
                         )
-                    }
-                }
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
+                        Button(
+                            onClick = {
+                                appliedOption = selectedOption
+                                appliedStartDate = startDate
+                                appliedEndDate = endDate
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                        ) {
+                            Text("Apply", color = Color.White)
+                        }
+
+                        Button(
+                            onClick = { expanded = true },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF492883))
+                        ) {
+                            Text(displayBtnText, color = Color.White)
+                        }
+
+                        if (selectedOption == "Set Range") {
+                            DatePickerButton(label = "Start", date = startDate) { startDate = it }
+                            DatePickerButton(label = "End", date = endDate) { endDate = it }
+                        }
+                    }
+
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         options.forEach { option ->
                             DropdownMenuItem(
-                                text = { Text(text = option) },
+                                text = { Text(option) },
                                 onClick = {
                                     selectedOption = option
                                     expanded = false
-
                                 }
                             )
                         }
-
                     }
                 }
-
-            }
-            var isLoading by remember { mutableStateOf(false) }
-
-            LaunchedEffect(selectedOption) {
-                isLoading = true
-                delay(500) // Show shimmer for 500ms
-                isLoading = false
             }
 
             Card(
@@ -292,64 +288,42 @@ fun TemperatureGraph(navController: NavController,
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
                 if (isLoading) {
-                    // Show shimmer while loading
-                    ShimmerEffect(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(35.dp)
-                    )
+                    ShimmerEffect(modifier = Modifier.fillMaxSize().padding(35.dp))
                 } else {
-                    // Show graph with animation
                     AnimatedVisibility(
                         visible = yAxisData.isNotEmpty(),
-                        enter = fadeIn(animationSpec = tween(600)),
-                        exit = fadeOut(animationSpec = tween(600))
+                        enter = fadeIn(tween(600)),
+                        exit = fadeOut(tween(600))
                     ) {
-                        key(selectedOption) {
+                        key(appliedOption + appliedStartDate.toString() + appliedEndDate.toString()) {
                             ShowLineChart(
                                 xData = xAxisLabels,
                                 yData = yAxisData,
                                 dataLabel = dataLabel,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(35.dp),
+                                modifier = Modifier.fillMaxSize().padding(35.dp),
                                 valueColor = valueColor,
-                                unit
-
+                                unit = unit
                             )
                         }
                     }
                 }
             }
-
         }
-        Spacer(modifier=Modifier.height(25.dp))
+
+        Spacer(modifier = Modifier.height(25.dp))
+
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 0.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Powered by ",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Thin,
-                fontFamily = dmRegular,
-                color= Color(0xFF424242)
-            )
-            Text(
-                text = "EVOLUZN",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = dmRegular,
-                color= Color(0xFF424242)
-            )
+            Text("Powered by ", fontSize = 15.sp, fontWeight = FontWeight.Thin, fontFamily = dmRegular, color = Color(0xFF424242))
+            Text("EVOLUZN", fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = dmRegular, color = Color(0xFF424242))
         }
-
-
     }
 }
+
+
 
 @Composable
 fun ShowLineChart(

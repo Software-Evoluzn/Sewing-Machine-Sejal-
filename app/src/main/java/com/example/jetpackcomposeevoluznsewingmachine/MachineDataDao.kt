@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHourDataShowing
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourSummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineDataLive
@@ -136,19 +137,55 @@ import kotlinx.coroutines.flow.Flow
 //    //showing selected date range
 
     @Query("""
-    SELECT
-        date(dateTime) AS date,
-        SUM(runtime) AS total_runtime,
-        SUM(idleTime) AS total_idle_time,
-        AVG(temperature) AS avg_temperature,
-          AVG(vibration) AS avg_vibration,      
-        AVG(oilLevel) AS avg_oilLevel          
-    FROM machine_data
-    WHERE date(dateTime) BETWEEN date(:startDate) AND date(:endDate)
-    GROUP BY date(dateTime)
-    ORDER BY date(dateTime)
-""")
+            WITH RECURSIVE date_range(day) AS (
+            SELECT date(:startDate)
+            UNION ALL
+            SELECT date(day, '+1 day')
+            FROM date_range
+            WHERE day < date(:endDate)
+          )
+         SELECT 
+             day,
+            IFNULL(AVG(m.temperature), 0) AS avg_temperature,
+            IFNULL(AVG(m.vibration), 0) AS avg_vibration,
+            IFNULL(AVG(m.oilLevel), 0) AS avg_oilLevel
+            FROM date_range
+            LEFT JOIN machine_data m
+            ON substr(m.dateTime, 1, 10) = day
+            GROUP BY day
+            ORDER BY day;
+           """)
     fun getDailySummary(startDate: String, endDate: String): Flow<List<DailySummary>>
+
+
+    @Query("""
+WITH hours AS (
+    SELECT '00' AS hour UNION ALL SELECT '01' UNION ALL SELECT '02' UNION ALL
+    SELECT '03' UNION ALL SELECT '04' UNION ALL SELECT '05' UNION ALL
+    SELECT '06' UNION ALL SELECT '07' UNION ALL SELECT '08' UNION ALL
+    SELECT '09' UNION ALL SELECT '10' UNION ALL SELECT '11' UNION ALL
+    SELECT '12' UNION ALL SELECT '13' UNION ALL SELECT '14' UNION ALL
+    SELECT '15' UNION ALL SELECT '16' UNION ALL SELECT '17' UNION ALL
+    SELECT '18' UNION ALL SELECT '19' UNION ALL SELECT '20' UNION ALL
+    SELECT '21' UNION ALL SELECT '22' UNION ALL SELECT '23'
+)
+SELECT
+    h.hour,
+    AVG(m.temperature) AS avg_temperature,
+    AVG(m.vibration) AS avg_vibration,
+    AVG(m.oilLevel) AS avg_oilLevel
+FROM hours h
+LEFT JOIN machine_data m
+  ON strftime('%H', m.dateTime) = h.hour
+  AND date(m.dateTime) = date(:date)
+GROUP BY h.hour
+ORDER BY h.hour
+""")
+    fun getHourlySummaryForDate(date: String): Flow<List<HourSummary>>
+
+
+
+
 
 
     //combine runtme ,idletime,production graph queries

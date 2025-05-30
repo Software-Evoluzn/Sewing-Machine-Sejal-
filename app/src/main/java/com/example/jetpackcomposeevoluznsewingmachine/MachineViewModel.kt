@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHourDataShowing
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
+import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourSummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineDataLive
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.OneHourCombineGraphData
@@ -200,11 +201,21 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     }
 
     //selected date range  data
+
+
      fun getSelectedDateRangeMaintenance(startDate:String,endDate:String):Flow<List<DailySummary>>{
          return dao.getDailySummary(startDate, endDate)
      }
 
-}
+     fun getHourlySummaryDateOfSelectedDate(selectedDate:String):Flow<List<HourSummary>> {
+         return dao.getHourlySummaryForDate(selectedDate)
+     }
+
+
+
+
+
+ }
 
 
 

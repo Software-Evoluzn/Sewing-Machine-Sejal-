@@ -35,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.jetpackcomposeevoluznsewingmachine.Screens.BreakDownScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DashBoardLiveScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DifferentKeyboardTypes
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.EnterPasswordScreen
@@ -137,6 +138,8 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(snackBarHostState:SnackbarHostState){
     val navController= rememberNavController()
 
+
+
     val viewModel: MachineViewModel = viewModel()
     val todayTemps by viewModel.todayTemperatureList.observeAsState(emptyList())
     val todayVibration by viewModel.todayVibrationList.observeAsState(emptyList())
@@ -152,6 +155,8 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
 
 
 
+
+
     NavHost(navController = navController, startDestination = "dashBoardScreen"){
         composable("mainMenu"){ MainMenu(navController) }
         composable("dashBoardScreen"){ DashBoardLiveScreen(navController) }
@@ -159,6 +164,7 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
         composable("maintenanceScreen"){ MaintenanceScreen(navController) }
         composable("preventiveMaintenance"){PreventiveMaintenanceScreen(navController)}
         composable("productionEfficiency"){ProductionEfficiencyScreen(navController)}
+        composable("breakdownScreen"){BreakDownScreen(navController)}
         composable("showCombineGraphScreen"){ShowingCombineGraphs(
             navController=navController,
             GraphHeading = "SHOWING REAL TIME DATA",

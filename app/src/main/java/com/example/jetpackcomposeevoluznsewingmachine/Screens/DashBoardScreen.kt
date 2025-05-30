@@ -120,7 +120,7 @@ fun DashBoardLiveScreen(navController: NavController) {
                     fontSize = 24.sp,
                     fontFamily = dmRegular,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4B4B4B),
+                   
                     modifier = Modifier.align(Alignment.Center)
                 )
                 Image(
@@ -340,7 +340,7 @@ fun DashBoardScreen(navController: NavController,
             },
             painterResource(R.drawable.spi_icon)),
         CardItemList("BREAKDOWN",
-            onCardClick = {},
+            onCardClick = {navController.navigate("breakdownScreen")},
             painterResource(R.drawable.break_down_icon)),
         CardItemList("TRAINING",
             onCardClick = {},
@@ -425,7 +425,7 @@ fun ShowingCard(
             .defaultMinSize(minWidth = 100.dp)
             .height(120.dp)
             .border(width = 0.5.dp,Color(0xFFD0D0D3), RoundedCornerShape(12.dp)),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F6F6)),
+
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(12.dp)
     ) {
@@ -450,7 +450,7 @@ fun ShowingCard(
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = title,
-                    color = Color.Black,
+
                     fontSize = 15.sp,
                     fontFamily = dmRegular,
                     fontWeight = FontWeight.Bold
@@ -606,7 +606,7 @@ fun exportCsvToUri(context:Context,uri:Uri){
 
 
 
-suspend fun getMachineDataAsCsv(context:Context):String{
+fun getMachineDataAsCsv(context:Context):String{
     val db=DatabaseClass.getDatabase(context)
     val allData=db.machineDataDao().getMachineDataConvertToCSVFile()
 
