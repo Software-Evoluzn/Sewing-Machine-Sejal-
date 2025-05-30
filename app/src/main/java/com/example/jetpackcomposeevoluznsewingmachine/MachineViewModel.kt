@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHourDataShowing
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourSummary
@@ -15,7 +16,10 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.OneHourCombineG
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.SetRangeCombineGraph
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 
 class MachineViewModel(application: Application) : AndroidViewModel(application)
@@ -211,7 +215,24 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
          return dao.getHourlySummaryForDate(selectedDate)
      }
 
+     private val _dailySummary= MutableStateFlow<List<DailySummary>>(emptyList())
+     val dailySummary:StateFlow<List<DailySummary>>  = _dailySummary
 
+     private val _hourlySummary = MutableStateFlow<List<HourSummary>>(emptyList())
+     val hourSummary:StateFlow<List<HourSummary>> = _hourlySummary
+
+     fun loadDailySummary(startDate:String,endDate:String){
+         viewModelScope.launch{
+                      getSelectedDateRangeMaintenance(startDate, endDate).collect{_dailySummary.value=it}
+         }
+
+     }
+
+     fun loadHoulySummary(selectedDate:String){
+         viewModelScope.launch{
+                  getHourlySummaryDateOfSelectedDate(selectedDate).collect{_hourlySummary.value=it}
+         }
+     }
 
 
 

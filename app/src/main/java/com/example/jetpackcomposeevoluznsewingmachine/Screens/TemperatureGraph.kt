@@ -146,6 +146,9 @@ fun TemperatureGraph(
         else -> ""
     }
 
+
+
+
     val displayBtnText = "Set Date"
 
     val (xAxisLabels, yAxisData) = when (appliedOption) {
@@ -164,15 +167,25 @@ fun TemperatureGraph(
             if (appliedStartDate != null && appliedEndDate != null) {
                 if (appliedStartDate == appliedEndDate) {
                     val labels = selectedDateHourlyData.map { it.hour }
-                    val data = selectedDateHourlyData.map { it.avg_temperature }
-                    labels to data
+                    val dataSameDate = when (unit) {
+                        "°C" -> selectedDateHourlyData.map { it.avg_temperature }
+                        "mm/s" -> selectedDateHourlyData.map { it.avg_vibration }
+                        "%" -> selectedDateHourlyData.map { it.avg_oilLevel }
+                        else -> emptyList()
+                    }
+                    labels to dataSameDate
                 } else {
                     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                     val labels = SelectedDateRangeData.map {
                         LocalDate.parse(it.day).format(formatter)
                     }
-                    val temps = SelectedDateRangeData.map { it.avg_temperature }
-                    labels to temps
+                    val differentDateRange = when (unit) {
+                        "°C" -> SelectedDateRangeData.map { it.avg_temperature }
+                        "mm/s" -> SelectedDateRangeData.map { it.avg_vibration }
+                        "%" -> SelectedDateRangeData.map { it.avg_oilLevel }
+                        else -> emptyList()
+                    }
+                    labels to differentDateRange
                 }
             } else emptyList<String>() to emptyList()
         }

@@ -24,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -220,7 +221,7 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
                 todayTemps = todayOilLevelList,
                 weeklyTemps = weeklyOilLevelList,
                 valueColor = Color(0xFF0BA911),
-                unit="mm/s",
+                unit="%",
                 snackBarHostState=snackBarHostState,
                 threshHold = 30.0,
                 shouldTriggerAlert = { it < 30.0 },
@@ -229,38 +230,38 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
 
             )
         }
-        composable("runTimeAnalysisGraphScreen"){
-            RunTimeAnalysisGraph(
-                navController= navController,
-                modifier=Modifier,
-                onBack={navController.popBackStack()},
-                GraphHeading = "RunTime Analysis  Graph",
-                dataLabel = "RunTime Analysis Graph in hrs",
-                todayTemps = todayRuntimeList,
-                weeklyTemps = weeklyRunTimeList,
-                valueColor = Color(0xFF3386FF),
-                unit="hrs",
-                snackBarHostState=snackBarHostState,
-                threshHold = 45.0,
-                shouldTriggerAlert = { it > 45.0 },
-                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s"
-        ) }
-        composable("idleTimeAnalysisGraphScreen"){
-            IdleTimeAnalysisGraph(
-                navController= navController,
-                modifier=Modifier,
-                onBack={navController.popBackStack()},
-                GraphHeading = "IdleTime Analysis Graph",
-                dataLabel = "IdleTime Analysis Graph in mm/s",
-                todayTemps = todayIdleTimeList,
-                weeklyTemps = weeklyIdleTimeList,
-                valueColor = Color(0xFF8569D8),
-                unit="hrs",
-                snackBarHostState=snackBarHostState,
-                threshHold = 45.0,
-                shouldTriggerAlert = { it > 45.0 },
-                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s"
-            ) }
+//        composable("runTimeAnalysisGraphScreen"){
+//            RunTimeAnalysisGraph(
+//                navController= navController,
+//                modifier=Modifier,
+//                onBack={navController.popBackStack()},
+//                GraphHeading = "RunTime Analysis  Graph",
+//                dataLabel = "RunTime Analysis Graph in hrs",
+//                todayTemps = todayRuntimeList,
+//                weeklyTemps = weeklyRunTimeList,
+//                valueColor = Color(0xFF3386FF),
+//                unit="hrs",
+//                snackBarHostState=snackBarHostState,
+//                threshHold = 45.0,
+//                shouldTriggerAlert = { it > 45.0 },
+//                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s"
+//        ) }
+//        composable("idleTimeAnalysisGraphScreen"){
+//            IdleTimeAnalysisGraph(
+//                navController= navController,
+//                modifier=Modifier,
+//                onBack={navController.popBackStack()},
+//                GraphHeading = "IdleTime Analysis Graph",
+//                dataLabel = "IdleTime Analysis Graph in mm/s",
+//                todayTemps = todayIdleTimeList,
+//                weeklyTemps = weeklyIdleTimeList,
+//                valueColor = Color(0xFF8569D8),
+//                unit="hrs",
+//                snackBarHostState=snackBarHostState,
+//                threshHold = 45.0,
+//                shouldTriggerAlert = { it > 45.0 },
+//                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s"
+//            ) }
     }
 }
 
