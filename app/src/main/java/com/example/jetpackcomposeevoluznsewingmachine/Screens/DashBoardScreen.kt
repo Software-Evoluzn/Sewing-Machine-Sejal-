@@ -424,8 +424,9 @@ fun ShowingCard(
             .padding(8.dp)
             .defaultMinSize(minWidth = 100.dp)
             .height(120.dp)
-            .border(width = 0.5.dp,Color(0xFFD0D0D3), RoundedCornerShape(12.dp)),
 
+            .border(width = 0.5.dp,Color(0xFFD0D0D3), RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(12.dp)
     ) {

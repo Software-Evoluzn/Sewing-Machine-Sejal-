@@ -72,6 +72,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -108,21 +109,30 @@ fun TemperatureGraph(
 
     val viewModel: MachineViewModel = viewModel()
 
-    val SelectedDateRangeData by if (appliedStartDate != null && appliedEndDate != null) {
-        viewModel.getSelectedDateRangeMaintenance(
-            appliedStartDate.toString(),
-            appliedEndDate.toString()
-        ).collectAsState(emptyList())
-    } else {
-        remember { mutableStateOf(emptyList()) }
+    val selectedDateRangeDataFlow = remember(appliedStartDate, appliedEndDate) {
+        if (appliedStartDate != null && appliedEndDate != null) {
+            viewModel.getSelectedDateRangeMaintenance(
+                appliedStartDate.toString(),
+                appliedEndDate.toString()
+            )
+        } else {
+            flowOf(emptyList()) // Always return a Flow
+        }
     }
 
-    val selectedDateHourlyData by if (appliedStartDate != null && appliedEndDate != null) {
-        viewModel.getHourlySummaryDateOfSelectedDate(appliedStartDate.toString())
-            .collectAsState(emptyList())
-    } else {
-        remember { mutableStateOf(emptyList()) }
+    val SelectedDateRangeData by selectedDateRangeDataFlow.collectAsState(initial = emptyList())
+
+    val selectedDateHourlyDataFlow = remember(appliedStartDate, appliedEndDate) {
+        if (appliedStartDate != null && appliedEndDate != null && appliedStartDate == appliedEndDate) {
+            viewModel.getHourlySummaryDateOfSelectedDate(appliedStartDate.toString())
+        } else {
+            flowOf(emptyList())
+        }
     }
+
+    val selectedDateHourlyData by selectedDateHourlyDataFlow.collectAsState(initial = emptyList())
+
+
 
     var hasAlerted by remember { mutableStateOf(false) }
     val sendAlertNotification = NotificationAndSoundHelpherClass()
