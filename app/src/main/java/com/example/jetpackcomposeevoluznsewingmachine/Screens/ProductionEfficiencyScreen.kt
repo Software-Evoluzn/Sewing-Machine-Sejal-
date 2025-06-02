@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,7 +26,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.ProductionCartItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
@@ -33,12 +37,17 @@ import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 @Composable
 fun ProductionEfficiencyScreen(navController: NavController) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+    val viewModel: MachineViewModel =viewModel()
+
+    val targetPieces=5000
+    val completedPieces=  viewModel.latestPushBackCount.observeAsState(0).value
+    val balancePieces= targetPieces - completedPieces
 
     val productionCardListItem=listOf(
         ProductionCartItemList(
             title ="COMPLETED PIECES",
-            value ="100",
-            unit ="hrs" ,
+            value ="$completedPieces",
+            unit ="" ,
             icon = painterResource(R.drawable.completed_pieces),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {},
@@ -46,8 +55,8 @@ fun ProductionEfficiencyScreen(navController: NavController) {
         ),
         ProductionCartItemList(
             title ="TARGET PIECES",
-            value ="50",
-            unit ="hrs" ,
+            value ="$targetPieces",
+            unit ="" ,
             icon = painterResource(R.drawable.target_pieces),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {},
@@ -55,8 +64,8 @@ fun ProductionEfficiencyScreen(navController: NavController) {
         ),
         ProductionCartItemList(
             title ="BALANCE PIECES",
-            value ="50",
-            unit ="hrs" ,
+            value ="$balancePieces",
+            unit ="" ,
             icon = painterResource(R.drawable.balance_pieces),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {},
