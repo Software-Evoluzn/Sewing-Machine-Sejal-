@@ -11,7 +11,7 @@ import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import android.os.IBinder
 import android.util.Log
-import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
+import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import kotlinx.coroutines.DelicateCoroutinesApi

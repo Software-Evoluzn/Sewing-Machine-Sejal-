@@ -1,12 +1,12 @@
-package com.example.jetpackcomposeevoluznsewingmachine
+package com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass
 
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import com.example.jetpackcomposeevoluznsewingmachine.DatabaseClass
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHourDataShowing
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourSummary
@@ -18,7 +18,6 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 

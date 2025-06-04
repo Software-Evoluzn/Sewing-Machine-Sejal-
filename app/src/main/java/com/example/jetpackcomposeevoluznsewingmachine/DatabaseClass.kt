@@ -1,24 +1,21 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
-import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MachineDataDao
+import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MaintenanceLogDao
+import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
 
 
-@Database(entities = [MachineData::class], version = 6)
+@Database(entities = [MachineData::class], version = 7)
 abstract class DatabaseClass : RoomDatabase() {
 
     abstract fun machineDataDao(): MachineDataDao
+    abstract fun maintenanceLogDao():MaintenanceLogDao
 
 
     companion object {
@@ -42,6 +39,19 @@ abstract class DatabaseClass : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_6_7 = object:Migration(6,7){
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS maintenance_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                maintenance_time INTEGER NOT NULL
+            )
+                """.trimIndent())
+                println("table create successfully")
+            }
+        }
+
+
 
 
 
@@ -54,7 +64,7 @@ abstract class DatabaseClass : RoomDatabase() {
                     context.applicationContext,
                     DatabaseClass::class.java,
                     "machine_database"
-                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                     .build()
                 INSTANCE = instance
 

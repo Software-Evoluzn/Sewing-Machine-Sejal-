@@ -35,6 +35,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 @Composable
 fun PreventiveMaintenanceScreen(navController: NavController) {
 
+
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
     val productionCardListItem=listOf(

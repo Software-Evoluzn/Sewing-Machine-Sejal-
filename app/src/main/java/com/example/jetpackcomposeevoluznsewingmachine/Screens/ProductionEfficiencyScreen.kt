@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.ProductionCartItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
@@ -41,7 +40,10 @@ fun ProductionEfficiencyScreen(navController: NavController) {
 
     val targetPieces=5000
     val completedPieces=  viewModel.latestPushBackCount.observeAsState(0).value
-    val balancePieces= targetPieces - completedPieces
+
+    val balancePieces= if((targetPieces - completedPieces)>0){
+        targetPieces-completedPieces
+    }else{ 0 }
 
     val productionCardListItem=listOf(
         ProductionCartItemList(

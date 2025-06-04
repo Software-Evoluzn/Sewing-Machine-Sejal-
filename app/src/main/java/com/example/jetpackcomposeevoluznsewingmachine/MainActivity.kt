@@ -24,7 +24,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -40,18 +39,17 @@ import com.example.jetpackcomposeevoluznsewingmachine.Screens.BreakDownScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DashBoardLiveScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DifferentKeyboardTypes
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.EnterPasswordScreen
-import com.example.jetpackcomposeevoluznsewingmachine.Screens.IdleTimeAnalysisGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MachineRuntime
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MainMenu
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.MaintenanceScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.OilLevelGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.PreventiveMaintenanceScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.ProductionEfficiencyScreen
-import com.example.jetpackcomposeevoluznsewingmachine.Screens.RunTimeAnalysisGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.ShowingCombineGraphs
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.StarterPasswordScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.TemperatureGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.VibrationGraph
+import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ui.theme.JetpackComposeEvoluznSewingMachineTheme
 
 

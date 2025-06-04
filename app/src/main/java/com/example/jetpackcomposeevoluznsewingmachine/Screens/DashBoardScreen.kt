@@ -65,7 +65,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.DatabaseBackupHelper
 import com.example.jetpackcomposeevoluznsewingmachine.DatabaseClass
-import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.BlurCardData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CardItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
@@ -313,7 +313,7 @@ fun DashBoardLiveScreen(navController: NavController) {
 fun DashBoardScreen(navController: NavController,
                     onShowBlurCardRequested: (BlurCardData) -> Unit) {
 
-    val viewModel:MachineViewModel= viewModel()
+    val viewModel: MachineViewModel = viewModel()
 
 
     val cardItemList=listOf(

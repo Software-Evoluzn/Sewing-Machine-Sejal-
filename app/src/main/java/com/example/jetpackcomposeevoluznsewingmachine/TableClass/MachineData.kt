@@ -1,4 +1,4 @@
-package com.example.jetpackcomposeevoluznsewingmachine.ModalClass
+package com.example.jetpackcomposeevoluznsewingmachine.TableClass
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

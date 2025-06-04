@@ -54,8 +54,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.CustomMarkView
-import com.example.jetpackcomposeevoluznsewingmachine.MachineViewModel
-import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHourDataShowing
+import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.GraphDataModel
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.github.mikephil.charting.charts.CombinedChart
@@ -82,7 +81,7 @@ import kotlin.math.ceil
 fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, GraphHeading: String) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
-    val viewModel:MachineViewModel=viewModel()
+    val viewModel: MachineViewModel =viewModel()
 
     var selectedOption by remember{mutableStateOf("Today")}
     val options=listOf("Today","Weekly","Set Range")

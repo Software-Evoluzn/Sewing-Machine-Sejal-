@@ -1,4 +1,4 @@
-package com.example.jetpackcomposeevoluznsewingmachine
+package com.example.jetpackcomposeevoluznsewingmachine.DaoClass
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -9,10 +9,9 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CombineGraphHou
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.DailySummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourSummary
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.HourlyData
-import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineData
+import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.MachineDataLive
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.OneHourCombineGraphData
-import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.RealTimeRunTimeData
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.SetRangeCombineGraph
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +26,8 @@ import kotlinx.coroutines.flow.Flow
 
         @Query("select * from machine_data")
           fun getMachineDataConvertToCSVFile():List<MachineData>
+
+
 
         //latest data starts
 
