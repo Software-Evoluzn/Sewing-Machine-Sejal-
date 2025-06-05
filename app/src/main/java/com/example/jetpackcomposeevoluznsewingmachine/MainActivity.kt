@@ -1,5 +1,6 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
+import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -31,6 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -51,7 +54,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.Screens.TemperatureGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.VibrationGraph
 import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ui.theme.JetpackComposeEvoluznSewingMachineTheme
-
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : ComponentActivity() {
@@ -70,6 +73,7 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        context=applicationContext
         notificationAndSoundClass=NotificationAndSoundHelpherClass()
 
         notificationAndSoundClass.initBuzzerSound(this)
@@ -77,6 +81,10 @@ class MainActivity : ComponentActivity() {
         // Start the USB Serial Service
         val serviceIntent = Intent(this, UsbSerialService::class.java)
         startService(serviceIntent)
+
+        val intent = Intent(context, RuntimeMonitorService::class.java)
+        context.startForegroundService(intent)
+
 
         enableEdgeToEdge()
         setContent {
@@ -132,6 +140,8 @@ class MainActivity : ComponentActivity() {
         notificationAndSoundClass.releaseSoundPool()
     }
 }
+
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(snackBarHostState:SnackbarHostState){

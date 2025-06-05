@@ -36,7 +36,11 @@ class UsbSerialService : Service() {
             when (intent.action) {
                 ACTION_USB_PERMISSION -> {
                     val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false) && device != null) {
+                    if (intent.getBooleanExtra(
+                            UsbManager.EXTRA_PERMISSION_GRANTED,
+                            false
+                        ) && device != null
+                    ) {
                         startSerialConnection()
                     }
                 }
@@ -47,7 +51,7 @@ class UsbSerialService : Service() {
 
                 UsbManager.ACTION_USB_DEVICE_DETACHED -> {
                     stopSerialConnection()
-                    val intent=Intent("USB_DEVICE_DEATTACHED")
+                    val intent = Intent("USB_DEVICE_DEATTACHED")
                     sendBroadcast(intent)
                     stopSelf()  // Optionally stop service when device detaches
                 }
@@ -119,7 +123,8 @@ class UsbSerialService : Service() {
                         // Process complete messages (assuming your device sends \n or \r\n at the end)
                         var index: Int
                         while (true) {
-                            index = dataBuffer.indexOf("\n")  // Or "\r\n" if that's what your device uses
+                            index =
+                                dataBuffer.indexOf("\n")  // Or "\r\n" if that's what your device uses
                             if (index == -1) break  // no full message yet
 
                             val completeMessage = dataBuffer.substring(0, index).trim()
@@ -133,12 +138,15 @@ class UsbSerialService : Service() {
                                 val temp = parts[1].toDoubleOrNull() ?: 0.0
                                 val vibration = parts[2].toDoubleOrNull() ?: 0.0
                                 val oilLevel = parts[3].toIntOrNull() ?: 0
-                                val pushBackCount=parts[4].toIntOrNull()?:0
-                                val stichCount=parts[5].toIntOrNull()?:0
-                                val bobbinThread=parts[6].toIntOrNull()?:0
-                                val idleTime = if(runtime==1) 0 else 1
+                                val pushBackCount = parts[4].toIntOrNull() ?: 0
+                                val stichCount = parts[5].toIntOrNull() ?: 0
+                                val bobbinThread = parts[6].toIntOrNull() ?: 0
+                                val idleTime = if (runtime == 1) 0 else 1
 
-                                val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                                val currentTime = SimpleDateFormat(
+                                    "yyyy-MM-dd HH:mm:ss",
+                                    Locale.getDefault()
+                                ).format(
                                     Date()
                                 )
 
@@ -156,12 +164,13 @@ class UsbSerialService : Service() {
                                 )
 
                                 GlobalScope.launch(Dispatchers.IO) {
-                                       try{
-                                                DatabaseClass.getDatabase(applicationContext).machineDataDao().insert(data)
-                                                println("data inserted Successfully")
-                                       }catch (e:Exception){
-                                           println("DB insert error ${e.message}")
-                                       }
+                                    try {
+                                        DatabaseClass.getDatabase(applicationContext)
+                                            .machineDataDao().insert(data)
+                                        println("data inserted Successfully")
+                                    } catch (e: Exception) {
+                                        println("DB insert error ${e.message}")
+                                    }
 
                                 }
                             }
@@ -177,7 +186,6 @@ class UsbSerialService : Service() {
             }
         }.start()
     }
-
 
 
     private fun stopSerialConnection() {

@@ -16,6 +16,7 @@ ycComposeChart = "1.3.2"
 foundationAndroid = "1.7.2"
 foundationLayoutAndroid = "1.7.2"
 material = "1.12.0"
+lifecycleService = "2.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ yc-compose-chart = { module = "com.github.spikeysanju:YC-Compose-Chart", version
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycleService" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -4,8 +4,11 @@
 
     <uses-permission android:name="android.hardware.usb.host" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USB_PERMISSION" tools:ignore="MissingPermission" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
 
@@ -51,6 +54,9 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".MaintenaneAlarmReceiver" android:exported="true"/>
+
+
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
@@ -77,6 +83,13 @@
                 android:resource="@xml/usb_device_filter" />
 
         </service>
+
+        <service
+            android:name=".RuntimeMonitorService"
+            android:foregroundServiceType="dataSync|location"
+            android:enabled="true"
+            android:exported="false"
+            tools:ignore="ForegroundServicePermission" />
 
     </application>
 

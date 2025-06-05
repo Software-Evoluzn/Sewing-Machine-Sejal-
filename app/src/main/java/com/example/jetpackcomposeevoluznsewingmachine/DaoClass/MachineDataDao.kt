@@ -18,20 +18,20 @@ import kotlinx.coroutines.flow.Flow
 
 
 @Dao
- interface MachineDataDao {
+interface MachineDataDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-        suspend fun insert(data: MachineData)
+    suspend fun insert(data: MachineData)
 
 
-        @Query("select * from machine_data")
-          fun getMachineDataConvertToCSVFile():List<MachineData>
+    @Query("select * from machine_data")
+    fun getMachineDataConvertToCSVFile(): List<MachineData>
 
 
+    //latest data starts
 
-        //latest data starts
-
-    @Query("""
+    @Query(
+        """
     SELECT 
         (SELECT temperature FROM machine_data WHERE date(dateTime) = date('now') ORDER BY id DESC LIMIT 1) AS latestTemperature,
         (SELECT vibration FROM machine_data WHERE date(dateTime) = date('now') ORDER BY id DESC LIMIT 1) AS latestVibration,
@@ -51,18 +51,16 @@ import kotlinx.coroutines.flow.Flow
         
     FROM machine_data
     WHERE date(dateTime) = date('now')
-""")
+"""
+    )
     fun getLatestMachineData(): LiveData<MachineDataLive>
 
     //latest data ends
 
 
-
-
-
-
     //hourly data showing
-    @Query("""
+    @Query(
+        """
     WITH hours AS (
         SELECT '00' AS hour
         UNION ALL SELECT '01'
@@ -101,16 +99,16 @@ import kotlinx.coroutines.flow.Flow
         ON hours.hour = strftime('%H', machine_data.dateTime)
     GROUP BY hours.hour
     ORDER BY hours.hour ASC
-""")
+"""
+    )
     fun getHourlyDataToday(): LiveData<List<HourlyData>>
-
-
 
 
 //    //showing weekly data starts
 
 
-    @Query("""
+    @Query(
+        """
     SELECT
         CASE strftime('%w', dateTime)
             WHEN '0' THEN 'Sunday'
@@ -130,14 +128,15 @@ import kotlinx.coroutines.flow.Flow
     WHERE strftime('%W', dateTime) = strftime('%W', 'now') 
     GROUP BY strftime('%w', dateTime)
     ORDER BY strftime('%w', dateTime) ASC
-""")
+"""
+    )
     fun getWeeklyData(): LiveData<List<WeeklyData>>
-
 
 
 //    //showing selected date range
 
-    @Query("""
+    @Query(
+        """
             WITH RECURSIVE date_range(day) AS (
             SELECT date(:startDate)
             UNION ALL
@@ -155,11 +154,13 @@ import kotlinx.coroutines.flow.Flow
             ON substr(m.dateTime, 1, 10) = day
             GROUP BY day
             ORDER BY day;
-           """)
+           """
+    )
     fun getDailySummary(startDate: String, endDate: String): Flow<List<DailySummary>>
 
 
-    @Query("""
+    @Query(
+        """
 WITH hours AS (
     SELECT '00' AS hour UNION ALL SELECT '01' UNION ALL SELECT '02' UNION ALL
     SELECT '03' UNION ALL SELECT '04' UNION ALL SELECT '05' UNION ALL
@@ -181,19 +182,17 @@ LEFT JOIN machine_data m
   AND date(m.dateTime) = date(:date)
 GROUP BY h.hour
 ORDER BY h.hour
-""")
+"""
+    )
     fun getHourlySummaryForDate(date: String): Flow<List<HourSummary>>
-
-
-
-
 
 
     //combine runtme ,idletime,production graph queries
 
     //for showing particular hour  and individual cycle  time
 
-    @Query("""
+    @Query(
+        """
               SELECT
                     dateTime,
                     runtime,
@@ -204,12 +203,14 @@ ORDER BY h.hour
                      AND strftime('%H', dateTime) = :selectedHour
                      AND date(dateTime) = date('now')
                      ORDER BY dateTime;
-            """)
-    fun getIndividualHourData(selectedHour:String):Flow<List<OneHourCombineGraphData>>
+            """
+    )
+    fun getIndividualHourData(selectedHour: String): Flow<List<OneHourCombineGraphData>>
 
 
     //showing today hourly data of showing cycles
-    @Query("""
+    @Query(
+        """
     WITH hours AS (
         SELECT '00' AS hour UNION ALL SELECT '01' UNION ALL SELECT '02' UNION ALL
         SELECT '03' UNION ALL SELECT '04' UNION ALL SELECT '05' UNION ALL
@@ -232,15 +233,15 @@ ORDER BY h.hour
         AND m.pushBackCount = 1
     GROUP BY h.hour
     ORDER BY h.hour
-""")
+"""
+    )
     fun getCalculateTotalNumberOfCycleToday(): Flow<List<CombineGraphHourDataShowing>>
-
-
 
 
     //showing the selected date range data
 
-    @Query("""
+    @Query(
+        """
        WITH RECURSIVE date_range(day) AS (
     SELECT date(:startDate)
     UNION ALL
@@ -259,11 +260,16 @@ LEFT JOIN machine_data m
 GROUP BY day
 ORDER BY day;
 
-    """)
-    fun getNumberOfCyclerBySelectedDateRange(startDate:String,endDate:String):Flow<List<SetRangeCombineGraph>>
+    """
+    )
+    fun getNumberOfCyclerBySelectedDateRange(
+        startDate: String,
+        endDate: String
+    ): Flow<List<SetRangeCombineGraph>>
 
 
-    @Query("""
+    @Query(
+        """
         WITH hours AS (
     SELECT '00' AS hour UNION ALL SELECT '01' UNION ALL SELECT '02' UNION ALL
     SELECT '03' UNION ALL SELECT '04' UNION ALL SELECT '05' UNION ALL
@@ -285,15 +291,14 @@ LEFT JOIN machine_data m
   AND m.pushBackCount = 1
 GROUP BY h.hour
 ORDER BY h.hour;
-    """)
-    fun getNumberOfCyclesBySelectedSameDate(selectedDate:String):Flow<List<CombineGraphHourDataShowing>>
+    """
+    )
+    fun getNumberOfCyclesBySelectedSameDate(selectedDate: String): Flow<List<CombineGraphHourDataShowing>>
 
 
-
-
-
-   // showing individual cycle timing and number of cycles by selected same date
-    @Query("""
+    // showing individual cycle timing and number of cycles by selected same date
+    @Query(
+        """
         SELECT
   dateTime,
   runtime,
@@ -304,14 +309,18 @@ WHERE pushBackCount = 1
   AND strftime('%H', dateTime) = :selectHour
   AND date(dateTime) = date(:selectedDate)
 ORDER BY dateTime;
-    """)
-    fun getShowingIndividualCycleShowingInSameDate(selectedDate:String,selectHour:String):Flow<List<OneHourCombineGraphData>>
-
+    """
+    )
+    fun getShowingIndividualCycleShowingInSameDate(
+        selectedDate: String,
+        selectHour: String
+    ): Flow<List<OneHourCombineGraphData>>
 
 
     //get showing weekly data of combined graph
 
-    @Query("""
+    @Query(
+        """
              WITH days AS (
              SELECT '0' AS day_num UNION ALL SELECT '1' UNION ALL SELECT '2' UNION ALL
              SELECT '3' UNION ALL SELECT '4' UNION ALL SELECT '5' UNION ALL SELECT '6'
@@ -336,8 +345,13 @@ ORDER BY dateTime;
                   AND m.pushBackCount = 1
                   GROUP BY d.day_num
                   ORDER BY d.day_num
-              """)
+              """
+    )
     fun getWeeklyDataCombinedGraph(): Flow<List<SetRangeCombineGraph>>
+
+
+    @Query("SELECT SUM(runtime) FROM machine_data WHERE datetime(dateTime) > datetime(:lastMaintenanceTime)")
+    suspend fun getRunTimeSince(lastMaintenanceTime: String): Int?
 
 
 }

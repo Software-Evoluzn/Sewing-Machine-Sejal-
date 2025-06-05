@@ -9,5 +9,5 @@ import androidx.room.PrimaryKey
  data class MaintenanceLog(
     @PrimaryKey(autoGenerate = true)
      val id:Int=0,
-     val maintenance_time:Long  // Store as timestamp (System.currentTimeMillis())
+     val maintenance_time:String
  )

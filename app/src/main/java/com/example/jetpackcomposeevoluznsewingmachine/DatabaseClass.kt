@@ -9,9 +9,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MachineDataDao
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MaintenanceLogDao
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
+import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MaintenanceLog
 
 
-@Database(entities = [MachineData::class], version = 7)
+@Database(entities = [MachineData::class, MaintenanceLog::class], version = 7)
 abstract class DatabaseClass : RoomDatabase() {
 
     abstract fun machineDataDao(): MachineDataDao

@@ -11,53 +11,53 @@ import androidx.annotation.RequiresApi
 
 class NotificationAndSoundHelpherClass {
 
-    private var soundPool: SoundPool?=null
-    private var buzzerSoundId:Int=0
-    private var isBuzzerLoaded=false
+    private var soundPool: SoundPool? = null
+    private var buzzerSoundId: Int = 0
+    private var isBuzzerLoaded = false
 
-    private var onLoadCompleteCallback:(() -> Unit)?=null
+    private var onLoadCompleteCallback: (() -> Unit)? = null
 
-     @RequiresApi(Build.VERSION_CODES.O)
-     fun NotificationFunction(context: Context) {
-         val channel_id = "OIL_LEVEL_ALERT"
-         val channelName = "Oil Level Alerts"
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun NotificationFunction(context: Context) {
+        val channel_id = "OIL_LEVEL_ALERT"
+        val channelName = "Oil Level Alerts"
 
-         val notificationManager =
-             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-         val channel = NotificationChannel(
-             channel_id,
-             channelName,
-             NotificationManager.IMPORTANCE_HIGH
-         ).apply {
-             description = "Notifies when oil level drops below threshold"
-         }
-         notificationManager.createNotificationChannel(channel)
-
-
-         val builder = Notification.Builder(context, channel_id)
-             .setSmallIcon(R.drawable.ic_alert)
-             .setContentTitle("Critical Oil Alert")
-             .setContentText("Oil Level is below 30!")
-             .setPriority(Notification.PRIORITY_HIGH)
-             .setAutoCancel(true)
-
-         notificationManager.notify(999, builder.build())
+        val channel = NotificationChannel(
+            channel_id,
+            channelName,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Notifies when oil level drops below threshold"
+        }
+        notificationManager.createNotificationChannel(channel)
 
 
-     }
+        val builder = Notification.Builder(context, channel_id)
+            .setSmallIcon(R.drawable.ic_alert)
+            .setContentTitle("Critical Oil Alert")
+            .setContentText("Oil Level is below 30!")
+            .setPriority(Notification.PRIORITY_HIGH)
+            .setAutoCancel(true)
 
-    fun initBuzzerSound(context:Context,onLoadComplete : (()->Unit)?=null){
-        soundPool=SoundPool.Builder()
+        notificationManager.notify(999, builder.build())
+
+
+    }
+
+    fun initBuzzerSound(context: Context, onLoadComplete: (() -> Unit)? = null) {
+        soundPool = SoundPool.Builder()
             .setMaxStreams(1)
             .build()
 
-        buzzerSoundId=soundPool!!.load(context,R.raw.buzzer_song,1)
-        onLoadCompleteCallback=onLoadComplete
+        buzzerSoundId = soundPool!!.load(context, R.raw.buzzer_song, 1)
+        onLoadCompleteCallback = onLoadComplete
 
-        soundPool!!.setOnLoadCompleteListener{ _, sampleId, _ ->
-            if(sampleId==buzzerSoundId){
-                isBuzzerLoaded=true
+        soundPool!!.setOnLoadCompleteListener { _, sampleId, _ ->
+            if (sampleId == buzzerSoundId) {
+                isBuzzerLoaded = true
                 println("buzzer sound loaded")
                 onLoadComplete?.invoke()
             }
@@ -65,16 +65,17 @@ class NotificationAndSoundHelpherClass {
     }
 
 
-     fun PlayBuzzerSound() {
-         if(isBuzzerLoaded){
-                 soundPool?.play(buzzerSoundId,1f,1f,0,0,1f)
-                 println("BUZZER Playing buzzer sound")
-             }else{
-                 println("BUZZER Buzzer sound not loaded yet")
-             }
-     }
-    fun releaseSoundPool(){
+    fun PlayBuzzerSound() {
+        if (isBuzzerLoaded) {
+            soundPool?.play(buzzerSoundId, 1f, 1f, 0, 0, 1f)
+            println("BUZZER Playing buzzer sound")
+        } else {
+            println("BUZZER Buzzer sound not loaded yet")
+        }
+    }
+
+    fun releaseSoundPool() {
         soundPool?.release()
-        soundPool=null
+        soundPool = null
     }
 }

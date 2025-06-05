@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,10 +27,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.CardItemList
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.ProductionCartItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
+import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MaintenanceLogViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
 import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 
@@ -38,35 +42,44 @@ fun PreventiveMaintenanceScreen(navController: NavController) {
 
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
-    val productionCardListItem=listOf(
+    val viewModel: MaintenanceLogViewModel = viewModel()
+    val runtime by viewModel.runtimeState.observeAsState(0f)
+
+    val displayRuntime = runtime.coerceIn(0f, 30f)
+    val dueTime = (30 - displayRuntime).coerceAtLeast(0f)
+    val preNotificationTime = if (displayRuntime >= 25f) (30 - displayRuntime) else 0f
+
+
+    val productionCardListItem = listOf(
         ProductionCartItemList(
-            title ="RUN TIME",
-            value ="8",
-            unit ="hrs" ,
+            title = "RUN TIME",
+            value = displayRuntime.toInt().toString(),
+            unit = "hrs",
             icon = painterResource(R.drawable.clock),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {},
             valueColor = Color(0xFFFFC107)
         ),
         ProductionCartItemList(
-            title ="DUE TIME",
-            value ="2",
-            unit ="hrs" ,
+            title = "DUE TIME",
+            value = dueTime.toInt().toString(),
+            unit = "hrs",
             icon = painterResource(R.drawable.due_date),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {},
             valueColor = Color(0xFFFC5353)
         ),
         ProductionCartItemList(
-            title ="PRE-NOTIFICATION TIME ",
-            value ="1",
-            unit ="hrs" ,
+            title = "PRE-NOTIFICATION TIME",
+            value = preNotificationTime.toInt().toString(),
+            unit = "hrs",
             icon = painterResource(R.drawable.active),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {},
             valueColor = Color(0xFF2196F3)
         )
     )
+
     val windowInfo = rememberWindowInfo()
     Column(
         modifier = Modifier
