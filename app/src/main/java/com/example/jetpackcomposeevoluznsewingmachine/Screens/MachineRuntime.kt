@@ -20,6 +20,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -43,6 +44,8 @@ fun MachineRuntime(navController: NavController) {
     val latestIdleTime by viewModel.latestIdleTime.observeAsState(0f)
     val latestPushBackCount by viewModel.latestPushBackCount.observeAsState()
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
 
     val productionCardListItem=listOf(
         ProductionCartItemList(
@@ -84,38 +87,36 @@ fun MachineRuntime(navController: NavController) {
     )
 
     val windowInfo = rememberWindowInfo()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp)
-           ,
+            .padding(if (isPortrait) 12.dp else 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
-
     ) {
+        val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
-        // Logo pinned to top-start
+        // Header Section
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-
+            modifier = Modifier.fillMaxWidth()
         ) {
             Image(
                 painter = painterResource(R.drawable.aquarelle_logo),
                 contentDescription = "logo",
-                modifier = Modifier.size(70.dp).align(Alignment.TopStart)
+                modifier = Modifier
+                    .size(if (isPortrait) 60.dp else 70.dp)
+                    .align(Alignment.TopStart)
             )
             Text(
                 text = "MACHINE RUNTIME",
-                fontSize = 24.sp,
+                fontSize = if (isPortrait) 20.sp else 24.sp,
                 fontFamily = dmRegular,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF4B4B4B),
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-
-
 
         // Middle content (cards) centered
         Box(
@@ -124,76 +125,41 @@ fun MachineRuntime(navController: NavController) {
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-
-
-            if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact) {
-
-
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize().padding(8.dp),
-                    contentPadding = PaddingValues(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-
-                ) {
-                    itemsIndexed(productionCardListItem) { index,card ->
-                        if(index==3 &&  card is PreventiveAndProductionDataClass){
-                            MaintenanceCard(
-                                title = card.title,
-                                icon = card.icon,
-                                arrowIcon = card.arrowIcon,
-                                onArrowClick = card.arrowIconClick
-                            )
-                        }else if(card is ProductionCartItemList) {
-                            ParameterBox(
-                                title = card.title,
-                                value = card.value,
-                                unit = card.unit,
-                                icon = card.icon,
-                                arrowIcon = card.arrowIcon,
-                                onClick = card.onClick,
-                                valueColor = card.valueColor
-
-                            )
-                        }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(if (isPortrait) 4.dp else 8.dp),
+                contentPadding = PaddingValues(if (isPortrait) 4.dp else 8.dp),
+                verticalArrangement = Arrangement.spacedBy(if (isPortrait) 6.dp else 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (isPortrait) 6.dp else 8.dp)
+            ) {
+                itemsIndexed(productionCardListItem) { index, card ->
+                    if (index == 3 && card is PreventiveAndProductionDataClass) {
+                        MaintenanceCard(
+                            title = card.title,
+                            icon = card.icon,
+                            arrowIcon = card.arrowIcon,
+                            onArrowClick = card.arrowIconClick,
+                            isPortrait = isPortrait
+                        )
+                    } else if (card is ProductionCartItemList) {
+                        ParameterBox(
+                            title = card.title,
+                            value = card.value,
+                            unit = card.unit,
+                            icon = card.icon,
+                            arrowIcon = card.arrowIcon,
+                            onClick = card.onClick,
+                            valueColor = card.valueColor,
+                            isPortrait = isPortrait
+                        )
                     }
                 }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize().padding(8.dp),
-                    contentPadding = PaddingValues(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-
-                ) {
-                    itemsIndexed(productionCardListItem) { index,card ->
-                        if(index==3 && card is PreventiveAndProductionDataClass) {
-                            MaintenanceCard(
-                                title = card.title,
-                                icon = card.icon,
-                                arrowIcon = card.arrowIcon,
-                                onArrowClick = card.arrowIconClick
-                            )
-                        }else if(card is ProductionCartItemList) {
-                            ParameterBox(
-                                title = card.title,
-                                value = card.value,
-                                unit = card.unit,
-                                icon = card.icon,
-                                arrowIcon = card.arrowIcon,
-                                onClick = card.onClick,
-                                valueColor = card.valueColor
-
-                            )
-                        }
-                    }
-                }
-
             }
-
         }
+
+        // Footer Section
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -203,14 +169,14 @@ fun MachineRuntime(navController: NavController) {
         ) {
             Text(
                 text = "Powered by ",
-                fontSize = 15.sp,
+                fontSize = if (isPortrait) 12.sp else 15.sp,
                 fontWeight = FontWeight.Thin,
                 fontFamily = dmRegular,
                 color = Color(0xFF424242)
             )
             Text(
                 text = "EVOLUZN",
-                fontSize = 18.sp,
+                fontSize = if (isPortrait) 15.sp else 18.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = dmRegular,
                 color = Color(0xFF424242)
@@ -219,5 +185,6 @@ fun MachineRuntime(navController: NavController) {
     }
 
 }
+
 
 

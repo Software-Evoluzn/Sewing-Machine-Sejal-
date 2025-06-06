@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
 
         val intent = Intent(context, RuntimeMonitorService::class.java)
         context.startForegroundService(intent)
-
+//
 
         enableEdgeToEdge()
         setContent {

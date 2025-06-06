@@ -1,5 +1,6 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -70,6 +73,7 @@ fun MainMenu(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
+
             contentAlignment = Alignment.Center
         ) {
             if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact) {
@@ -83,7 +87,7 @@ fun MainMenu(navController: NavController) {
                         arrowIcon = painterResource(R.drawable.btn_image),
                         onArrowClick = { navController.navigate("maintenanceScreen") },
 
-                    )
+                        )
 
                     MaintenanceCard(
                         title = "MACHINE RUNTIME ",
@@ -106,13 +110,16 @@ fun MainMenu(navController: NavController) {
                         modifier = Modifier.weight(0.5f)
                     )
                     Spacer(modifier = Modifier.width(32.dp))  // Space between the two cards
+
                     MaintenanceCard(
                         title = "MACHINE RUNTIME SECTION",
                         icon = painterResource(R.drawable.machine_logo),
                         arrowIcon = painterResource(R.drawable.btn_image),
                         onArrowClick = { navController.navigate("starter") },
-                        modifier = Modifier.weight(0.5f)
-                    )
+                        modifier = Modifier.weight(0.5f),
+
+
+                        )
                 }
             }
         }
@@ -128,7 +135,7 @@ fun MainMenu(navController: NavController) {
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Thin,
                 fontFamily = dmRegular,
-               color= Color(0xFF424242)
+                color= Color(0xFF424242)
             )
             Text(
                 text = "EVOLUZN",
@@ -158,65 +165,103 @@ fun MaintenanceCard(
     onArrowClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Font
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
-    // Animation: initial state is 0.8f, target is 1.0f
+    // Screen orientation
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+    // Entry-animation
     var startAnimation by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0.8f,
-        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        animationSpec = tween(600, easing = FastOutSlowInEasing),
         label = "scaleAnimation"
     )
-    // Trigger the animation once when the Composable enters
-    LaunchedEffect(Unit) {
-        startAnimation = true
-    }
+    LaunchedEffect(Unit) { startAnimation = true }
+
     Card(
         modifier = modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
+            .graphicsLayer { scaleX = scale; scaleY = scale }
             .padding(8.dp)
-            .defaultMinSize(minWidth = 80.dp)
-            .height(155.dp)
+            .defaultMinSize(minWidth = if (isPortrait) 80.dp else 160.dp)   // thoda zyada width in landscape
+            .height(if (isPortrait) 135.dp else 135.dp)                    // thoda kam height in landscape
             .border(0.5.dp, Color(0xFF283593), RoundedCornerShape(12.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(18.dp)
-        ) {
-            Image(
-                painter = arrowIcon,
-                contentDescription = "Forward",
+
+        // Portrait  ➡️  icon + text vertical
+        // Landscape ➡️  icon + text horizontal
+        if (isPortrait) {
+            Box(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(37.dp)
-                    .clickable { onArrowClick() }
-            )
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .fillMaxSize()
+                    .padding(18.dp)
+            ) {
+                Image(
+                    painter = arrowIcon,
+                    contentDescription = "Forward",
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(27.dp)
+                        .clickable { onArrowClick() }
+                )
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = icon,
+                        contentDescription = "Section Icon",
+                        modifier = Modifier.size(50.dp)
+                    )
+                    Spacer(Modifier.height(18.dp))
+                    Text(
+                        text = title,
+                        color = Color(0xFF2B3674),
+                        fontSize = 12.sp,
+                        fontFamily = dmRegular,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        } else { // Landscape layout
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 18.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
             ) {
                 Image(
                     painter = icon,
                     contentDescription = "Section Icon",
-                    modifier = Modifier.size(70.dp)
+                    modifier = Modifier
+                        .size(70.dp)
+                        .padding(end = 12.dp)
                 )
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-                Text(
-                    text = title,
-                    color = Color(0xFF2B3674),
-                    fontSize = 14.sp,
-                    fontFamily = dmRegular,
-                    fontWeight = FontWeight.Bold
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = title,
+                        color = Color(0xFF2B3674),
+                        fontSize = 16.sp,
+                        fontFamily = dmRegular,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Icon(                               // same arrow but kept inline
+                    painter = arrowIcon,
+                    contentDescription = "Forward",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable { onArrowClick() }
                 )
             }
         }

@@ -1,7 +1,5 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
-
-
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,93 +42,188 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.R
+import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
+import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 
 @Composable
 fun BreakDownScreen(navController: NavController) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+    val windowInfo = rememberWindowInfo()
+    if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact){
+        //portrait
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        // Header with Logo and Title
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Space for logo - you can add your logo here
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(Color.Gray.copy(alpha = 0.3f), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
+            // Header with Logo and Title
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(R.drawable.aquarelle_logo),
-                    contentDescription = "logo",
-                    modifier = Modifier.size(170.dp).padding(10.dp)
+                // Space for logo - you can add your logo here
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color.Gray.copy(alpha = 0.3f), RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.aquarelle_logo),
+                        contentDescription = "logo",
+                        modifier = Modifier.size(170.dp).padding(10.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Text(
+                    text = "BREAKDOWN IN GARMENT INDUSTRY",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = dmRegular,
+                    color = Color(0xFF333333),
+                    textAlign = TextAlign.Center
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            // Cards Grid
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Down Time Card
+                item {
+                    DownTimeCard()
+                }
 
+                // Breakdown Reason Card
+                item {
+                    BreakdownReasonCard()
+                }
+
+                // MTBF Card
+                item {
+                    MTBFCard()
+                }
+
+                // Prediction Card
+                item {
+                    PredictionCard()
+                }
+
+                // MTTR Card
+                item {
+                    MTTRCard()
+                }
+            }
+
+            // Footer
             Text(
-                text = "BREAKDOWN IN GARMENT INDUSTRY",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = dmRegular,
-                color = Color(0xFF333333),
-                textAlign = TextAlign.Center
+                text = "Powered by EVOLUZN",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = Color(0xFF666666)
             )
         }
-
-        // Cards Grid
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Down Time Card
-            item {
-                DownTimeCard()
-            }
-
-            // Breakdown Reason Card
-            item {
-                BreakdownReasonCard()
-            }
-
-            // MTBF Card
-            item {
-                MTBFCard()
-            }
-
-            // Prediction Card
-            item {
-                PredictionCard()
-            }
-
-            // MTTR Card
-            item {
-                MTTRCard()
-            }
-        }
-
-        // Footer
-        Text(
-            text = "Powered by EVOLUZN",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            color = Color(0xFF666666)
-        )
     }
+
+    else{
+        //landscape
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            // Header with Logo and Title
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Space for logo - you can add your logo here
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color.Gray.copy(alpha = 0.3f), RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.aquarelle_logo),
+                        contentDescription = "logo",
+                        modifier = Modifier.size(170.dp).padding(10.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Text(
+                    text = "BREAKDOWN IN GARMENT INDUSTRY",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = dmRegular,
+                    color = Color(0xFF333333),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            // Cards Grid
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Down Time Card
+                item {
+                    DownTimeCard()
+                }
+
+                // Breakdown Reason Card
+                item {
+                    BreakdownReasonCard()
+                }
+
+                // MTBF Card
+                item {
+                    MTBFCard()
+                }
+
+                // Prediction Card
+                item {
+                    PredictionCard()
+                }
+
+                // MTTR Card
+                item {
+                    MTTRCard()
+                }
+            }
+
+            // Footer
+            Text(
+                text = "Powered by EVOLUZN",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = Color(0xFF666666)
+            )
+        }
+    }
+
+
 }
 
 
