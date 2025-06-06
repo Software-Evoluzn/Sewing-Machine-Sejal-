@@ -6,17 +6,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.BreakDownReasonDao
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MachineDataDao
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MaintenanceLogDao
+import com.example.jetpackcomposeevoluznsewingmachine.TableClass.BreakDownReasonTable
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MaintenanceLog
 
 
-@Database(entities = [MachineData::class, MaintenanceLog::class], version = 7)
+@Database(entities = [MachineData::class, MaintenanceLog::class, BreakDownReasonTable::class], version = 8)
 abstract class DatabaseClass : RoomDatabase() {
 
     abstract fun machineDataDao(): MachineDataDao
     abstract fun maintenanceLogDao():MaintenanceLogDao
+    abstract fun breakDownReasonDao():BreakDownReasonDao
 
 
     companion object {
@@ -52,6 +55,20 @@ abstract class DatabaseClass : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_7_8=object:Migration(7,8){
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS BreakDown_Reasons(
+                       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                       reasons TEXT,
+                       timestamp TEXT
+                    )
+                """.trimIndent())
+                println("breakdown table created successfully")
+            }
+        }
+
+
 
 
 
@@ -65,7 +82,8 @@ abstract class DatabaseClass : RoomDatabase() {
                     context.applicationContext,
                     DatabaseClass::class.java,
                     "machine_database"
-                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
+                    MIGRATION_7_8)
                     .build()
                 INSTANCE = instance
 

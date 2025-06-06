@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -40,8 +41,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.R
+import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.BreakDownViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
 import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 
@@ -90,6 +93,12 @@ fun BreakDownScreen(navController: NavController) {
                 )
             }
 
+            Button(onClick = {
+                // Trigger CSV generation and download
+            }) {
+                Text("Download Breakdown Report")
+            }
+
             // Cards Grid
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -99,6 +108,9 @@ fun BreakDownScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Down Time Card
+
+
+
                 item {
                     DownTimeCard()
                 }
@@ -309,19 +321,10 @@ fun DownTimeCard() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 @Composable
 fun BreakdownReasonCard() {
+    val viewModel :BreakDownViewModel=viewModel()
+
     val reasons = listOf(
         "Belt Problem",
         "Components Issue",
@@ -395,6 +398,7 @@ fun BreakdownReasonCard() {
                     .background(Color(0xFF4299E1), RoundedCornerShape(6.dp))
                     .clickable {
                         val selectedReasons = reasons.filterIndexed { index, _ -> checkedStates[index] }
+                        viewModel.saveSelectedReason(selectedReasons)
                         Log.d("BreakdownReasonCard", "Selected Reasons: $selectedReasons")
                         // TODO: Replace with actual submit logic like sending to ViewModel or API
                     }
