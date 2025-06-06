@@ -33,6 +33,7 @@ class MaintenanceLogViewModel(application: Application):AndroidViewModel(applica
     private fun startRuntimeMonitor() {
         viewModelScope.launch {
             while (true) {
+                println("check and handle runtime")
                 checkAndHandleRuntime()
                 delay(1000) // 1-second interval
             }
@@ -47,22 +48,25 @@ class MaintenanceLogViewModel(application: Application):AndroidViewModel(applica
 
         // If there's no previous maintenance time, use epoch start (or skip logic)
         val lastMaintenanceTimeStr = lastTimeStr ?: "1970-01-01 00:00:00"
-
+        println("showing date: $sdf")
         // Query runtime since last maintenance time
         val runtimeInSec = machineDao.getRunTimeSince(lastMaintenanceTimeStr) ?: 0
-        val runtimeInHours = runtimeInSec.toFloat()   // Convert from seconds to hours
+        val runtimeInHours = runtimeInSec/3600f  // Convert from seconds to hours
 
         runtimeState.postValue(runtimeInHours)
 
         when {
-            runtimeInHours >= 30f -> {
+            runtimeInHours >= 50f -> {
                 // Insert new maintenance log with current timestamp as string
                 val currentTimeStr = sdf.format(Date(System.currentTimeMillis()))
+                println("showing current time : $currentTimeStr")
                 maintenanceDao.insertMaintenanceLog(MaintenanceLog(maintenance_time = currentTimeStr))
+                println("successfully in   maintenance log table ")
             }
 
-            runtimeInHours >= 25f -> {
-                triggerPreNotification()
+            runtimeInHours >= 48f -> {
+                println("trigger notification when  value reaches above  25  ")
+//                triggerPreNotification()
             }
         }
     }
@@ -75,8 +79,9 @@ class MaintenanceLogViewModel(application: Application):AndroidViewModel(applica
             PendingIntent.getBroadcast(context,0,intent,PendingIntent.FLAG_IMMUTABLE)
         }
         val alarmManager=context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        println("alarm trigger ")
         val triggerAlarmsAtMillis=System.currentTimeMillis()
-
+        println("alarm trigger value ")
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             triggerAlarmsAtMillis,

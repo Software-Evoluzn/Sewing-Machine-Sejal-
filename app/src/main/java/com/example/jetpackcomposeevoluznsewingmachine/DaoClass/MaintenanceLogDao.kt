@@ -11,13 +11,15 @@ import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MaintenanceLog
 interface MaintenanceLogDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMaintenanceLog(log:MaintenanceLog)
+    suspend fun insertMaintenanceLog(log: MaintenanceLog)
 
 
-    @Query("""
+    @Query(
+        """
          SELECT * FROM maintenance_log
          order by maintenance_time DESC LIMIT 1
-    """)
-    suspend fun getMaintenanceLog():MaintenanceLog?
+    """
+    )
+    suspend fun getMaintenanceLog(): MaintenanceLog?
 
 }

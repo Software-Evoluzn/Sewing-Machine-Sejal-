@@ -45,9 +45,9 @@ fun PreventiveMaintenanceScreen(navController: NavController) {
     val viewModel: MaintenanceLogViewModel = viewModel()
     val runtime by viewModel.runtimeState.observeAsState(0f)
 
-    val displayRuntime = runtime.coerceIn(0f, 30f)
-    val dueTime = (30 - displayRuntime).coerceAtLeast(0f)
-    val preNotificationTime = if (displayRuntime >= 25f) (30 - displayRuntime) else 0f
+    val displayRuntime = runtime.coerceIn(0f, 50f)
+    val dueTime = (50 - displayRuntime).coerceAtLeast(0f)
+    val preNotificationTime = if (displayRuntime >= 48f) (50 - displayRuntime) else 0f
 
 
     val productionCardListItem = listOf(

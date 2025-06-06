@@ -34,9 +34,7 @@ class RuntimeMonitorService : Service() {
     private lateinit var maintenanceDao:MaintenanceLogDao
     private var preNotificationShown = false
 
-
     private val sdf=SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-
     private  var monitorJob : Job?=null
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -45,12 +43,13 @@ class RuntimeMonitorService : Service() {
         database = DatabaseClass.getDatabase(this)
         machineDataDao = database.machineDataDao()
         maintenanceDao = database.maintenanceLogDao()
-
+       println("on create of runtime monitoring servicing class")
         startForegroundNotification()
         startMonitoring()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        println("on start command")
         return START_STICKY
     }
 
@@ -70,6 +69,7 @@ class RuntimeMonitorService : Service() {
                 lightColor = Color.BLUE
                 enableVibration(true)
             }
+            println("here is  notification channel ")
 
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
@@ -93,16 +93,16 @@ class RuntimeMonitorService : Service() {
             while (isActive) {
                 val lastMaintenance = maintenanceDao.getMaintenanceLog()
                 val lastTimeStr = lastMaintenance?.maintenance_time ?: "1970-01-01 00:00:00"
-
+                println("lastTime maintenace of monitor job ")
                 val runTimeSec = machineDataDao.getRunTimeSince(lastTimeStr) ?: 0
-                val runTimeHrs = runTimeSec.toFloat()
+                val runTimeHrs = runTimeSec/3600f
 
-                if (runTimeHrs in 25f..29.99f && !preNotificationShown) {
+                if (runTimeHrs in 48f..50f && !preNotificationShown) {
                     triggerPreNotification()
                     preNotificationShown = true
                 }
 
-                if (runTimeHrs >= 30f) {
+                if (runTimeHrs >=50f) {
                     val currentTimeStr = sdf.format(Date(System.currentTimeMillis()))
                     maintenanceDao.insertMaintenanceLog(MaintenanceLog(maintenance_time = currentTimeStr))
                     preNotificationShown = false // reset flag for next cycle
