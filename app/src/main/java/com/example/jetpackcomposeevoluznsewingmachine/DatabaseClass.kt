@@ -9,17 +9,23 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.BreakDownReasonDao
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MachineDataDao
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MaintenanceLogDao
+import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MissingDataLogDao
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.BreakDownReasonTable
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MaintenanceLog
+import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MissingDataLog
 
 
-@Database(entities = [MachineData::class, MaintenanceLog::class, BreakDownReasonTable::class], version = 8)
+@Database(entities = [MachineData::class,
+    MaintenanceLog::class,
+    BreakDownReasonTable::class,
+    MissingDataLog::class], version = 9)
 abstract class DatabaseClass : RoomDatabase() {
 
     abstract fun machineDataDao(): MachineDataDao
     abstract fun maintenanceLogDao():MaintenanceLogDao
     abstract fun breakDownReasonDao():BreakDownReasonDao
+    abstract fun missingDataLogDao(): MissingDataLogDao
 
 
     companion object {
@@ -55,6 +61,20 @@ abstract class DatabaseClass : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_8_9 = object:Migration(7,8){
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS missing_data_log(
+                     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                     timeStamp TEXT 
+                    )
+                    
+                """.trimIndent())
+                println("Missing Data table created successfully")
+            }
+        }
+
+
         private val MIGRATION_7_8=object:Migration(7,8){
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""
@@ -83,7 +103,7 @@ abstract class DatabaseClass : RoomDatabase() {
                     DatabaseClass::class.java,
                     "machine_database"
                 ).addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
-                    MIGRATION_7_8)
+                    MIGRATION_7_8,MIGRATION_8_9)
                     .build()
                 INSTANCE = instance
 
