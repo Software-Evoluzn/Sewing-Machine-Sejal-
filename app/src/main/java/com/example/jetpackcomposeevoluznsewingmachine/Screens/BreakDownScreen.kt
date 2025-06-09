@@ -1,6 +1,10 @@
 package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -43,16 +48,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.jetpackcomposeevoluznsewingmachine.DatabaseClass
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.BreakDownViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
 import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 
 @Composable
 fun BreakDownScreen(navController: NavController) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+    val context = LocalContext.current
     val windowInfo = rememberWindowInfo()
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv"))
+        { uri ->
+            uri?.let {
+                BreakdownReportExportCsvToUri(context, it)
+            }
+        }
     if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact){
+
         //portrait
 
         Column(
@@ -94,6 +114,7 @@ fun BreakDownScreen(navController: NavController) {
             }
 
             Button(onClick = {
+                launcher.launch("Breakdown_report.csv")
                 // Trigger CSV generation and download
             }) {
                 Text("Download Breakdown Report")
@@ -188,6 +209,14 @@ fun BreakDownScreen(navController: NavController) {
                     textAlign = TextAlign.Center
                 )
             }
+
+            Button(onClick = {
+                launcher.launch("Breakdown_report.csv")
+                // Trigger CSV generation and download
+            }) {
+                Text("Download Breakdown Report")
+            }
+
 
             // Cards Grid
             LazyVerticalGrid(
@@ -324,6 +353,8 @@ fun DownTimeCard() {
 @Composable
 fun BreakdownReasonCard() {
     val viewModel :BreakDownViewModel=viewModel()
+
+
 
     val reasons = listOf(
         "Belt Problem",
@@ -609,4 +640,32 @@ fun MTTRCard() {
             }
         }
     }
+}
+
+fun BreakdownReportExportCsvToUri(context: Context, uri: Uri) {
+    try {
+        CoroutineScope(Dispatchers.IO).launch {
+            val csvContext = getBreakDownDataAsCsv(context)
+            withContext(Dispatchers.Main) {
+                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(csvContext.toByteArray())
+                }
+                println("csv file exported successfully ")
+            }
+        }
+    } catch (e: Exception) {
+        println("Csv Export failed  ${e.message}")
+        e.printStackTrace()
+    }
+}
+
+suspend fun getBreakDownDataAsCsv(context: Context): String {
+    val db = DatabaseClass.getDatabase(context)
+    val allData = db.breakDownReasonDao().getAll()
+
+    val CsvHeader = "Id,Reasons,timestamp"
+    val CsvRows = allData.joinToString(separator = "\n") { data ->
+        "${data.id},${data.reasons},=\"${data.timestamp}\""
+    }
+    return "$CsvHeader\n$CsvRows"
 }
