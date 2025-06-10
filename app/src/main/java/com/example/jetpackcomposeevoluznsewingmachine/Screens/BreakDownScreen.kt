@@ -2,9 +2,11 @@ package com.example.jetpackcomposeevoluznsewingmachine.Screens
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,13 +28,18 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,6 +58,7 @@ import androidx.navigation.NavController
 import com.example.jetpackcomposeevoluznsewingmachine.DatabaseClass
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.BreakDownViewModel
+import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MissingDataLogViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
 import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 import kotlinx.coroutines.CoroutineScope
@@ -59,9 +67,23 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BreakDownScreen(navController: NavController) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+    val viewModel:MissingDataLogViewModel=viewModel()
+    val totalDowntime by viewModel.totalDowntime.collectAsState()
+    val mttr by viewModel.mttr.collectAsState()
+    val mtbf by viewModel.mtbf.collectAsState()
+    val predictionText by viewModel.predictionText.collectAsState()
+    val start:String= null.toString()
+    val end:String= null.toString()
+    // Trigger metrics calculation when screen loads
+    LaunchedEffect(Unit) {
+        viewModel.computeMetrics(start,end)
+    }
+
+ // load in ViewModel
     val context = LocalContext.current
     val windowInfo = rememberWindowInfo()
     val launcher =
@@ -133,7 +155,7 @@ fun BreakDownScreen(navController: NavController) {
 
 
                 item {
-                    DownTimeCard()
+                    DownTimeCard(totalDowntime)
                 }
 
                 // Breakdown Reason Card
@@ -143,17 +165,17 @@ fun BreakDownScreen(navController: NavController) {
 
                 // MTBF Card
                 item {
-                    MTBFCard()
+                    MTBFCard(mtbf)
                 }
 
                 // Prediction Card
                 item {
-                    PredictionCard()
+                    PredictionCard(predictionText)
                 }
 
                 // MTTR Card
                 item {
-                    MTTRCard()
+                    MTTRCard(mttr)
                 }
             }
 
@@ -228,7 +250,7 @@ fun BreakDownScreen(navController: NavController) {
             ) {
                 // Down Time Card
                 item {
-                    DownTimeCard()
+                    DownTimeCard(totalDowntime)
                 }
 
                 // Breakdown Reason Card
@@ -238,17 +260,17 @@ fun BreakDownScreen(navController: NavController) {
 
                 // MTBF Card
                 item {
-                    MTBFCard()
+                    MTBFCard(mtbf)
                 }
 
                 // Prediction Card
                 item {
-                    PredictionCard()
+                    PredictionCard(predictionText)
                 }
 
                 // MTTR Card
                 item {
-                    MTTRCard()
+                    MTTRCard(mttr)
                 }
             }
 
@@ -269,7 +291,11 @@ fun BreakDownScreen(navController: NavController) {
 
 
 @Composable
-fun DownTimeCard() {
+fun DownTimeCard(totalDowntime: Int) {
+    val totalShiftTime = 480 // in minutes
+    val percentage = if (totalShiftTime > 0) {
+        (totalDowntime.toFloat() / totalShiftTime) * 100
+    } else 0f
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -315,7 +341,7 @@ fun DownTimeCard() {
                             modifier = Modifier.size(50.dp).padding(10.dp)
                         )
                         Text(
-                            text = "Percentage of total time:20%",
+                            text = "Percentage of total time: ${"%.1f".format(percentage)}%",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFEE0A41),
@@ -331,7 +357,7 @@ fun DownTimeCard() {
                             modifier = Modifier.size(50.dp).padding(10.dp)
                         )
                         Text(
-                            text = "Actual minutes :120 min",
+                            text = "Actual minutes: $totalDowntime min",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF1FE026),
@@ -349,10 +375,10 @@ fun DownTimeCard() {
     }
 }
 
-
 @Composable
 fun BreakdownReasonCard() {
     val viewModel :BreakDownViewModel=viewModel()
+    val saveSuccess  by viewModel.saveSuccess
 
 
 
@@ -366,6 +392,20 @@ fun BreakdownReasonCard() {
         "Sensor and Mechanism Adjust Issue"
     )
     val checkedStates = remember { mutableStateListOf(*Array(reasons.size) { false }) }
+    if(saveSuccess){
+        AlertDialog(
+            onDismissRequest = {viewModel.resetSuccessFlag()},
+            confirmButton = {
+                TextButton(
+                    onClick = {viewModel.resetSuccessFlag()}
+                ) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Success") },
+            text = { Text("Data saved successfully.") }
+        )
+    }
 
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -431,6 +471,7 @@ fun BreakdownReasonCard() {
                         val selectedReasons = reasons.filterIndexed { index, _ -> checkedStates[index] }
                         viewModel.saveSelectedReason(selectedReasons)
                         Log.d("BreakdownReasonCard", "Selected Reasons: $selectedReasons")
+                        checkedStates.forEachIndexed { index, _ -> checkedStates[index] = false }
                         // TODO: Replace with actual submit logic like sending to ViewModel or API
                     }
                     .padding(vertical = 8.dp),
@@ -446,10 +487,8 @@ fun BreakdownReasonCard() {
         }
     }
 }
-
-
 @Composable
-fun MTBFCard() {
+fun MTBFCard(mtbf: Float) {
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -494,7 +533,7 @@ fun MTBFCard() {
                         modifier = Modifier.size(50.dp).padding(10.dp)
                     )
                     Text(
-                        text = "Mean time to breakdown failure:480 min",
+                        text = "Mean time to breakdown failure:$mtbf min",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1836D9),
@@ -511,7 +550,7 @@ fun MTBFCard() {
 }
 
 @Composable
-fun PredictionCard() {
+fun PredictionCard(predictionText: String) {
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -556,7 +595,7 @@ fun PredictionCard() {
                         modifier = Modifier.size(50.dp).padding(10.dp)
                     )
                     Text(
-                        text = "Next Breakdown Expected In:3 days",
+                        text = "Next Breakdown Expected In:$predictionText days",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFE59218),
@@ -572,11 +611,8 @@ fun PredictionCard() {
     }
 }
 
-
-
-
 @Composable
-fun MTTRCard() {
+fun MTTRCard(mttr: Float) {
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -626,7 +662,7 @@ fun MTTRCard() {
                         modifier = Modifier.size(50.dp).padding(10.dp)
                     )
                     Text(
-                        text = "Mean Time to Repair:3 days",
+                        text = "Mean Time to Repair:$mttr days",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF5E9612),

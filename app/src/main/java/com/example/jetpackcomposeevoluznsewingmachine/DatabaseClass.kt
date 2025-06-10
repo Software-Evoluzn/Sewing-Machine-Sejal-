@@ -66,7 +66,8 @@ abstract class DatabaseClass : RoomDatabase() {
                 db.execSQL("""
                     CREATE TABLE IF NOT EXISTS missing_data_log(
                      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                     timeStamp TEXT 
+                     start TEXT ,
+                     end TEXT
                     )
                     
                 """.trimIndent())

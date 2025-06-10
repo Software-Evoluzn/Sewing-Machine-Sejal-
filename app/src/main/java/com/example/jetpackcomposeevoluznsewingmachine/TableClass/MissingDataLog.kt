@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "missing_data_log")
 data class MissingDataLog(
           @PrimaryKey(autoGenerate = true) val id:Int=0,
-          val timeStamp:String
+          val start: String,
+          val end: String
 
 )

@@ -12,11 +12,15 @@ import android.hardware.usb.UsbManager
 import android.os.IBinder
 import android.util.Log
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
+import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MissingDataLog
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -30,17 +34,16 @@ class UsbSerialService : Service() {
     private var running = false
     private val dataBuffer = StringBuilder()
 
+    private var lastTimeReceivedData : Long=System.currentTimeMillis()
+
+
 
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 ACTION_USB_PERMISSION -> {
                     val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
-                    if (intent.getBooleanExtra(
-                            UsbManager.EXTRA_PERMISSION_GRANTED,
-                            false
-                        ) && device != null
-                    ) {
+                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false) && device != null) {
                         startSerialConnection()
                     }
                 }
@@ -53,7 +56,7 @@ class UsbSerialService : Service() {
                     stopSerialConnection()
                     val intent = Intent("USB_DEVICE_DEATTACHED")
                     sendBroadcast(intent)
-                    stopSelf()  // Optionally stop service when device detaches
+                    //stopSelf()  // Optionally stop service when device detaches
                 }
             }
         }
@@ -63,6 +66,7 @@ class UsbSerialService : Service() {
         super.onCreate()
         registerUsbReceiver()
         startSerialConnection()  // Try connecting at service start
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -131,6 +135,12 @@ class UsbSerialService : Service() {
                             dataBuffer.delete(0, index + 1)  // remove processed part
 
                             println(completeMessage)
+                            //reset watching timer
+                            val now = System.currentTimeMillis()
+                            lastTimeReceivedData = now
+                            getSharedPreferences("machine_prefs", MODE_PRIVATE)
+                                .edit().putLong("last_data_time", now).apply()
+
 
                             val parts = completeMessage.split(":")
                             if (parts.size == 7) {
@@ -170,6 +180,7 @@ class UsbSerialService : Service() {
                                         println("data inserted Successfully")
                                     } catch (e: Exception) {
                                         println("DB insert error ${e.message}")
+
                                     }
 
                                 }
@@ -188,8 +199,12 @@ class UsbSerialService : Service() {
     }
 
 
+
+
+
     private fun stopSerialConnection() {
         running = false
+
         try {
             usbSerialPort?.close()
             connection?.close()
