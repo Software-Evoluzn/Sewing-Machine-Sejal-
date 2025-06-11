@@ -84,7 +84,10 @@ class MainActivity : ComponentActivity() {
 
         val intent = Intent(context, RuntimeMonitorService::class.java)
         context.startForegroundService(intent)
-//
+
+        val watchDogIntent=Intent(context,WatchDogService::class.java)
+        context.startService(watchDogIntent)
+
 
         enableEdgeToEdge()
         setContent {

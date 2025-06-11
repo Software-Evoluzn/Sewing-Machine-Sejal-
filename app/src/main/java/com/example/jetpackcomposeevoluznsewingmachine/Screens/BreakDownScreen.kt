@@ -76,11 +76,13 @@ fun BreakDownScreen(navController: NavController) {
     val mttr by viewModel.mttr.collectAsState()
     val mtbf by viewModel.mtbf.collectAsState()
     val predictionText by viewModel.predictionText.collectAsState()
-    val start:String= null.toString()
-    val end:String= null.toString()
+
     // Trigger metrics calculation when screen loads
     LaunchedEffect(Unit) {
-        viewModel.computeMetrics(start,end)
+        viewModel.computeMetrics(
+            start = TODO(),
+            end = TODO()
+        )
     }
 
  // load in ViewModel
