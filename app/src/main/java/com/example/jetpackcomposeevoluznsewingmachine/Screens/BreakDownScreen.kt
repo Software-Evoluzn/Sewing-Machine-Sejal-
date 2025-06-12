@@ -65,27 +65,40 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
+import java.time.ZoneId
+
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BreakDownScreen(navController: NavController) {
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
-    val viewModel:MissingDataLogViewModel=viewModel()
+    val viewModel: MissingDataLogViewModel = viewModel()
     val totalDowntime by viewModel.totalDowntime.collectAsState()
     val mttr by viewModel.mttr.collectAsState()
     val mtbf by viewModel.mtbf.collectAsState()
     val predictionText by viewModel.predictionText.collectAsState()
 
-    // Trigger metrics calculation when screen loads
     LaunchedEffect(Unit) {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val today = LocalDate.now()
+        val startDateTime = LocalDateTime.of(today, LocalTime.of(10, 0)) // 10:00 AM today
+        val endDateTime = LocalDateTime.of(today, LocalTime.of(18, 0)) // 8:00 PM today
+
         viewModel.computeMetrics(
-            start = TODO(),
-            end = TODO()
+            start = startDateTime.format(formatter),
+            end = endDateTime.format(formatter)
         )
     }
 
- // load in ViewModel
+
+    // load in ViewModel
     val context = LocalContext.current
     val windowInfo = rememberWindowInfo()
     val launcher =
@@ -95,7 +108,7 @@ fun BreakDownScreen(navController: NavController) {
                 BreakdownReportExportCsvToUri(context, it)
             }
         }
-    if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact){
+    if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact) {
 
         //portrait
 
@@ -121,7 +134,9 @@ fun BreakDownScreen(navController: NavController) {
                     Image(
                         painter = painterResource(R.drawable.aquarelle_logo),
                         contentDescription = "logo",
-                        modifier = Modifier.size(170.dp).padding(10.dp)
+                        modifier = Modifier
+                            .size(170.dp)
+                            .padding(10.dp)
                     )
                 }
 
@@ -155,14 +170,18 @@ fun BreakDownScreen(navController: NavController) {
                 // Down Time Card
 
 
-
                 item {
                     DownTimeCard(totalDowntime)
                 }
 
                 // Breakdown Reason Card
                 item {
-                    BreakdownReasonCard()
+                    BreakdownReasonCard(
+                        totalDowntime = totalDowntime.toString(),
+                        mttr = mttr.toString(),
+                        mtbf = mtbf.toString(),
+                        prediction = predictionText
+                    )
                 }
 
                 // MTBF Card
@@ -191,9 +210,7 @@ fun BreakDownScreen(navController: NavController) {
                 color = Color(0xFF666666)
             )
         }
-    }
-
-    else{
+    } else {
         //landscape
 
         Column(
@@ -218,7 +235,9 @@ fun BreakDownScreen(navController: NavController) {
                     Image(
                         painter = painterResource(R.drawable.aquarelle_logo),
                         contentDescription = "logo",
-                        modifier = Modifier.size(170.dp).padding(10.dp)
+                        modifier = Modifier
+                            .size(170.dp)
+                            .padding(10.dp)
                     )
                 }
 
@@ -257,7 +276,12 @@ fun BreakDownScreen(navController: NavController) {
 
                 // Breakdown Reason Card
                 item {
-                    BreakdownReasonCard()
+                    BreakdownReasonCard(
+                        totalDowntime = totalDowntime.toString(),
+                        mttr = mttr.toString(),
+                        mtbf = mtbf.toString(),
+                        prediction = predictionText
+                    )
                 }
 
                 // MTBF Card
@@ -340,7 +364,9 @@ fun DownTimeCard(totalDowntime: Int) {
                         Image(
                             painter = painterResource(R.drawable.percentage_img),
                             contentDescription = "logo",
-                            modifier = Modifier.size(50.dp).padding(10.dp)
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(10.dp)
                         )
                         Text(
                             text = "Percentage of total time: ${"%.1f".format(percentage)}%",
@@ -356,7 +382,9 @@ fun DownTimeCard(totalDowntime: Int) {
                         Image(
                             painter = painterResource(R.drawable.actual_clock),
                             contentDescription = "logo",
-                            modifier = Modifier.size(50.dp).padding(10.dp)
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(10.dp)
                         )
                         Text(
                             text = "Actual minutes: $totalDowntime min",
@@ -378,7 +406,12 @@ fun DownTimeCard(totalDowntime: Int) {
 }
 
 @Composable
-fun BreakdownReasonCard() {
+fun BreakdownReasonCard(
+    totalDowntime: String,
+    mttr: String,
+    mtbf: String,
+    prediction: String
+) {
     val viewModel :BreakDownViewModel=viewModel()
     val saveSuccess  by viewModel.saveSuccess
 
@@ -470,8 +503,13 @@ fun BreakdownReasonCard() {
                     .fillMaxWidth()
                     .background(Color(0xFF4299E1), RoundedCornerShape(6.dp))
                     .clickable {
-                        val selectedReasons = reasons.filterIndexed { index, _ -> checkedStates[index] }
-                        viewModel.saveSelectedReason(selectedReasons)
+                        val selectedReasons =
+                            reasons.filterIndexed { index, _ -> checkedStates[index] }
+                        viewModel.saveSelectedReason(selectedReasons,
+                            downtime = totalDowntime,
+                            mttr = mttr,
+                            mtbf = mtbf,
+                            prediction = prediction)
                         Log.d("BreakdownReasonCard", "Selected Reasons: $selectedReasons")
                         checkedStates.forEachIndexed { index, _ -> checkedStates[index] = false }
                         // TODO: Replace with actual submit logic like sending to ViewModel or API
@@ -532,7 +570,9 @@ fun MTBFCard(mtbf: Float) {
                     Image(
                         painter = painterResource(R.drawable.actual_clock),
                         contentDescription = "logo",
-                        modifier = Modifier.size(50.dp).padding(10.dp)
+                        modifier = Modifier
+                            .size(50.dp)
+                            .padding(10.dp)
                     )
                     Text(
                         text = "Mean time to breakdown failure:$mtbf min",
@@ -594,7 +634,9 @@ fun PredictionCard(predictionText: String) {
                     Image(
                         painter = painterResource(R.drawable.breakdown_expected_img),
                         contentDescription = "logo",
-                        modifier = Modifier.size(50.dp).padding(10.dp)
+                        modifier = Modifier
+                            .size(50.dp)
+                            .padding(10.dp)
                     )
                     Text(
                         text = "Next Breakdown Expected In:$predictionText days",
@@ -661,7 +703,9 @@ fun MTTRCard(mttr: Float) {
                     Image(
                         painter = painterResource(R.drawable.actual_clock),
                         contentDescription = "logo",
-                        modifier = Modifier.size(50.dp).padding(10.dp)
+                        modifier = Modifier
+                            .size(50.dp)
+                            .padding(10.dp)
                     )
                     Text(
                         text = "Mean Time to Repair:$mttr days",

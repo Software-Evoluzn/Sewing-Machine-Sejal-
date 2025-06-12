@@ -11,7 +11,12 @@ data class BreakDownReasonTable(
     @PrimaryKey(autoGenerate = true)
     val id:Int=0,
     val reasons:String,
-    val timestamp: String = getCurrentDateTime()
+    val timestamp: String = getCurrentDateTime(),
+    val downtime: String? = null,
+    val mttr: String? = null,
+    val mtbf: String? = null,
+    val prediction: String? = null
+
     
 
 

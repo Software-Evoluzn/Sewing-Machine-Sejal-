@@ -22,10 +22,21 @@ class BreakDownViewModel(application:Application):AndroidViewModel(application) 
 
 
 
-   fun saveSelectedReason(selectedReasons:List<String>){
+   fun saveSelectedReason(selectedReasons:List<String>,downtime: String,
+                          mttr: String,
+                          mtbf: String,
+                          prediction: String){
        viewModelScope.launch(Dispatchers.IO){
            selectedReasons.forEach {reason->
-               dao.insert(BreakDownReasonTable(reasons = reason))
+               dao.insert(
+                   BreakDownReasonTable(
+                       reasons = reason,
+                       downtime = downtime,
+                       mttr = mttr,
+                       mtbf = mtbf,
+                       prediction = prediction
+                   )
+               )
 
            }
 
