@@ -15,7 +15,8 @@ data class BreakDownReasonTable(
     val downtime: String? = null,
     val mttr: String? = null,
     val mtbf: String? = null,
-    val prediction: String? = null
+    val prediction: String? = null,
+    val feedback: String?
 
     
 

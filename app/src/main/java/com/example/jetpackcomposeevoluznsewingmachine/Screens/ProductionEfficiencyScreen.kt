@@ -115,7 +115,7 @@ fun ProductionEfficiencyScreen(navController: NavController) {
 
 
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
+                    columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize().padding(8.dp),
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),

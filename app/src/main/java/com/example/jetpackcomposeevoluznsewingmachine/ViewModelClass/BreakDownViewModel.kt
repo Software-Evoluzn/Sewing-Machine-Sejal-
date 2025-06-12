@@ -25,7 +25,7 @@ class BreakDownViewModel(application:Application):AndroidViewModel(application) 
    fun saveSelectedReason(selectedReasons:List<String>,downtime: String,
                           mttr: String,
                           mtbf: String,
-                          prediction: String){
+                          prediction: String,feedback:String){
        viewModelScope.launch(Dispatchers.IO){
            selectedReasons.forEach {reason->
                dao.insert(
@@ -34,7 +34,8 @@ class BreakDownViewModel(application:Application):AndroidViewModel(application) 
                        downtime = downtime,
                        mttr = mttr,
                        mtbf = mtbf,
-                       prediction = prediction
+                       prediction = prediction,
+                       feedback = feedback
                    )
                )
 
