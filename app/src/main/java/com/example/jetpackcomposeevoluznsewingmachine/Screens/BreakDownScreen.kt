@@ -68,20 +68,14 @@ import com.example.jetpackcomposeevoluznsewingmachine.DatabaseClass
 import com.example.jetpackcomposeevoluznsewingmachine.R
 import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.BreakDownViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MissingDataLogViewModel
-import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
-import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
-import java.time.ZoneId
-
-
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -537,7 +531,9 @@ fun BreakdownReasonCard(isPortrait: Boolean = true,
                         .clickable {
                             val selectedReasons =
                                 reasons.filterIndexed { index, _ -> checkedStates[index] }
-                            viewModel.saveSelectedReason(selectedReasons,
+
+                            viewModel.saveSelectedReason(
+                                selectedReasons,
                                 downtime = totalDowntime,
                                 mttr = mttr,
                                 mtbf = mtbf,
