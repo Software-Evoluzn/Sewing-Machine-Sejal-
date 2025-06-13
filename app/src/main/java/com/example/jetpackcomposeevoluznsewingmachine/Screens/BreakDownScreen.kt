@@ -124,31 +124,30 @@ fun BreakDownScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Header with Logo and Title
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp), // Optional padding
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier.size(60.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.aquarelle_logo),
-                        contentDescription = "logo",
-                        modifier = Modifier.size(50.dp).align (Alignment.TopStart)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
+                // Centered Title Text
                 Text(
                     text = "BREAKDOWN IN GARMENT INDUSTRY",
-                    fontSize = 14.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = dmRegular,
                     color = Color(0xFF333333),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier=Modifier.padding(start = 10.dp)
+                )
+
+                // Logo on the left
+                Image(
+                    painter = painterResource(R.drawable.aquarelle_logo),
+                    contentDescription = "logo",
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(80.dp).padding(end=20.dp)
                 )
             }
             Button(onClick = {
@@ -861,7 +860,8 @@ suspend fun getBreakDownDataAsCsv(context: Context): String {
 
     val CsvHeader = "Id,Reasons,timestamp,DownTime,MTBF,MTTR,Prediction,Feedback"
     val CsvRows = allData.joinToString(separator = "\n") { data ->
-        "${data.id},${data.reasons},=\"${data.timestamp}\",${data.downtime},${data.mtbf},${data.mttr},${data.prediction},${data.feedback}"
+        val escapedReasons = "\"${data.reasons.replace("\"", "\"\"")}\""
+        "${data.id},$escapedReasons,=\"${data.timestamp}\",${data.downtime},${data.mtbf},${data.mttr},${data.prediction},${data.feedback}"
     }
     return "$CsvHeader\n$CsvRows"
 }
