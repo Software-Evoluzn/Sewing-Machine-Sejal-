@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -82,22 +84,22 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
 
     val viewModel: MachineViewModel =viewModel()
-
+    var appliedOption by remember{mutableStateOf("Today")}
     var selectedOption by remember{mutableStateOf("Today")}
     val options=listOf("Today","Weekly","Set Range")
 
     var selectedHour by remember{mutableStateOf("Select Hour")}
-    val hourOptions =(0..23).map{"$it:00-${it+1}:00"}
+//    val hourOptions =(0..23).map{"$it:00-${it+1}:00"}
 
     var expandedMain by remember{mutableStateOf(false)}
-    var expandedHour by remember{mutableStateOf(false)}
+//    var expandedHour by remember{mutableStateOf(false)}
 
     var startDate by remember{ mutableStateOf<LocalDate?>(null)}
     var endDate by remember {mutableStateOf<LocalDate?>(null)}
 
     val todayCombineGraph by viewModel.getCombineGraphOfTodayData.collectAsState(emptyList())
-    val todayIndividualHourCombineGraph by viewModel.
-    getIndividualHourCombineGraphData(selectedHour).collectAsState(emptyList())
+//    val todayIndividualHourCombineGraph by viewModel.
+//    getIndividualHourCombineGraphData(selectedHour).collectAsState(emptyList())
 
     val setRangeCombineGraphShowing by
     if(startDate != null  && endDate != null) {
@@ -116,8 +118,8 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
         remember { mutableStateOf(emptyList()) }
     }
 
-    val setHourOfSameDateCombineGraph by viewModel.
-    getSameDateHourDataCombineGraph(startDate.toString(),selectedHour).collectAsState(emptyList())
+//    val setHourOfSameDateCombineGraph by viewModel.
+//    getSameDateHourDataCombineGraph(startDate.toString(),selectedHour).collectAsState(emptyList())
 
     val setWeeklyCombineGraph by viewModel.getWeeklyCombinedGraph().collectAsState(emptyList())
 
@@ -158,118 +160,94 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
             }
 
 
-
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally) ,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
         ) {
-            // Date Option Dropdown
-            ExposedDropdownMenuBox(
-                expanded = expandedMain,
-                onExpandedChange = { expandedMain = !expandedMain }
+
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                TextField(
-                    value = selectedOption,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Set Date") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMain)
-
-                    },
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.White,
-                        unfocusedIndicatorColor  = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    ),
-                    modifier = Modifier
-                        .menuAnchor()
-                        .width(150.dp)
-                        .height(55.dp)
-                        .border(0.1.dp,color=Color.LightGray, RoundedCornerShape(8.dp))
-
-                )
-                ExposedDropdownMenu(
+                // Date Option Dropdown
+                ExposedDropdownMenuBox(
                     expanded = expandedMain,
-                    onDismissRequest = { expandedMain = false }
+                    onExpandedChange = { expandedMain = !expandedMain }
                 ) {
-                    options.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option) },
-                            onClick = {
-                                selectedOption = option
-                                expandedMain = false
-                                selectedHour = "Select Hour"
-                                startDate = null
-                                endDate = null
-                            }
-                        )
+                    TextField(
+                        value = selectedOption,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Set Date") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMain)
+
+                        },
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = Color.White,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .width(150.dp)
+                            .height(55.dp)
+                            .border(0.1.dp, color = Color.LightGray, RoundedCornerShape(8.dp))
+
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedMain,
+                        onDismissRequest = { expandedMain = false }
+                    ) {
+                        options.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+                                    selectedOption = option
+                                    expandedMain = false
+                                    selectedHour = "Select Hour"
+                                    startDate = null
+                                    endDate = null
+                                }
+                            )
+                        }
                     }
                 }
-            }
-
-            // Hour Dropdown
-//            if (selectedOption == "Today" || (selectedOption == "Set Range" && startDate == endDate && startDate != null)) {
-//                ExposedDropdownMenuBox(
-//                    expanded = expandedHour,
-//                    onExpandedChange = { expandedHour = !expandedHour }
-//                ) {
-//                    TextField(
-//                        value = selectedHour,
-//                        onValueChange = {},
-//                        readOnly = true,
-//                        label = { Text("Select Hour") },
-//                        trailingIcon = {
-//                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHour)
-//                        },
-//                        colors = TextFieldDefaults.textFieldColors(
-//                            containerColor = Color.White,
-//                            unfocusedIndicatorColor  = Color.Transparent,
-//                            focusedIndicatorColor = Color.Transparent,
-//                            disabledIndicatorColor = Color.Transparent
-//                        ),
-//                        modifier = Modifier
-//                            .menuAnchor()
-//                            .width(170.dp)
-//                            .height(55.dp)
-//                            .border(0.1.dp,color=Color.LightGray, RoundedCornerShape(8.dp))
-//                    )
-//                    ExposedDropdownMenu(
-//                        expanded = expandedHour,
-//                        onDismissRequest = { expandedHour = false }
-//                    ) {
-//                        hourOptions.forEach { hour ->
-//                            DropdownMenuItem(
-//                                text = { Text(hour) },
-//                                onClick = {
-//                                    selectedHour = hour
-//                                    expandedHour = false
-//                                }
-//                            )
-//                        }
-//                    }
-//                }
-//            }
 
 
-            if (selectedOption == "Set Range") {
-                DatePickerButton("Start Date",startDate){selected->
-                    startDate=selected
 
-                }
-                DatePickerButton("End Date",endDate){selected->
-                    endDate=selected
+
+                if (selectedOption == "Set Range") {
+                    DatePickerButton("Start Date", startDate) { selected ->
+                        startDate = selected
+
+                    }
+                    DatePickerButton("End Date", endDate) { selected ->
+                        endDate = selected
+
+                    }
+
 
                 }
 
+                if (selectedOption == "Weekly") {
+                    Text("weekly")
+                }
 
-            }
+                Button(
+                    onClick = { appliedOption = selectedOption },
+                    enabled = selectedOption != "Set Range" || (startDate != null && endDate != null),
+                    modifier = Modifier.height(40.dp)
+                ) {
+                    Text("Apply")
 
-            if(selectedOption == "Weekly"){
-               Text("weekly")
+
+                }
+
             }
         }
 
@@ -278,7 +256,7 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
 
 
 
-        val graphToShowData =when (selectedOption) {
+        val graphToShowData =when (appliedOption) {
             "Today" -> {
 
                     todayCombineGraph.map {
