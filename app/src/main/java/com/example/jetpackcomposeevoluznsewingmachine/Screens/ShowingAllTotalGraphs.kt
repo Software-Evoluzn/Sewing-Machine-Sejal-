@@ -23,7 +23,8 @@ fun IdleTimeAnalysisGraph(navController: NavController,
                           snackBarHostState:SnackbarHostState,
                           threshHold:Double,
                           shouldTriggerAlert:(Double)->Boolean,
-                          alertMessage:String
+                          alertMessage:String,
+                          alertTitle:String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -37,7 +38,8 @@ fun IdleTimeAnalysisGraph(navController: NavController,
         snackBarHostState=snackBarHostState,
         threshHold=threshHold,
         shouldTriggerAlert = shouldTriggerAlert,
-        alertMessage=alertMessage
+        alertMessage=alertMessage,
+        alertTitle = alertTitle
         )
 }
 
@@ -57,7 +59,8 @@ fun OilLevelGraph(navController: NavController,
                   snackBarHostState:SnackbarHostState,
                   threshHold:Double,
                   shouldTriggerAlert:(Double)->Boolean,
-                  alertMessage:String
+                  alertMessage:String,
+                  alertTitle:String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -71,7 +74,8 @@ fun OilLevelGraph(navController: NavController,
         snackBarHostState = snackBarHostState,
         threshHold=threshHold,
         shouldTriggerAlert = shouldTriggerAlert,
-        alertMessage=alertMessage
+        alertMessage=alertMessage,
+        alertTitle=alertTitle
         )
 }
 
@@ -92,7 +96,8 @@ fun RunTimeAnalysisGraph(navController: NavController,
                          snackBarHostState:SnackbarHostState,
                          threshHold:Double,
                          shouldTriggerAlert:(Double)->Boolean,
-                         alertMessage:String
+                         alertMessage:String,
+                         alertTitle: String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -106,7 +111,8 @@ fun RunTimeAnalysisGraph(navController: NavController,
         snackBarHostState=snackBarHostState,
         threshHold=threshHold,
         shouldTriggerAlert = shouldTriggerAlert,
-        alertMessage=alertMessage)
+        alertMessage=alertMessage,
+        alertTitle = alertTitle)
 }
 
 //vibration
@@ -124,7 +130,8 @@ fun VibrationGraph(navController: NavController,
                    snackBarHostState:SnackbarHostState,
                    threshHold:Double,
                    shouldTriggerAlert:(Double)->Boolean,
-                   alertMessage:String
+                   alertMessage:String,
+                   alertTitle: String
 ) {
     TemperatureGraph(navController,
         modifier,
@@ -138,6 +145,6 @@ fun VibrationGraph(navController: NavController,
         snackBarHostState = snackBarHostState,
         threshHold=threshHold,
         shouldTriggerAlert = shouldTriggerAlert,
-        alertMessage=alertMessage
-        )
+        alertMessage=alertMessage,
+        alertTitle = alertTitle)
 }

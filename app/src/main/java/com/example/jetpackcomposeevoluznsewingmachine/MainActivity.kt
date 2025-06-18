@@ -201,7 +201,8 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
                 snackBarHostState=snackBarHostState,
                 threshHold = 45.0,
                 shouldTriggerAlert = { it > 45.0 },
-                alertMessage = "🌡️ Temperature is above 45°C"
+                alertMessage = "🌡️ Temperature is above 45°C",
+                alertTitle="Temperature Alert"
             )
         }
         composable("vibrationGraphScreen"){
@@ -219,7 +220,8 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
                 snackBarHostState=snackBarHostState,
                 threshHold = 45.0,
                 shouldTriggerAlert = { it > 45.0 },
-                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s"
+                alertMessage = "⚠\uFE0F Vibration level exceeded 45 mm/s",
+                alertTitle="Vibration Alert"
 
         ) }
         composable("oilLevelGraphScreen"){
@@ -236,7 +238,8 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
                 snackBarHostState=snackBarHostState,
                 threshHold = 30.0,
                 shouldTriggerAlert = { it < 30.0 },
-                alertMessage = "⚠\uFE0F oil  level less than  30 %"
+                alertMessage = "⚠\uFE0F oil  level less than  30 %",
+                alertTitle="Oil Level Alert"
 
 
             )

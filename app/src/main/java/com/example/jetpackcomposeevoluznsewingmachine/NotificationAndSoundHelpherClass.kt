@@ -18,7 +18,7 @@ class NotificationAndSoundHelpherClass {
     private var onLoadCompleteCallback: (() -> Unit)? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun NotificationFunction(context: Context) {
+    fun NotificationFunction(context: Context ,title: String, message: String) {
         val channel_id = "OIL_LEVEL_ALERT"
         val channelName = "Oil Level Alerts"
 
@@ -30,15 +30,15 @@ class NotificationAndSoundHelpherClass {
             channelName,
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Notifies when oil level drops below threshold"
+            description = "Notifies when critical values are reached"
         }
         notificationManager.createNotificationChannel(channel)
 
 
         val builder = Notification.Builder(context, channel_id)
             .setSmallIcon(R.drawable.ic_alert)
-            .setContentTitle("Critical Oil Alert")
-            .setContentText("Oil Level is below 30!")
+            .setContentTitle(title)
+            .setContentText(message)
             .setPriority(Notification.PRIORITY_HIGH)
             .setAutoCancel(true)
 

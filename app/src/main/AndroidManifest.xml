@@ -32,7 +32,7 @@
             android:name=".MainActivity" android:directBootAware="true"
             android:exported="true"
             android:label="@string/app_name"
-
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.JetpackComposeEvoluznSewingMachine">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -16,7 +16,7 @@ class MaintenaneAlarmReceiver:BroadcastReceiver() {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (context != null) {
-                helper.NotificationFunction(context)
+//                helper.NotificationFunction(context)
             }
         }
 
