@@ -101,7 +101,7 @@ interface MachineDataDao {
     ORDER BY hours.hour ASC
 """
     )
-    fun getHourlyDataToday(): LiveData<List<HourlyData>>
+    fun getHourlyDataToday(): Flow<List<HourlyData>>
 
 
 //    //showing weekly data starts

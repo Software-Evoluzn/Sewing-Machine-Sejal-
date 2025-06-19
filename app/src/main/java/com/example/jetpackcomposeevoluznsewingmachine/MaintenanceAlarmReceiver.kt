@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 
-class MaintenaneAlarmReceiver:BroadcastReceiver() {
+class MaintenanceAlarmReceiver:BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val helper=NotificationAndSoundHelpherClass()
 

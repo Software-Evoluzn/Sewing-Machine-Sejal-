@@ -1,6 +1,5 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
-import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -25,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -153,11 +153,11 @@ fun AppNavigation(snackBarHostState:SnackbarHostState){
 
 
     val viewModel: MachineViewModel = viewModel()
-    val todayTemps by viewModel.todayTemperatureList.observeAsState(emptyList())
-    val todayVibration by viewModel.todayVibrationList.observeAsState(emptyList())
-    val todayOilLevelList by viewModel.todayOilLevelList.observeAsState(emptyList())
-    val todayRuntimeList by viewModel.todayRuntimeList.observeAsState(emptyList())
-    val todayIdleTimeList by viewModel.todayIdleTimeList.observeAsState(emptyList())
+    val todayTemps by viewModel.todayTemperatureList.collectAsState(emptyList())
+    val todayVibration by viewModel.todayVibrationList.collectAsState(emptyList())
+    val todayOilLevelList by viewModel.todayOilLevelList.collectAsState(emptyList())
+    val todayRuntimeList by viewModel.todayRuntimeList.collectAsState(emptyList())
+    val todayIdleTimeList by viewModel.todayIdleTimeList.collectAsState(emptyList())
 
     val weeklyTemps by viewModel.weeklyTemperatureList.observeAsState(emptyList())
     val weeklyVibrationList by viewModel.weeklyVibrationList.observeAsState(emptyList())

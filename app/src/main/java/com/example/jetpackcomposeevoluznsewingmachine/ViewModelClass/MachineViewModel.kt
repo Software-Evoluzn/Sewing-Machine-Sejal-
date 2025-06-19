@@ -18,6 +18,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 
@@ -98,10 +99,10 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
     //hourly data
     // hourly data
-    private val todayHourlyData: LiveData<List<HourlyData>> = dao.getHourlyDataToday()
+    private val todayHourlyData: Flow<List<HourlyData>> = dao.getHourlyDataToday()
 
     // temperature list
-    val todayTemperatureList: LiveData<List<Double>> = todayHourlyData.map { list ->
+    val todayTemperatureList: Flow<List<Double>> = todayHourlyData.map { list ->
         val hourToTemp = list.associateBy { it.hour.toIntOrNull() ?: -1 }
 //        Log.d("TodayTempList", "Hourly Temps: $list")
         List(24) { hour ->
@@ -110,7 +111,7 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     }
 
     // vibration list
-    val todayVibrationList: LiveData<List<Double>> = todayHourlyData.map { list ->
+    val todayVibrationList: Flow<List<Double>> = todayHourlyData.map { list ->
       val hourToVib = list.associateBy {  it.hour.toIntOrNull() ?: -1 }
         List(24){ hour ->
             hourToVib[hour]?.avg_vibration ?: 0.0
@@ -120,7 +121,7 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     }
 
     // oil level list
-    val todayOilLevelList: LiveData<List<Double>> = todayHourlyData.map { list ->
+    val todayOilLevelList: Flow<List<Double>> = todayHourlyData.map { list ->
        val hourToOilLevel=list.associateBy { it.hour.toIntOrNull() ?: -1 }
         List(24){ hour ->
             hourToOilLevel[hour]?.avg_oilLevel?.toDouble() ?: 0.0
@@ -129,7 +130,7 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     }
 
     // Convert runtime from seconds to hours
-    val todayRuntimeList: LiveData<List<Double>> = todayHourlyData.map { list ->
+    val todayRuntimeList: Flow<List<Double>> = todayHourlyData.map { list ->
         val hourToRunTime = list.associateBy { it.hour.toIntOrNull() ?: -1 }
         List(24){ hour ->
             (hourToRunTime[hour]?.total_runtime?.toDouble() ?: 0.0)/3600
@@ -138,7 +139,7 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     }
 
     // Convert idle time from seconds to hours
-    val todayIdleTimeList: LiveData<List<Double>> = todayHourlyData.map { list ->
+    val todayIdleTimeList: Flow<List<Double>> = todayHourlyData.map { list ->
        val hourToIdleTime = list.associateBy { it.hour.toIntOrNull() ?: -1 }
         List(24){ hour ->
             (hourToIdleTime[hour]?.total_idle_time?.toDouble() ?:0.0)/3600

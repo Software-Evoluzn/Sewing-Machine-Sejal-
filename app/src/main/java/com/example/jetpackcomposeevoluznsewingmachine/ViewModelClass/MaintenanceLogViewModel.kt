@@ -10,7 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.jetpackcomposeevoluznsewingmachine.DatabaseClass
-import com.example.jetpackcomposeevoluznsewingmachine.MaintenaneAlarmReceiver
+import com.example.jetpackcomposeevoluznsewingmachine.MaintenanceAlarmReceiver
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MaintenanceLog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -75,7 +75,7 @@ class MaintenanceLogViewModel(application: Application):AndroidViewModel(applica
     @SuppressLint("ScheduleExactAlarm")
     private fun triggerPreNotification() {
        val context=getApplication<Application>().applicationContext
-        val alarmIntent= Intent(context,MaintenaneAlarmReceiver::class.java).let{intent->
+        val alarmIntent= Intent(context,MaintenanceAlarmReceiver::class.java).let{ intent->
             PendingIntent.getBroadcast(context,0,intent,PendingIntent.FLAG_IMMUTABLE)
         }
         val alarmManager=context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
