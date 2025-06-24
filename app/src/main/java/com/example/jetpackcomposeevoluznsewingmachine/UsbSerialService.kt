@@ -12,15 +12,11 @@ import android.hardware.usb.UsbManager
 import android.os.IBinder
 import android.util.Log
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
-import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MissingDataLog
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date

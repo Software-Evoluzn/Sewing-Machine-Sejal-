@@ -233,6 +233,10 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
 
 
                 }
+                if(selectedOption == "Today"){
+                     var todayDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                    Text(todayDate)
+                }
 
                 if (selectedOption == "Weekly") {
                     Text("weekly")

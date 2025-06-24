@@ -32,8 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -54,7 +52,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.Screens.TemperatureGraph
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.VibrationGraph
 import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MachineViewModel
 import com.example.jetpackcomposeevoluznsewingmachine.ui.theme.JetpackComposeEvoluznSewingMachineTheme
-import kotlinx.coroutines.withContext
+
 
 
 class MainActivity : ComponentActivity() {
@@ -92,7 +90,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
-            var snackBar= remember {SnackbarHostState()}
+            val snackBar= remember {SnackbarHostState()}
             JetpackComposeEvoluznSewingMachineTheme {
                 Surface(
                     modifier=Modifier.fillMaxSize()

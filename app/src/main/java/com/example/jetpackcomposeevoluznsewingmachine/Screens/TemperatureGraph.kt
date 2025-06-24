@@ -673,7 +673,7 @@ fun ShowLineChart(
 
             chart.setExtraOffsets(
                 if (isLandscape) 10f else 16f,
-                if (isLandscape) 30f else 40f,
+                if (isLandscape) 30f else 60f,
                 if (isLandscape) 10f else 16f,
                 if (isLandscape) 10f else 16f
             )
