@@ -4,6 +4,10 @@ import android.app.DatePickerDialog
 import android.icu.util.Calendar
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +77,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -123,6 +129,7 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
 
     val setWeeklyCombineGraph by viewModel.getWeeklyCombinedGraph().collectAsState(emptyList())
 
+    var isLoading by remember { mutableStateOf(true) }
 
 
 
@@ -327,13 +334,26 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Card(
-                modifier = Modifier
-                    .fillMaxHeight(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(8.dp)
-            ) {
-                    if(graphToShowData.isEmpty()){
+                    modifier = Modifier
+                        .fillMaxHeight(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(8.dp)
+                ) {
+                    // Simple loading detection
+                     isLoading = graphToShowData.isEmpty() && (
+                            appliedOption == "Today" ||
+                                    appliedOption == "Weekly" ||
+                                    (appliedOption == "Set Range" && startDate != null && endDate != null)
+                            )
+
+                    if (isLoading) {
+                        ShimmerEffect(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        )
+                    } else if (graphToShowData.isEmpty()) {
                         Text(
                             text = "No data available for selected range/hour.",
                             modifier = Modifier
@@ -343,22 +363,24 @@ fun ShowingCombineGraphs(navController: NavController, onBack: () -> Unit, Graph
                             fontSize = 16.sp,
                             color = Color.Gray
                         )
-
-                    }else{
-
-                        ShowingGraphDemo(
-                            navController = navController,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(35.dp),
-                            data = graphToShowData as List<GraphDataModel>
-
-                        )
-
+                    } else {
+                        AnimatedVisibility(
+                            visible = graphToShowData.isNotEmpty(),
+                            enter = fadeIn(tween(800)),
+                            exit = fadeOut(tween(400))
+                        ) {
+                            ShowingGraphDemo(
+                                navController = navController,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(35.dp),
+                                data = graphToShowData
+                            )
+                        }
                     }
-
-                     }
                 }
+
+            }
             }
 
          }
