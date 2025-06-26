@@ -273,7 +273,7 @@ fun PortraitLayout(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(0.5f)
         ) {
             // Dashboard Grid
             Box(
@@ -313,7 +313,7 @@ fun FooterSection(dmRegular: FontFamily, isPortrait: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 0.5.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
