@@ -66,6 +66,7 @@ fun MaintenanceScreen(navController: NavController) {
     val isPortrait = configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
 
     val latestTemp by viewModel.latestTempValue.observeAsState()
+    val sanitizedTemp = latestTemp?.takeIf { it >= 0 } ?: 0
     val latestVib by viewModel.latestVibValue.observeAsState()
     val latestOilLevel by viewModel.latestOilLevelValue.observeAsState()
 
@@ -73,7 +74,7 @@ fun MaintenanceScreen(navController: NavController) {
     val productionCardListItem = listOf(
         ProductionCartItemList(
             title = "TEMPERATURE",
-            value = "${latestTemp ?: 0}",
+            value = String.format("%.1f", sanitizedTemp.toFloat()),
             unit = "°C",
             icon = painterResource(R.drawable.temp),
             arrowIcon = painterResource(R.drawable.btn_image),

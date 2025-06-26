@@ -10,10 +10,12 @@ import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.BreakDownReasonDa
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MachineDataDao
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MaintenanceLogDao
 import com.example.jetpackcomposeevoluznsewingmachine.DaoClass.MissingDataLogDao
+import com.example.jetpackcomposeevoluznsewingmachine.DatabaseBackupHelper.restoreCsvFromDownloads
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.BreakDownReasonTable
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MachineData
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MaintenanceLog
 import com.example.jetpackcomposeevoluznsewingmachine.TableClass.MissingDataLog
+import java.io.File
 
 
 @Database(entities = [MachineData::class,
@@ -99,6 +101,11 @@ abstract class DatabaseClass : RoomDatabase() {
             return INSTANCE ?: synchronized(this) {
 
                 DatabaseBackupHelper.restoreDatabaseIfExists(context)
+                // New step: restore from CSV backup (if Room db doesn't exist)
+                val dbFile = File(context.getDatabasePath("machine_database").absolutePath)
+                if (!dbFile.exists()) {
+                    restoreCsvFromDownloads(context)
+                }
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     DatabaseClass::class.java,

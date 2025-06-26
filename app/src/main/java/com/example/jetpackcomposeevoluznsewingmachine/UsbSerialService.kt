@@ -138,15 +138,15 @@ class UsbSerialService : Service() {
                                 .edit().putLong("last_data_time", now).apply()
 
 
-                            val parts = completeMessage.split(":")
+                            val parts = completeMessage.split(",")
                             if (parts.size == 7) {
                                 val runtime = parts[0].toIntOrNull() ?: 0
-                                val temp = parts[1].toDoubleOrNull() ?: 0.0
-                                val vibration = parts[2].toDoubleOrNull() ?: 0.0
-                                val oilLevel = parts[3].toIntOrNull() ?: 0
-                                val pushBackCount = parts[4].toIntOrNull() ?: 0
-                                val stichCount = parts[5].toIntOrNull() ?: 0
-                                val bobbinThread = parts[6].toIntOrNull() ?: 0
+                                val temp = parts[2].toDoubleOrNull() ?: 0.0
+                                val vibration = parts[3].toDoubleOrNull() ?: 0.0
+                                val oilLevel = parts[4].toIntOrNull() ?: 0
+                                val pushBackCount = parts[1].toIntOrNull() ?: 0
+                                val stichCount = parts[6].toIntOrNull() ?: 0
+                                val bobbinThread = parts[5].toIntOrNull() ?: 0
                                 val idleTime = if (runtime == 1) 0 else 1
 
                                 val currentTime = SimpleDateFormat(

@@ -36,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.jetpackcomposeevoluznsewingmachine.DatabaseBackupHelper.exportCsvToDownloads
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.BreakDownScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DashBoardLiveScreen
 import com.example.jetpackcomposeevoluznsewingmachine.Screens.DifferentKeyboardTypes
@@ -134,6 +135,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         DatabaseBackupHelper.backupDatabase(this)  // ⬅️ Backup happens here
+//        exportCsvToDownloads(this)
     }
 
     override fun onDestroy() {

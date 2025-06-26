@@ -60,6 +60,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -393,6 +394,10 @@ fun DashBoardScreen(
                 )
             },
             painterResource(R.drawable.stitch_count_icon)),
+        CardItemList("PRODUCTION TIME",
+            onCardClick = {},
+            painterResource(R.drawable.production_icon)) // Use existing production icon or create new one
+
     )
 
     LazyVerticalGrid(
@@ -405,12 +410,20 @@ fun DashBoardScreen(
         horizontalArrangement = Arrangement.spacedBy(if (isPortrait) 6.dp else 8.dp)
     ) {
         items(cardItemList) { card ->
-            ShowingCard(
-                title = card.title,
-                onCardClick = card.onCardClick,
-                icon = card.icon,
-                isPortrait = isPortrait
-            )
+            if (card.title == "PRODUCTION TIME") {
+                // Special card with dynamic data display
+                ProductionTimeCard(
+                    isPortrait = isPortrait
+                )
+            } else {
+                ShowingCard(
+                    title = card.title,
+                    onCardClick = card.onCardClick,
+                    icon = card.icon,
+                    isPortrait = isPortrait
+                )
+            }
+
         }
     }
 }
@@ -482,6 +495,102 @@ fun ShowingCard(
         }
     }
 }
+
+@Composable
+fun ProductionTimeCard(
+    modifier: Modifier = Modifier,
+    isPortrait: Boolean = false
+) {
+    val viewModel:MachineViewModel= viewModel()
+    val latestRunTimeData by viewModel.latestRunTime.observeAsState(0f)
+    val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+
+    // Observe runtime data from ViewModel
+
+
+    val formattedTime = formatProductionTime(latestRunTimeData)
+
+    var startAnimation by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0.8f,
+        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        label = "scaleAnimation"
+    )
+
+    LaunchedEffect(Unit) {
+        startAnimation = true
+    }
+
+    Card(
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .padding(if (isPortrait) 4.dp else 8.dp)
+            .defaultMinSize(minWidth = if (isPortrait) 80.dp else 100.dp)
+            .height(if (isPortrait) 100.dp else 120.dp)
+            .border(
+                width = 0.5.dp,
+                color = Color(0xFFD0D0D3),
+                shape = RoundedCornerShape(12.dp)
+            ),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(if (isPortrait) 8.dp else 12.dp)
+        ) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Icon
+
+
+                Spacer(modifier = Modifier.height(if (isPortrait) 2.dp else 4.dp))
+
+                // Title
+                Text(
+                    text = "PRODUCTION TIME",
+                    fontSize = if (isPortrait) 14.sp else 16.sp,
+                    fontFamily = dmRegular,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFF666666),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(if (isPortrait) 2.dp else 4.dp))
+
+                // Dynamic Data Display
+                Text(
+                    text = "$formattedTime min ",
+                    fontSize = if (isPortrait) 18.sp else 20.sp,
+                    fontFamily = dmRegular,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFF2196F3), // Blue color for production time
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+//helper function
+fun formatProductionTime(timeInMinutes: Float): String {
+    val hours = timeInMinutes * 60
+    return String.format("%.2f ", hours)
+}
+
+
 
 @Composable
 fun OilLevelIndicator(isPortrait: Boolean = false) {
@@ -721,7 +830,7 @@ fun BlurCardDialog(
 fun backUpDataAndExport(context: Context, uri: Uri) {
     try {
         DatabaseBackupHelper.backupDatabase(context)
-        val backUpFile = File(context.getExternalFilesDir(null), "backup_machine_database.db")
+        val backUpFile = File(context.getExternalFilesDir(null), "machine_database_backup.csv")
         if (!backUpFile.exists()) {
             println("backupFile does not exists")
             return
@@ -763,9 +872,10 @@ fun getMachineDataAsCsv(context: Context): String {
     val db = DatabaseClass.getDatabase(context)
     val allData = db.machineDataDao().getMachineDataConvertToCSVFile()
 
-    val CsvHeader = "Id,DateTime,RunTime,IdleTime,Temperature,Vibration,OilLevel,pushBackCount,StitchCount,BobbinThread"
+    val CsvHeader = "Id,DateTime,ProductionTime,IdleTime,Temperature,Vibration,OilLevel,pushBackCount,StitchCount,BobbinThread"
     val CsvRows = allData.joinToString(separator = "\n") { data ->
         "${data.id},=\"${data.dateTime}\",${data.runtime},${data.idleTime},${data.temperature},${data.vibration},${data.oilLevel},${data.pushBackCount},${data.stitchCount},${data.bobbinThread}"
     }
     return "$CsvHeader\n$CsvRows"
 }
+
