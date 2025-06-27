@@ -33,7 +33,6 @@ import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MachineView
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.PreventiveAndProductionDataClass
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.ProductionCartItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
-import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
 import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 
 

@@ -51,7 +51,7 @@ fun ProductionEfficiencyScreen(navController: NavController) {
             value ="$completedPieces",
             unit ="" ,
             icon = painterResource(R.drawable.completed_pieces),
-            arrowIcon = painterResource(R.drawable.btn_image),
+            arrowIcon =null,
             onClick = {},
             valueColor = Color(0xFF0BA911)
         ),
@@ -60,7 +60,7 @@ fun ProductionEfficiencyScreen(navController: NavController) {
             value ="$targetPieces",
             unit ="" ,
             icon = painterResource(R.drawable.target_pieces),
-            arrowIcon = painterResource(R.drawable.btn_image),
+            arrowIcon = null,
             onClick = {},
             valueColor = Color(0xFFFC5353)
         ),
@@ -69,7 +69,7 @@ fun ProductionEfficiencyScreen(navController: NavController) {
             value ="$balancePieces",
             unit ="" ,
             icon = painterResource(R.drawable.balance_pieces),
-            arrowIcon = painterResource(R.drawable.btn_image),
+            arrowIcon = null,
             onClick = {},
             valueColor = Color(0xFF2196F3)
         ))

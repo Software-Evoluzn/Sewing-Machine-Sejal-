@@ -53,8 +53,6 @@ import com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass.MachineView
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.PreventiveAndProductionDataClass
 import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.ProductionCartItemList
 import com.example.jetpackcomposeevoluznsewingmachine.R
-import com.example.jetpackcomposeevoluznsewingmachine.WindowInfo
-import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 
 
 @Composable
@@ -221,7 +219,7 @@ fun ParameterBox(
     value: String,
     unit: String,
     icon: Painter,
-    arrowIcon: Painter,
+    arrowIcon: Painter?,
     onClick: () -> Unit,
     valueColor: Color,
     isPortrait: Boolean = true,
@@ -264,14 +262,16 @@ fun ParameterBox(
                 .padding(if (isPortrait) 16.dp else 25.dp)
         ) {
             // Arrow at top-right
-            Image(
-                painter = arrowIcon,
-                contentDescription = "Forward",
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(if (isPortrait) 28.dp else 37.dp)
-                    .clickable { onClick() }
-            )
+            if (arrowIcon != null) {
+                Image(
+                    painter = arrowIcon,
+                    contentDescription = "Forward",
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(if (isPortrait) 28.dp else 37.dp)
+                        .clickable { onClick() }
+                )
+            }
 
             // Icon and Title at top-left
             Row(

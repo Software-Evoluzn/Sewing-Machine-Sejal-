@@ -376,7 +376,7 @@ fun DashBoardScreen(
                     BlurCardData(
                         title = "BOBBIN THREAD",
                         value = viewModel.latestBobbinThread,
-                        unit = "count",
+                        unit = "cm",
                         valueColor = Color(0xFFF44336)
                     )
                 )
@@ -570,7 +570,7 @@ fun ProductionTimeCard(
 
                 // Dynamic Data Display
                 Text(
-                    text = "$formattedTime min ",
+                    text = "$formattedTime  ",
                     fontSize = if (isPortrait) 18.sp else 20.sp,
                     fontFamily = dmRegular,
                     fontWeight = FontWeight.SemiBold,
@@ -585,10 +585,18 @@ fun ProductionTimeCard(
 }
 
 //helper function
-fun formatProductionTime(timeInMinutes: Float): String {
-    val hours = timeInMinutes * 60
-    return String.format("%.2f ", hours)
+fun formatProductionTime(timeInHours: Float): String {
+    val totalMinutes = (timeInHours * 60).toInt()
+    val hours = totalMinutes / 60
+    val minutes = totalMinutes % 60
+
+    return if (hours > 0) {
+        "${hours}h ${minutes} min"
+    } else {
+        "${minutes} min"
+    }
 }
+
 
 
 

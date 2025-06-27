@@ -8,7 +8,7 @@ data class ProductionCartItemList(
     val value:String,
     val unit:String,
     val icon: Painter,
-    val arrowIcon: Painter,
+    val arrowIcon: Painter?,
     val onClick:() -> Unit,
     val valueColor: Color,
 
