@@ -16,7 +16,8 @@ data class MachineData(
     val oilLevel: Int,
     val pushBackCount:Int,
     val stitchCount:Int,
-    val bobbinThread:Int
+    val bobbinThread:Int,
+    val rpmCount: Int
 )
 
 

@@ -140,13 +140,14 @@ class UsbSerialService : Service() {
 
                             val parts = completeMessage.split(",")
                             if (parts.size == 7) {
-                                val runtime = parts[0].toIntOrNull() ?: 0
-                                val temp = parts[2].toDoubleOrNull() ?: 0.0
-                                val vibration = parts[3].toDoubleOrNull() ?: 0.0
-                                val oilLevel = parts[4].toIntOrNull() ?: 0
-                                val pushBackCount = parts[1].toIntOrNull() ?: 0
-                                val stichCount = parts[6].toIntOrNull() ?: 0
-                                val bobbinThread = parts[5].toIntOrNull() ?: 0
+                                val runtime =  0
+                                val pushBackCount = parts[0].toIntOrNull() ?: 0
+                                val temp = parts[1].toDoubleOrNull() ?: 0.0
+                                val vibration = parts[2].toDoubleOrNull() ?: 0.0
+                                val oilLevel = parts[3].toIntOrNull() ?: 0
+                                val bobbinThread = parts[4].toIntOrNull() ?: 0
+                                val stichCount = parts[5].toIntOrNull() ?: 0
+                                val rpmCount=parts[6].toIntOrNull()?:0
                                 val idleTime = if (runtime == 1) 0 else 1
 
                                 val currentTime = SimpleDateFormat(
@@ -165,7 +166,9 @@ class UsbSerialService : Service() {
                                     oilLevel = oilLevel,
                                     pushBackCount = pushBackCount,
                                     stitchCount = stichCount,
-                                    bobbinThread = bobbinThread
+                                    bobbinThread = bobbinThread,
+                                    rpmCount = rpmCount
+
 
                                 )
 

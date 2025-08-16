@@ -107,6 +107,18 @@ dependencies {
 
     implementation ("androidx.compose.compiler:compiler:1.4.3")
 
+//    implementation ("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+
+    //mqtt  dependency
+//    implementation ("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4")
+//    implementation("com.hivemq:hivemq-mqtt-client-android:1.3.0")
+    // Eclipse Paho MQTT (Android compatible)
+    implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
+    implementation ("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+
+
+
 
 
 

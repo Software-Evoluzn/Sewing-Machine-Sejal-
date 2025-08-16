@@ -1,11 +1,14 @@
 package com.example.jetpackcomposeevoluznsewingmachine
 
+import MqttHandler
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -60,6 +63,7 @@ class MainActivity : ComponentActivity() {
     lateinit var notificationAndSoundClass:NotificationAndSoundHelpherClass
     lateinit var context:Context
     private var showUsbDetachedDialog by mutableStateOf(false)
+    lateinit var mqttHandler:MqttHandler
 
     private val usbDetachedReceiver=object: BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -69,6 +73,9 @@ class MainActivity : ComponentActivity() {
         }
 
     }
+
+
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +93,9 @@ class MainActivity : ComponentActivity() {
 
         val watchDogIntent=Intent(context,WatchDogService::class.java)
         context.startService(watchDogIntent)
+
+//        mqttHandler = MqttHandler(this)
+//        mqttHandler.connectAndSubscribe()
 
 
         enableEdgeToEdge()
@@ -141,6 +151,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         notificationAndSoundClass.releaseSoundPool()
+        mqttHandler.disconnect()
     }
 }
 

@@ -396,7 +396,10 @@ fun DashBoardScreen(
             painterResource(R.drawable.stitch_count_icon)),
         CardItemList("PRODUCTION TIME",
             onCardClick = {},
-            painterResource(R.drawable.production_icon)) // Use existing production icon or create new one
+            painterResource(R.drawable.production_icon)) ,// Use existing production icon or create new one
+        CardItemList("RPM COUNT",
+            onCardClick = {},
+            painterResource(R.drawable.production_icon))
 
     )
 
@@ -410,21 +413,28 @@ fun DashBoardScreen(
         horizontalArrangement = Arrangement.spacedBy(if (isPortrait) 6.dp else 8.dp)
     ) {
         items(cardItemList) { card ->
-            if (card.title == "PRODUCTION TIME") {
-                // Special card with dynamic data display
-                ProductionTimeCard(
-                    isPortrait = isPortrait
-                )
-            } else {
-                ShowingCard(
-                    title = card.title,
-                    onCardClick = card.onCardClick,
-                    icon = card.icon,
-                    isPortrait = isPortrait
-                )
+            when (card.title) {
+                "PRODUCTION TIME" -> {
+                    ProductionTimeCard(
+                        isPortrait = isPortrait
+                    )
+                }
+                "RPM COUNT" -> {
+                    RpmCountCard(
+                        isPortrait = isPortrait
+                    )
+                }
+                else -> {
+                    ShowingCard(
+                        title = card.title,
+                        onCardClick = card.onCardClick,
+                        icon = card.icon,
+                        isPortrait = isPortrait
+                    )
+                }
             }
-
         }
+
     }
 }
 
@@ -499,7 +509,8 @@ fun ShowingCard(
 @Composable
 fun ProductionTimeCard(
     modifier: Modifier = Modifier,
-    isPortrait: Boolean = false
+    isPortrait: Boolean = false,
+
 ) {
     val viewModel:MachineViewModel= viewModel()
     val latestRunTimeData by viewModel.latestRunTime.observeAsState(0f)
@@ -584,18 +595,109 @@ fun ProductionTimeCard(
     }
 }
 
+@Composable
+fun RpmCountCard(
+    modifier: Modifier = Modifier,
+    isPortrait: Boolean = false,
+
+    ) {
+    val viewModel:MachineViewModel= viewModel()
+    val latestRpmCount by viewModel.latestRpmCount.observeAsState(0f)
+    val dmRegular = FontFamily(Font(R.font.dmsans_regular))
+
+    // Observe runtime data from ViewModel
+
+
+//    val formattedTime = formatProductionTime(latestRunTimeData)
+
+    var startAnimation by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0.8f,
+        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        label = "scaleAnimation"
+    )
+
+    LaunchedEffect(Unit) {
+        startAnimation = true
+    }
+
+    Card(
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .padding(if (isPortrait) 4.dp else 8.dp)
+            .defaultMinSize(minWidth = if (isPortrait) 80.dp else 100.dp)
+            .height(if (isPortrait) 100.dp else 120.dp)
+            .border(
+                width = 0.5.dp,
+                color = Color(0xFFD0D0D3),
+                shape = RoundedCornerShape(12.dp)
+            ),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(if (isPortrait) 8.dp else 12.dp)
+        ) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Icon
+
+
+                Spacer(modifier = Modifier.height(if (isPortrait) 2.dp else 4.dp))
+
+                // Title
+                Text(
+                    text = "RPM COUNT",
+                    fontSize = if (isPortrait) 14.sp else 16.sp,
+                    fontFamily = dmRegular,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFF666666),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(if (isPortrait) 2.dp else 4.dp))
+
+                // Dynamic Data Display
+                Text(
+                    text = "$latestRpmCount count  ",
+                    fontSize = if (isPortrait) 18.sp else 20.sp,
+                    fontFamily = dmRegular,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFF2196F3), // Blue color for production time
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+
 //helper function
-fun formatProductionTime(timeInHours: Float): String {
-    val totalMinutes = (timeInHours * 60).toInt()
+fun formatProductionTime(timeInMinutes: Float): String {
+    val totalMinutes = timeInMinutes.toInt()
     val hours = totalMinutes / 60
     val minutes = totalMinutes % 60
 
     return if (hours > 0) {
-        "${hours}h ${minutes} min"
+        "${hours}h ${minutes}min"
     } else {
-        "${minutes} min"
+        "${minutes}min"
     }
 }
+
 
 
 
@@ -604,7 +706,8 @@ fun formatProductionTime(timeInHours: Float): String {
 fun OilLevelIndicator(isPortrait: Boolean = false) {
     val viewModel: MachineViewModel = viewModel()
     val oilLevelValue by viewModel.latestOilLevelValue.observeAsState()
-    val oilLevel = ((oilLevelValue ?: 0).coerceIn(0, 100)) / 100f
+    val oilLevel = ((oilLevelValue ?: 0.0).coerceIn(0.0, 100.0)) / 100.0
+
 
     if (isPortrait) {
         // Horizontal Oil Level for Portrait
@@ -630,7 +733,7 @@ fun OilLevelIndicator(isPortrait: Boolean = false) {
             // Oil fill
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(oilLevel)
+                    .fillMaxWidth(oilLevel.toFloat())
                     .height(tubeHeight)
                     .align(Alignment.CenterStart)
                     .background(
@@ -649,7 +752,7 @@ fun OilLevelIndicator(isPortrait: Boolean = false) {
                 val widthPx = constraints.maxWidth.toFloat()
                 val circlePx = with(density) { circleSize.toPx() }
                 val circleOffset = widthPx * oilLevel - (circlePx / 2)
-                val offsetDp = with(density) { circleOffset.toDp() }
+                val offsetDp = with(density) { circleOffset.toFloat().toDp() }
 
                 Box(
                     modifier = Modifier
@@ -692,7 +795,7 @@ fun OilLevelIndicator(isPortrait: Boolean = false) {
             Box(
                 modifier = Modifier
                     .width(tubeWidth)
-                    .fillMaxHeight(oilLevel)
+                    .fillMaxHeight(oilLevel.toFloat())
                     .align(Alignment.BottomCenter)
                     .background(
                         brush = Brush.verticalGradient(
@@ -709,7 +812,7 @@ fun OilLevelIndicator(isPortrait: Boolean = false) {
                 val heightPx = constraints.maxHeight.toFloat()
                 val circlePx = with(density) { circleSize.toPx() }
                 val circleOffset = heightPx * (1f - oilLevel) - (circlePx / 2)
-                val offsetDp = with(density) { circleOffset.toDp() }
+                val offsetDp = with(density) { circleOffset.toFloat().toDp() }
 
                 Box(
                     modifier = Modifier

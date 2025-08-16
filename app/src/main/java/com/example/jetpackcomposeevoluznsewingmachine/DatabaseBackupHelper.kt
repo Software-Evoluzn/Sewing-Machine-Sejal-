@@ -88,7 +88,8 @@ object DatabaseBackupHelper {
                                             oilLevel = it1,
                                             pushBackCount = columns[7].toIntOrNull() ?: 0,
                                             stitchCount = columns[8].toIntOrNull() ?: 0,
-                                            bobbinThread = it2
+                                            bobbinThread = it2,
+                                            rpmCount = it2
                                         )
                                     }
                                 }

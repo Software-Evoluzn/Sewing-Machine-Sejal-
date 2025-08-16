@@ -30,9 +30,9 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
      //showing individual day combined graph
      var getCombineGraphOfTodayData: Flow<List<CombineGraphHourDataShowing>> = dao.getCalculateTotalNumberOfCycleToday()
 
-     fun getIndividualHourCombineGraphData(selectedHour:String):Flow<List<OneHourCombineGraphData>>{
-         return dao.getIndividualHourData(selectedHour)
-     }
+//     fun getIndividualHourCombineGraphData(selectedHour:String):Flow<List<OneHourCombineGraphData>>{
+//         return dao.getIndividualHourData(selectedHour)
+//     }
 
      fun getSetRangeCombineGraphShow(startDate:String,endDate:String):Flow<List<SetRangeCombineGraph>>{
          return dao.getNumberOfCyclerBySelectedDateRange(startDate,endDate)
@@ -42,9 +42,9 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
          return dao.getNumberOfCyclesBySelectedSameDate(startDate)
      }
 
-     fun getSameDateHourDataCombineGraph(selectedDate:String,selectedHour:String):Flow<List<OneHourCombineGraphData>>{
-         return dao.getShowingIndividualCycleShowingInSameDate(selectedDate,selectedHour)
-     }
+//     fun getSameDateHourDataCombineGraph(selectedDate:String,selectedHour:String):Flow<List<OneHourCombineGraphData>>{
+//         return dao.getShowingIndividualCycleShowingInSameDate(selectedDate,selectedHour)
+//     }
 
      fun getWeeklyCombinedGraph():Flow<List<SetRangeCombineGraph>>{
          return dao.getWeeklyDataCombinedGraph()
@@ -56,37 +56,42 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
     // Transforming the runtime and idle time into hours
     val latestRunTime: LiveData<Float> = latestMachineData.map { result ->
-        val runtimeInSeconds = result.totalRuntime ?: 0
-        runtimeInSeconds / 3600f // Convert to hours
+        val runtimeInSeconds = result.activeRunTimeSec ?: 0
+        runtimeInSeconds.toFloat()  // Convert to hours
     }
 
 
 
     val latestIdleTime: LiveData<Float> = latestMachineData.map { result ->
-        val idleTimeInSeconds = result.totalIdleTime ?: 0
-        idleTimeInSeconds / 3600f // Convert to hours
+        val idleTimeInSeconds = 0
+        idleTimeInSeconds.toFloat()  // Convert to hours
     }
 
      val latestStitchCount:LiveData<Int> = latestMachineData.map{ result ->
-         val totalStitchCount =result.totalStitchCount?:0
+         val totalStitchCount =result.total_stitch_count?:0
          totalStitchCount
 
      }
 
      val latestPushBackCount:LiveData<Int> = latestMachineData.map{result ->
-         val totalPushBackCount=result.totalPushBackCount?:0
+         val totalPushBackCount=result.total_pushback_count?:0
          totalPushBackCount
 
      }
 
      val latestBobbinThread:LiveData<Float> = latestMachineData.map{result->
-         val totalBobbinThread=result.totalBobbinThread?:0
+         val totalBobbinThread=result.total_bobbin_thread?:0
          totalBobbinThread.toFloat()
 
      }
      val latestSPI:LiveData<Int> = latestMachineData.map{result ->
-         val totalSPI=result.stitchPerBobbin
+         val totalSPI=result.stitchPerInch
          totalSPI.toInt()
+
+     }
+     val latestRpmCount:LiveData<Int> =latestMachineData.map{result ->
+         val totalRpmCount=result.total_rpm_count
+         totalRpmCount*60
 
      }
 
@@ -94,7 +99,7 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     // Mapping the other values directly from the result
     val latestTempValue: LiveData<Double?> = latestMachineData.map { it.latestTemperature }
     val latestVibValue: LiveData<Double?> = latestMachineData.map { it.latestVibration }
-    val latestOilLevelValue: LiveData<Int?> = latestMachineData.map { it.latestOilLevel }
+    val latestOilLevelValue: LiveData<Double?> = latestMachineData.map { it.latestOilLevel }
 
 
     //hourly data
@@ -215,24 +220,24 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
          return dao.getHourlySummaryForDate(selectedDate)
      }
 
-     private val _dailySummary= MutableStateFlow<List<DailySummary>>(emptyList())
-     val dailySummary:StateFlow<List<DailySummary>>  = _dailySummary
+//     private val _dailySummary= MutableStateFlow<List<DailySummary>>(emptyList())
+//     val dailySummary:StateFlow<List<DailySummary>>  = _dailySummary
 
-     private val _hourlySummary = MutableStateFlow<List<HourSummary>>(emptyList())
-     val hourSummary:StateFlow<List<HourSummary>> = _hourlySummary
+//     private val _hourlySummary = MutableStateFlow<List<HourSummary>>(emptyList())
+//     val hourSummary:StateFlow<List<HourSummary>> = _hourlySummary
 
-     fun loadDailySummary(startDate:String,endDate:String){
-         viewModelScope.launch{
-                      getSelectedDateRangeMaintenance(startDate, endDate).collect{_dailySummary.value=it}
-         }
+//     fun loadDailySummary(startDate:String,endDate:String){
+//         viewModelScope.launch{
+//                      getSelectedDateRangeMaintenance(startDate, endDate).collect{_dailySummary.value=it}
+//         }
+//
+//     }
 
-     }
-
-     fun loadHoulySummary(selectedDate:String){
-         viewModelScope.launch{
-                  getHourlySummaryDateOfSelectedDate(selectedDate).collect{_hourlySummary.value=it}
-         }
-     }
+//     fun loadHoulySummary(selectedDate:String){
+//         viewModelScope.launch{
+//                  getHourlySummaryDateOfSelectedDate(selectedDate).collect{_hourlySummary.value=it}
+//         }
+//     }
 
 
 
