@@ -85,7 +85,7 @@ object DatabaseBackupHelper {
                                             idleTime = columns[3].toIntOrNull() ?: 0,
                                             temperature = it,
                                             vibration = it,
-                                            oilLevel = it1,
+                                            oilLevel = it2,
                                             pushBackCount = columns[7].toIntOrNull() ?: 0,
                                             stitchCount = columns[8].toIntOrNull() ?: 0,
                                             bobbinThread = it2,

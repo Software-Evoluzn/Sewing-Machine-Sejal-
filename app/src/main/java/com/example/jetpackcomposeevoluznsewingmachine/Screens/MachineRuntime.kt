@@ -40,6 +40,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 fun MachineRuntime(navController: NavController) {
     val viewModel: MachineViewModel = viewModel()
     val latestRunTimeData by viewModel.latestRunTime.observeAsState(0f)
+    val formatActiveRunTime= formatProductionTime(latestRunTimeData)
     val latestIdleTime by viewModel.latestIdleTime.observeAsState(0f)
     val latestPushBackCount by viewModel.latestPushBackCount.observeAsState()
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
@@ -49,8 +50,8 @@ fun MachineRuntime(navController: NavController) {
     val productionCardListItem=listOf(
         ProductionCartItemList(
             title ="RUN TIME",
-            value ="${String.format("%.2f",latestRunTimeData)}",
-            unit ="hrs" ,
+            value ="$formatActiveRunTime ",
+            unit ="" ,
             icon = painterResource(R.drawable.clock),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("showCombineGraphScreen")},
@@ -58,7 +59,7 @@ fun MachineRuntime(navController: NavController) {
         ),
         ProductionCartItemList(
             title ="IDLE TIME",
-            value ="${String.format("%.2f",latestIdleTime)}",
+            value ="${String.format("%.2f",(latestIdleTime))}",
             unit ="hrs" ,
             icon = painterResource(R.drawable.pause),
             arrowIcon = painterResource(R.drawable.btn_image),
@@ -184,6 +185,14 @@ fun MachineRuntime(navController: NavController) {
     }
 
 }
+
+//fun formatMinutes(totalMinutes: Float): String {
+//    val minutesInt = totalMinutes.toInt()
+//    val hours = minutesInt / 60
+//    val minutes = minutesInt % 60
+//    return if (hours > 0) "${hours}h ${minutes}min" else "${minutes}min"
+//}
+
 
 
 

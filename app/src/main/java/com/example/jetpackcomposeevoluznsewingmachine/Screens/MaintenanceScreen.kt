@@ -66,7 +66,8 @@ fun MaintenanceScreen(navController: NavController) {
     val latestTemp by viewModel.latestTempValue.observeAsState()
     val sanitizedTemp = latestTemp?.takeIf { it >= 0 } ?: 0
     val latestVib by viewModel.latestVibValue.observeAsState()
-    val latestOilLevel by viewModel.latestOilLevelValue.observeAsState()
+   val latestOilLevel by viewModel.latestOilLevelValue.observeAsState()
+
 
     // Fixed list creation - using consistent types
     val productionCardListItem = listOf(

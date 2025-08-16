@@ -692,7 +692,7 @@ fun formatProductionTime(timeInMinutes: Float): String {
     val minutes = totalMinutes % 60
 
     return if (hours > 0) {
-        "${hours}h ${minutes}min"
+        "$hours h $minutes min"
     } else {
         "${minutes}min"
     }
@@ -707,6 +707,7 @@ fun OilLevelIndicator(isPortrait: Boolean = false) {
     val viewModel: MachineViewModel = viewModel()
     val oilLevelValue by viewModel.latestOilLevelValue.observeAsState()
     val oilLevel = ((oilLevelValue ?: 0.0).coerceIn(0.0, 100.0)) / 100.0
+
 
 
     if (isPortrait) {

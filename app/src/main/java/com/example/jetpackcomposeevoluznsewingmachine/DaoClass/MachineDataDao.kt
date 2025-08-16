@@ -135,7 +135,7 @@ interface MachineDataDao {
                   SUM(stitchCount) AS sum_stitch,
                   SUM(bobbinThread) AS sum_bobbin
                   FROM machine_data
-                  WHERE dateTime >= datetime('now', "-60 seconds")
+                  WHERE dateTime >= datetime('now', '-60 seconds')
                   AND bobbinThread > 0
                   AND stitchCount > 0
                )
@@ -181,6 +181,8 @@ interface MachineDataDao {
     fun getLatestMachineData(): LiveData<MachineDataLive>
 
     //latest data ends
+
+
 
 
     //hourly data showing

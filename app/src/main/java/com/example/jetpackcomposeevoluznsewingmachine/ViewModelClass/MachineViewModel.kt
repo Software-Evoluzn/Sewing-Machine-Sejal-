@@ -4,6 +4,7 @@ package com.example.jetpackcomposeevoluznsewingmachine.ViewModelClass
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.jetpackcomposeevoluznsewingmachine.DatabaseClass
@@ -18,6 +19,7 @@ import com.example.jetpackcomposeevoluznsewingmachine.ModalClass.WeeklyData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -56,13 +58,13 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
     // Transforming the runtime and idle time into hours
     val latestRunTime: LiveData<Float> = latestMachineData.map { result ->
-        val runtimeInSeconds = result.activeRunTimeSec ?: 0
+        val runtimeInSeconds = result.activeRuntimeSec ?: 0
         runtimeInSeconds.toFloat()  // Convert to hours
     }
 
 
 
-    val latestIdleTime: LiveData<Float> = latestMachineData.map { result ->
+    val latestIdleTime: LiveData<Float> = latestMachineData.map {
         val idleTimeInSeconds = 0
         idleTimeInSeconds.toFloat()  // Convert to hours
     }
@@ -99,7 +101,8 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
     // Mapping the other values directly from the result
     val latestTempValue: LiveData<Double?> = latestMachineData.map { it.latestTemperature }
     val latestVibValue: LiveData<Double?> = latestMachineData.map { it.latestVibration }
-    val latestOilLevelValue: LiveData<Double?> = latestMachineData.map { it.latestOilLevel }
+   val latestOilLevelValue: LiveData<Double?> = latestMachineData.map { it.latestOilLevel }
+
 
 
     //hourly data

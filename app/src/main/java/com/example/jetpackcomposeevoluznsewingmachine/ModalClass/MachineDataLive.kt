@@ -9,5 +9,5 @@ data class MachineDataLive(
     val total_bobbin_thread:Float,
     val total_rpm_count:Int,
     val stitchPerInch :Float,
-    val activeRunTimeSec: Int?,
+    val activeRuntimeSec: Int?,
 )
