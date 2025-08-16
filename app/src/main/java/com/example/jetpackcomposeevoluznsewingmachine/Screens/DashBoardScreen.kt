@@ -694,7 +694,7 @@ fun formatProductionTime(timeInMinutes: Float): String {
     return if (hours > 0) {
         "$hours h $minutes min"
     } else {
-        "${minutes}min"
+        "${minutes} min"
     }
 }
 

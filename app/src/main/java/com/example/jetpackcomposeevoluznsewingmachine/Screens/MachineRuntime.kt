@@ -40,12 +40,15 @@ import com.example.jetpackcomposeevoluznsewingmachine.rememberWindowInfo
 fun MachineRuntime(navController: NavController) {
     val viewModel: MachineViewModel = viewModel()
     val latestRunTimeData by viewModel.latestRunTime.observeAsState(0f)
-    val formatActiveRunTime= formatProductionTime(latestRunTimeData)
+
     val latestIdleTime by viewModel.latestIdleTime.observeAsState(0f)
     val latestPushBackCount by viewModel.latestPushBackCount.observeAsState()
     val dmRegular = FontFamily(Font(R.font.dmsans_regular))
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+
+    val formatActiveRunTime= formatProductionTime(latestRunTimeData)
+    val formatIdleTime = formatProductionTime(latestIdleTime)
 
     val productionCardListItem=listOf(
         ProductionCartItemList(
@@ -59,8 +62,8 @@ fun MachineRuntime(navController: NavController) {
         ),
         ProductionCartItemList(
             title ="IDLE TIME",
-            value ="${String.format("%.2f",(latestIdleTime))}",
-            unit ="hrs" ,
+            value ="$formatIdleTime " ,
+            unit ="" ,
             icon = painterResource(R.drawable.pause),
             arrowIcon = painterResource(R.drawable.btn_image),
             onClick = {navController.navigate("showCombineGraphScreen")},

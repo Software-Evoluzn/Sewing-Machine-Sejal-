@@ -64,10 +64,23 @@ class MachineViewModel(application: Application) : AndroidViewModel(application)
 
 
 
-    val latestIdleTime: LiveData<Float> = latestMachineData.map {
-        val idleTimeInSeconds = 0
-        idleTimeInSeconds.toFloat()  // Convert to hours
-    }
+     val latestIdleTime: LiveData<Float> = latestMachineData.map { data ->
+         if (data != null) {
+             if (data.total_stitch_count == 0) {
+                 // machine is idle → count idle seconds
+                 data.activeRuntimeSec?.let { active ->
+                     val totalTimeSec = (System.currentTimeMillis() / 1000).toInt() // since start
+                     val idleSec = totalTimeSec - active
+                     idleSec.toFloat()
+                 } ?: 0f
+             } else {
+                 0f
+             }
+         } else {
+             0f
+         }
+     }
+
 
      val latestStitchCount:LiveData<Int> = latestMachineData.map{ result ->
          val totalStitchCount =result.total_stitch_count?:0
